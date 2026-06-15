@@ -111,6 +111,23 @@ make dashboard-dev
 - Saude da API: `http://localhost:8000/api/health`
 - Metadados: `http://localhost:8000/api/meta`
 
+## Q8 - grafo de comunidades de voto
+
+A Q8 combina o ranking de influencia legislativa com um complemento de comunidades de voto. O complemento fica em `Caio/q8/q8_influencia_por_voto_extra.txt` e e gerado por:
+
+```powershell
+python Caio\q8\gerar_comunidades_leiden.py
+```
+
+Metodologia do grafo da Q8:
+
+- Considera somente votos binarios `Sim` e `Nao`.
+- Nao trata abstencao como concordancia: abstencoes, obstrucoes, ausencias e Artigo 17 ficam fora desta rede.
+- Da mais peso a votacoes divisivas usando `peso = 4*p*(1-p)`, em que `p` e a proporcao de votos `Sim`.
+- Usa Kappa de Cohen ponderado, e nao concordancia bruta, para reduzir concordancia esperada por acaso.
+- Mantem no grafo pares com pelo menos 100 votacoes em comum, cobertura minima de 50% e `kappa >= 0.40`.
+- Detecta comunidades com Leiden usando o Kappa ponderado como peso das arestas.
+
 ## Problemas comuns
 
 - Se `npm run dev` abrir outra porta, confira se a `5173` ja esta ocupada.

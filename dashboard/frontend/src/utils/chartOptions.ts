@@ -185,6 +185,62 @@ function buildChartOptionInternal(spec: ChartSpec, activeFilters?: FilterState):
     } as EChartsOption
   }
 
+  if (spec.type === 'network_graph') {
+    const first = series[0] ?? {}
+    const nodes = (first.nodes as Array<Record<string, unknown>>) ?? []
+    const links = (first.links as Array<Record<string, unknown>>) ?? []
+    const categories = (first.categories as Array<{ name: string }>) ?? []
+    return {
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const data = params.data ?? {}
+          if (data.source && data.target) {
+            const kappa = Number(data.kappa_ponderado ?? data.value ?? 0).toLocaleString('pt-BR', {
+              maximumFractionDigits: 4,
+            })
+            const agreement = Number(data.concordancia_ponderada ?? data.similaridade ?? 0).toLocaleString('pt-BR', {
+              maximumFractionDigits: 4,
+            })
+            return `${data.source} - ${data.target}<br/>Kappa ponderado: ${kappa}<br/>Concordancia ponderada: ${agreement}<br/>Votacoes em comum: ${data.votacoes_em_comum ?? '-'}`
+          }
+          return `${data.name}<br/>${data.nome ?? ''}<br/>${data.partido ?? ''}/${data.uf ?? ''}<br/>Conexoes: ${data.qtd_conexoes ?? 0}`
+        },
+      },
+      legend: { data: categories.map((item) => item.name), top: 0 },
+      series: [
+        {
+          type: 'graph',
+          layout: 'force',
+          roam: true,
+          draggable: true,
+          data: nodes,
+          links,
+          categories,
+          label: {
+            show: true,
+            fontSize: 8,
+            formatter: '{b}',
+          },
+          force: {
+            repulsion: Number(spec.options?.repulsion ?? 90),
+            edgeLength: Number(spec.options?.edge_length ?? 55),
+            gravity: 0.08,
+          },
+          lineStyle: {
+            opacity: 0.35,
+            width: 1,
+            curveness: 0.08,
+          },
+          emphasis: {
+            focus: 'adjacency',
+            lineStyle: { width: 2 },
+          },
+        },
+      ],
+    } as EChartsOption
+  }
+
   if (spec.type === 'heatmap') {
     const first = series[0] ?? {}
     const heatmapData = (first.data as Array<[number, number, number, number]>) ?? []

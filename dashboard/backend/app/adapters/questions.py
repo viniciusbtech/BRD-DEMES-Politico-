@@ -701,6 +701,97 @@ class Q7Adapter(QuestionAdapter):
 class Q8Adapter(QuestionAdapter):
     """Influencia legislativa."""
 
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        payload = super().build_payload(state)
+        graph_payload = self._build_vote_community_graph()
+        if graph_payload:
+            payload.chart_spec.options["vote_community_graph"] = graph_payload
+        return payload
+
+    def _build_vote_community_graph(self) -> dict[str, Any] | None:
+        deputies_table = _find_table_by_hint(self.complement_tables, "deputados por comunidade")
+        edges_table = _find_table_by_hint(self.complement_tables, "arestas do grafo ponderado")
+        communities_table = _find_table_by_hint(self.complement_tables, "comunidades de comportamento")
+        if deputies_table is None or edges_table is None:
+            return None
+
+        communities = []
+        if communities_table is not None:
+            for row in communities_table.rows:
+                community_id = str(row.get("comunidade") or "").strip()
+                if not community_id:
+                    continue
+                communities.append(
+                    {
+                        "id": community_id,
+                        "label": f"Comunidade {community_id}",
+                        "qtd_deputados": row.get("qtd_deputados", 0),
+                        "kappa_medio_interno": row.get("kappa_medio_interno", row.get("similaridade_media_interna", 0)),
+                        "similaridade_media_interna": row.get("similaridade_media_interna", 0),
+                        "grau_ponderado_medio": row.get("grau_ponderado_medio", 0),
+                    }
+                )
+
+        nodes = []
+        for row in deputies_table.rows:
+            dep_id = str(row.get("id_deputado") or "").strip()
+            if not dep_id:
+                continue
+            grau = float(row.get("grau_ponderado") or 0)
+            nodes.append(
+                {
+                    "id": dep_id,
+                    "name": dep_id,
+                    "nome": row.get("nome"),
+                    "community": str(row.get("comunidade") or "").strip(),
+                    "partido": row.get("sigla_partido"),
+                    "uf": row.get("sigla_uf"),
+                    "qtd_conexoes": row.get("qtd_conexoes", 0),
+                    "grau_ponderado": grau,
+                    "symbolSize": max(12, min(38, 10 + grau / 20)),
+                }
+            )
+
+        links = []
+        for row in edges_table.rows:
+            source = str(row.get("id_deputado_a") or "").strip()
+            target = str(row.get("id_deputado_b") or "").strip()
+            if not source or not target:
+                continue
+            weight = float(row.get("kappa_ponderado") or row.get("peso") or row.get("similaridade") or 0)
+            links.append(
+                {
+                    "source": source,
+                    "target": target,
+                    "value": weight,
+                    "similaridade": row.get("similaridade"),
+                    "concordancia_ponderada": row.get("concordancia_ponderada"),
+                    "concordancia_esperada": row.get("concordancia_esperada"),
+                    "kappa_ponderado": row.get("kappa_ponderado", weight),
+                    "votacoes_em_comum": row.get("votacoes_em_comum"),
+                }
+            )
+
+        communities.sort(key=lambda item: (-int(item.get("qtd_deputados") or 0), item["id"]))
+        return {
+            "communities": communities,
+            "nodes": nodes,
+            "links": links,
+            "top_options": [40, 80, 120],
+            "default_top": 80,
+            "label_mode": "id",
+            "algorithm": "Leiden",
+            "methodology": {
+                "min_valid_votes_per_deputy": 100,
+                "min_shared_votes_per_pair": 100,
+                "min_coverage": 0.5,
+                "vote_weight_formula": "4*p*(1-p)",
+                "vote_scope": "Somente votos Sim e Nao; abstencoes, obstrucoes, ausencias e Artigo 17 ficam fora desta rede.",
+                "min_kappa": 0.4,
+                "edge_output_limit": 3000,
+            },
+        }
+
 
 class Q9Adapter(QuestionAdapter):
     """Vies ideologico e partidario.

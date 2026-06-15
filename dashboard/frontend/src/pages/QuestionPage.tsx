@@ -56,6 +56,8 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
   const [showDetailedData, setShowDetailedData] = useState(false)
   const [q7TopLimit, setQ7TopLimit] = useState(10)
   const [q7RankingYear, setQ7RankingYear] = useState('')
+  const [q8GraphCommunity, setQ8GraphCommunity] = useState('')
+  const [q8GraphTopLimit, setQ8GraphTopLimit] = useState(80)
   const supportedFiltersForFetch = useMemo(() => {
     if (questionMeta?.id.toLowerCase() !== 'q6') return questionMeta?.supported_filters
     return Array.from(new Set([...(questionMeta.supported_filters ?? []), 'escolaridade']))
@@ -66,6 +68,8 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
     setShowDetailedData(false)
     setQ7TopLimit(10)
     setQ7RankingYear('')
+    setQ8GraphCommunity('')
+    setQ8GraphTopLimit(80)
   }, [questionId])
 
   useEffect(() => {
@@ -203,6 +207,49 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
           },
         ],
         options: { orientation: 'horizontal', compact_bars: true },
+      }
+    : null
+  const q8GraphPayload = isQ8 ? payload.chart_spec.options?.vote_community_graph as any : null
+  const q8GraphCommunities = Array.isArray(q8GraphPayload?.communities) ? q8GraphPayload.communities : []
+  const q8GraphTopOptions = Array.isArray(q8GraphPayload?.top_options) ? q8GraphPayload.top_options : [40, 80, 120]
+  const q8GraphMethodology = q8GraphPayload?.methodology ?? {}
+  const q8GraphAlgorithm = q8GraphPayload?.algorithm ?? 'Leiden'
+  const q8SelectedCommunity = q8GraphCommunities.some((item: any) => String(item.id) === q8GraphCommunity)
+    ? q8GraphCommunity
+    : String(q8GraphCommunities[0]?.id ?? '')
+  const q8GraphNodes = Array.isArray(q8GraphPayload?.nodes)
+    ? q8GraphPayload.nodes
+        .filter((node: any) => String(node.community) === q8SelectedCommunity)
+        .sort((a: any, b: any) => Number(b.grau_ponderado ?? 0) - Number(a.grau_ponderado ?? 0))
+        .slice(0, q8GraphTopLimit)
+    : []
+  const q8NodeIds = new Set(q8GraphNodes.map((node: any) => String(node.id)))
+  const q8GraphLinks = Array.isArray(q8GraphPayload?.links)
+    ? q8GraphPayload.links.filter((link: any) => q8NodeIds.has(String(link.source)) && q8NodeIds.has(String(link.target)))
+    : []
+  const q8CommunityLabel = q8GraphCommunities.find((item: any) => String(item.id) === q8SelectedCommunity)?.label ?? 'Comunidade'
+  const q8CommunityGraphChart = q8GraphNodes.length > 0
+    ? {
+        type: 'network_graph',
+        title: 'Grafo Leiden por Kappa ponderado de votos',
+        description: 'Nos rotulados por ID do deputado; arestas ponderadas pelo Kappa de Cohen em votos Sim/Nao, com votacoes divisivas recebendo maior peso.',
+        y_fields: [],
+        categories: [],
+        series: [
+          {
+            name: 'Grafo',
+            nodes: q8GraphNodes.map((node: any) => ({
+              ...node,
+              category: 0,
+            })),
+            links: q8GraphLinks,
+            categories: [{ name: q8CommunityLabel }],
+          },
+        ],
+        options: {
+          repulsion: q8GraphTopLimit <= 40 ? 160 : 100,
+          edge_length: q8GraphTopLimit <= 40 ? 70 : 50,
+        },
       }
     : null
   const handleTableChange = (next: TableState) => {
@@ -359,6 +406,47 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
                     </div>
                   </section>
                   <ChartPanel spec={q7BenefitRankingChart as any} />
+                </>
+              ) : null}
+              {q8CommunityGraphChart ? (
+                <>
+                  <section className="stagger-item q8-graph-controls">
+                    <h2>Grafo de comunidades de voto</h2>
+                    <p>
+                      Comunidades por {q8GraphAlgorithm}, com deputados filtrados por votos validos,
+                      cobertura minima entre pares e Kappa de Cohen ponderado por votacoes divisivas.
+                    </p>
+                    <p>
+                      Minimos: {q8GraphMethodology.min_valid_votes_per_deputy ?? 100} votos por deputado,
+                      {' '}{q8GraphMethodology.min_shared_votes_per_pair ?? 100} votacoes em comum,
+                      cobertura {(Number(q8GraphMethodology.min_coverage ?? 0.5) * 100).toLocaleString('pt-BR')}%,
+                      Kappa {Number(q8GraphMethodology.min_kappa ?? 0.4).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}+,
+                      peso {q8GraphMethodology.vote_weight_formula ?? '4*p*(1-p)'}.
+                    </p>
+                    <div className="filter-grid">
+                      <label>
+                        Comunidade
+                        <select value={q8SelectedCommunity} onChange={(event) => setQ8GraphCommunity(event.target.value)}>
+                          {q8GraphCommunities.map((community: any) => (
+                            <option key={String(community.id)} value={String(community.id)}>
+                              {community.label} ({community.qtd_deputados} deputados)
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Deputados
+                        <select value={q8GraphTopLimit} onChange={(event) => setQ8GraphTopLimit(Number(event.target.value))}>
+                          {q8GraphTopOptions.map((option: number) => (
+                            <option key={option} value={option}>
+                              Top {option} conectados
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  </section>
+                  <ChartPanel spec={q8CommunityGraphChart as any} />
                 </>
               ) : null}
             </>
