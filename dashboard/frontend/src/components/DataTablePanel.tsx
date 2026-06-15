@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react'
-import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
+import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
 
 import type { TableSpec, TableState } from '../types'
 import { formatCellValue } from '../utils/format'
+import { DeputyAvatar } from './DeputyAvatar'
 
 interface DataTablePanelProps {
   table: TableSpec
@@ -10,6 +11,7 @@ interface DataTablePanelProps {
   onChange: (next: TableState) => void
   lockPageSize?: boolean
   compact?: boolean
+  showDeputyPhotos?: boolean
 }
 
 type DataRow = Record<string, unknown>
@@ -20,15 +22,23 @@ export function DataTablePanel({
   onChange,
   lockPageSize = false,
   compact = false,
+  showDeputyPhotos = false,
 }: DataTablePanelProps) {
   const columns = useMemo<ColumnDef<DataRow>[]>(
     () =>
       table.columns.map((column) => ({
         accessorKey: column.key,
         header: column.label,
-        cell: (context) => formatCellValue(context.getValue()),
+        cell: (context) => {
+          if (showDeputyPhotos && column.key === 'id_deputado') {
+            const deputyId = context.getValue()
+            const nome = String(context.row.original.nome ?? context.row.original.nome_parlamentar ?? 'Deputado')
+            return <DeputyAvatar id={String(deputyId ?? '')} nome={nome} size={40} />
+          }
+          return formatCellValue(context.getValue())
+        },
       })),
-    [table.columns],
+    [showDeputyPhotos, table.columns],
   )
 
   const data = table.rows as DataRow[]
@@ -84,7 +94,7 @@ export function DataTablePanel({
             {instance.getRowModel().rows.map((row) => (
               <tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{String(cell.renderValue() ?? '-')}</td>
+                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                 ))}
               </tr>
             ))}
@@ -130,4 +140,3 @@ export function DataTablePanel({
     </section>
   )
 }
-

@@ -66,6 +66,10 @@ function App() {
     activeQuestionId && meta.question_filters?.[activeQuestionId]
       ? meta.question_filters[activeQuestionId]
       : meta.available_filters
+  const activeSupportedFilters =
+    activeQuestionId?.toLowerCase() === 'q6'
+      ? Array.from(new Set([...(activeQuestion?.supported_filters ?? []), 'escolaridade']))
+      : activeQuestion?.supported_filters
 
   return (
     <div className="app-shell">
@@ -77,8 +81,8 @@ function App() {
           onChange={setFilters}
           supportedFilters={
             activeQuestionId?.toLowerCase() === 'q2' || activeQuestionId?.toLowerCase() === 'q4'
-              ? activeQuestion?.supported_filters?.filter((f) => f !== 'deputados')
-              : activeQuestion?.supported_filters
+              ? activeSupportedFilters?.filter((f) => f !== 'deputados')
+              : activeSupportedFilters
           }
           hideSearch={activeQuestionId?.toLowerCase() === 'q3'}
           hideNumericDeputyChoices={activeQuestionId?.toLowerCase() === 'q3'}

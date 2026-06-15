@@ -16,6 +16,7 @@ function buildChartOptionInternal(spec: ChartSpec, activeFilters?: FilterState):
   const series = spec.series as Array<Record<string, unknown>>
 
   if (spec.type === 'bar_horizontal') {
+    const compactBars = Boolean(spec.options?.compact_bars)
     return {
       tooltip: { trigger: 'axis' },
       legend: {},
@@ -26,19 +27,21 @@ function buildChartOptionInternal(spec: ChartSpec, activeFilters?: FilterState):
         type: 'bar',
         name: String(entry.name ?? ''),
         data: (entry.data as unknown[]) ?? [],
-        barMaxWidth: 24,
+        barMaxWidth: compactBars ? 28 : 24,
+        barCategoryGap: compactBars ? '18%' : undefined,
       })),
     } as EChartsOption
   }
 
   if (spec.type === 'bar_vertical' || spec.type === 'composite') {
     const hasEscolaridadeFilter = Boolean(activeFilters?.escolaridade && activeFilters.escolaridade.length > 0)
+    const compactBars = Boolean(spec.options?.compact_bars)
     return {
       tooltip: { trigger: 'axis' },
       legend: {},
       grid: { left: 45, right: 20, top: 60, bottom: 80, containLabel: true },
       xAxis: { type: 'category', data: spec.categories, axisLabel: { rotate: 25 } },
-      yAxis: { type: 'value' },
+      yAxis: { type: 'value', name: String(spec.options?.y_name ?? '') },
       series: series.map((entry) => ({
         type: 'bar',
         name: String(entry.name ?? ''),
@@ -57,7 +60,8 @@ function buildChartOptionInternal(spec: ChartSpec, activeFilters?: FilterState):
           }
           return val
         }),
-        barMaxWidth: 28,
+        barMaxWidth: compactBars ? 38 : 28,
+        barCategoryGap: compactBars ? '20%' : undefined,
       })),
     } as EChartsOption
   }
@@ -176,6 +180,55 @@ function buildChartOptionInternal(spec: ChartSpec, activeFilters?: FilterState):
           data: (first.data as unknown[]) ?? [],
           breadcrumb: { show: false },
           label: { formatter: '{b}' },
+        },
+      ],
+    } as EChartsOption
+  }
+
+  if (spec.type === 'heatmap') {
+    const first = series[0] ?? {}
+    const heatmapData = (first.data as Array<[number, number, number, number]>) ?? []
+    return {
+      tooltip: {
+        position: 'top',
+        formatter: (params: any) => {
+          const data = params.data as [number, number, number, number]
+          const xCategories = (first.x_categories as string[]) ?? spec.categories
+          const yCategories = (first.y_categories as string[]) ?? []
+          const indicator = xCategories[data[0]] ?? ''
+          const escolaridade = yCategories[data[1]] ?? ''
+          const rawValue = Number(data[3] ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 })
+          return `${escolaridade}<br/>${indicator}: ${rawValue}`
+        },
+      },
+      grid: { left: 170, right: 40, top: 60, bottom: 90, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: (first.x_categories as string[]) ?? spec.categories,
+        splitArea: { show: true },
+        axisLabel: { rotate: 25 },
+      },
+      yAxis: {
+        type: 'category',
+        data: (first.y_categories as string[]) ?? [],
+        splitArea: { show: true },
+      },
+      visualMap: {
+        min: 0,
+        max: 100,
+        calculable: true,
+        orient: 'horizontal',
+        left: 'center',
+        bottom: 10,
+        text: ['Maior', 'Menor'],
+      },
+      series: [
+        {
+          name: String(first.name ?? 'Heatmap'),
+          type: 'heatmap',
+          data: heatmapData,
+          label: { show: false },
+          emphasis: { itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.35)' } },
         },
       ],
     } as EChartsOption

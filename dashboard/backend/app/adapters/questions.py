@@ -529,9 +529,173 @@ class Q5Adapter(QuestionAdapter):
 class Q6Adapter(QuestionAdapter):
     """Correlacoes por escolaridade."""
 
+    HEATMAP_INDICATORS = [
+        "media_gasto",
+        "media_fidelidade",
+        "media_proposicoes",
+        "media_presenca_eventos",
+        "media_presenca_plenario",
+    ]
+
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        payload = super().build_payload(state)
+        main_rows = self.main_table.rows if self.main_table else []
+        filtered_rows = FilterEngine.apply_filters(
+            main_rows,
+            state,
+            self.context.question.supported_filters,
+        )
+        payload.chart_spec.options["second_chart"] = self._build_indicators_heatmap(filtered_rows).model_dump()
+        selected_chart = self._build_selected_escolaridade_chart(filtered_rows, state)
+        if selected_chart is not None:
+            payload.chart_spec.options["extra_charts"] = [selected_chart.model_dump()]
+        return payload
+
+    def _build_indicators_heatmap(self, rows: list[dict[str, Any]]) -> ChartSpec:
+        from .base import _humanize_label
+
+        grouped: dict[str, dict[str, list[float]]] = {}
+        for row in rows:
+            escolaridade = str(row.get("escolaridade") or "").strip()
+            if not escolaridade:
+                continue
+            if escolaridade not in grouped:
+                grouped[escolaridade] = {indicator: [] for indicator in self.HEATMAP_INDICATORS}
+            for indicator in self.HEATMAP_INDICATORS:
+                value = row.get(indicator)
+                if isinstance(value, (int, float)):
+                    grouped[escolaridade][indicator].append(float(value))
+
+        escolaridades = sorted(grouped)
+        indicator_labels = [_humanize_label(indicator) for indicator in self.HEATMAP_INDICATORS]
+        averages_by_indicator: dict[str, list[float | None]] = {}
+        for indicator in self.HEATMAP_INDICATORS:
+            averages = []
+            for escolaridade in escolaridades:
+                values = grouped[escolaridade][indicator]
+                averages.append(sum(values) / len(values) if values else None)
+            averages_by_indicator[indicator] = averages
+
+        heatmap_data: list[list[Any]] = []
+        for x_index, indicator in enumerate(self.HEATMAP_INDICATORS):
+            valid_values = [value for value in averages_by_indicator[indicator] if value is not None]
+            min_value = min(valid_values) if valid_values else 0
+            max_value = max(valid_values) if valid_values else 0
+            spread = max_value - min_value
+            for y_index, raw_value in enumerate(averages_by_indicator[indicator]):
+                if raw_value is None:
+                    continue
+                normalized = 100 if spread == 0 else ((raw_value - min_value) / spread) * 100
+                heatmap_data.append([x_index, y_index, round(normalized, 2), round(raw_value, 2)])
+
+        return ChartSpec(
+            type="heatmap",
+            title="Heatmap de medias por escolaridade",
+            description="Arquivo/consulta: q6_escolaridade_correlacoes.txt. Eixo X: media de cada indicador. Eixo Y: escolaridade.",
+            x_field="indicador",
+            y_fields=["escolaridade"],
+            categories=indicator_labels,
+            series=[
+                {
+                    "name": "Medias por escolaridade",
+                    "data": heatmap_data,
+                    "x_categories": indicator_labels,
+                    "y_categories": escolaridades,
+                }
+            ],
+            options={
+                "value_label": "Intensidade relativa",
+                "raw_value_label": "Media",
+            },
+        )
+
+    def _build_selected_escolaridade_chart(
+        self,
+        rows: list[dict[str, Any]],
+        state: FilterState,
+    ) -> ChartSpec | None:
+        if not state.escolaridade or not rows:
+            return None
+
+        from .base import _humanize_label
+
+        categories = [_humanize_label(indicator) for indicator in self.HEATMAP_INDICATORS]
+        values = []
+        for indicator in self.HEATMAP_INDICATORS:
+            indicator_values = [
+                float(row.get(indicator))
+                for row in rows
+                if isinstance(row.get(indicator), (int, float))
+            ]
+            values.append(round(sum(indicator_values) / len(indicator_values), 2) if indicator_values else 0)
+
+        escolaridade_label = ", ".join(state.escolaridade)
+        period_label = ", ".join(state.anos) if state.anos else "todos os anos"
+
+        return ChartSpec(
+            type="bar_vertical",
+            title=f"Medias individuais - {escolaridade_label}",
+            description=f"Medias dos indicadores da escolaridade selecionada considerando {period_label}.",
+            x_field="indicador",
+            y_fields=["media"],
+            categories=categories,
+            series=[
+                {
+                    "name": "Media",
+                    "data": values,
+                    "stack": None,
+                }
+            ],
+            options={
+                "compact_bars": True,
+                "y_name": "Media",
+            },
+        )
+
 
 class Q7Adapter(QuestionAdapter):
     """Indice custo-beneficio."""
+
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        payload = super().build_payload(state)
+        main_rows = self.main_table.rows if self.main_table else []
+        filtered_rows = FilterEngine.apply_filters(
+            main_rows,
+            state,
+            self.context.question.supported_filters,
+        )
+        payload.chart_spec.options["beneficio_rankings"] = self._build_beneficio_rankings(filtered_rows)
+        return payload
+
+    def _build_beneficio_rankings(self, rows: list[dict[str, Any]]) -> dict[str, Any]:
+        rankings: dict[str, list[dict[str, Any]]] = {}
+        years = sorted({str(row.get("ano_dados")) for row in rows if row.get("ano_dados") not in (None, "")})
+
+        for year in years:
+            year_rows = [
+                row
+                for row in rows
+                if str(row.get("ano_dados")) == year and isinstance(row.get("beneficio"), (int, float))
+            ]
+            ranked = sorted(year_rows, key=lambda row: float(row.get("beneficio") or 0), reverse=True)[:20]
+            rankings[year] = [
+                {
+                    "nome": row.get("nome"),
+                    "beneficio": row.get("beneficio"),
+                    "ano_dados": row.get("ano_dados"),
+                    "id_deputado": row.get("id_deputado"),
+                    "sigla_partido": row.get("sigla_partido"),
+                    "sigla_uf": row.get("sigla_uf"),
+                }
+                for row in ranked
+            ]
+
+        return {
+            "years": years,
+            "default_year": years[0] if years else None,
+            "top_options": [10, 15, 20],
+            "rankings": rankings,
+        }
 
 
 class Q8Adapter(QuestionAdapter):
@@ -1268,4 +1432,3 @@ ADAPTERS_BY_ID = {
     "q12": Q12Adapter,
     "q13": Q13Adapter,
 }
-

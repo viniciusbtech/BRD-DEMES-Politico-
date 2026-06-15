@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { fetchQuestion } from '../api'
 import { ChartPanel } from '../components/ChartPanel'
 import { DataTablePanel } from '../components/DataTablePanel'
+import { DeputyAvatar } from '../components/DeputyAvatar'
 import { ExecutiveCards } from '../components/ExecutiveCards'
 import { NoDataState } from '../components/NoDataState'
 import { QueryDrawer } from '../components/QueryDrawer'
@@ -24,6 +25,8 @@ const DEFAULT_TABLE_STATE: TableState = {
   pageSize: 50,
   sortDir: 'desc',
 }
+
+const Q7_TOP_OPTIONS = [10, 15, 20]
 
 function sortYears(values: string[]): string[] {
   return [...values].sort((a, b) => {
@@ -51,10 +54,18 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showDetailedData, setShowDetailedData] = useState(false)
+  const [q7TopLimit, setQ7TopLimit] = useState(10)
+  const [q7RankingYear, setQ7RankingYear] = useState('')
+  const supportedFiltersForFetch = useMemo(() => {
+    if (questionMeta?.id.toLowerCase() !== 'q6') return questionMeta?.supported_filters
+    return Array.from(new Set([...(questionMeta.supported_filters ?? []), 'escolaridade']))
+  }, [questionMeta])
 
   useEffect(() => {
     setTableState(DEFAULT_TABLE_STATE)
     setShowDetailedData(false)
+    setQ7TopLimit(10)
+    setQ7RankingYear('')
   }, [questionId])
 
   useEffect(() => {
@@ -67,7 +78,7 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
     let mounted = true
     setLoading(true)
     setError(null)
-    fetchQuestion(questionMeta.id, filters, tableState, questionMeta.supported_filters)
+    fetchQuestion(questionMeta.id, filters, tableState, supportedFiltersForFetch)
       .then((result) => {
         if (!mounted) return
         setPayload(result)
@@ -83,7 +94,7 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
     return () => {
       mounted = false
     }
-  }, [questionMeta, isHiddenQuestion, isUnderDevelopment, filters, tableState])
+  }, [questionMeta, isHiddenQuestion, isUnderDevelopment, filters, tableState, supportedFiltersForFetch])
 
   const yearLegend = useMemo(() => {
     if (!questionMeta || questionMeta.id.toLowerCase() !== 'q3') return []
@@ -160,17 +171,58 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
   const isQ2 = questionMeta.id.toLowerCase() === 'q2'
   const isQ11 = questionMeta.id.toLowerCase() === 'q11'
   const isQ3 = questionMeta.id.toLowerCase() === 'q3'
+  const isQ6 = questionMeta.id.toLowerCase() === 'q6'
+  const isQ7 = questionMeta.id.toLowerCase() === 'q7'
+  const showDeputyPhotos = ['q7', 'q8', 'q12', 'q13'].includes(questionMeta.id.toLowerCase())
   const hasWordClouds = isQ2 || isQ11
   const shouldShowChart = !hasWordClouds
   const tableStateView = isQ8 ? { ...tableState, pageSize: 50 } : tableState
   const mainTable = isQ8 ? { ...payload.table_spec, title: 'Tabela principal' } : payload.table_spec
   const complementTables = payload.complement_tables
+  const q6ExtraCharts = isQ6 && Array.isArray(payload.chart_spec.options?.extra_charts)
+    ? payload.chart_spec.options.extra_charts
+    : []
+  const q7RankingPayload = isQ7 ? payload.chart_spec.options?.beneficio_rankings as any : null
+  const q7RankingYears: string[] = Array.isArray(q7RankingPayload?.years) ? q7RankingPayload.years.map(String) : []
+  const q7SelectedYear = q7RankingYears.includes(q7RankingYear) ? q7RankingYear : q7RankingYears[0]
+  const q7RankingRows = q7SelectedYear && q7RankingPayload?.rankings?.[q7SelectedYear]
+    ? q7RankingPayload.rankings[q7SelectedYear].slice(0, q7TopLimit)
+    : []
+  const q7BenefitRankingChart = q7RankingRows.length > 0
+    ? {
+        type: 'bar_horizontal',
+        title: `Ranking horizontal por beneficio - ${q7SelectedYear}`,
+        description: `Top ${q7TopLimit} deputados por beneficio, ordenado do maior para o menor.`,
+        x_field: 'beneficio',
+        y_fields: ['beneficio'],
+        categories: q7RankingRows.map((row: any) => String(row.nome ?? '')).reverse(),
+        series: [
+          {
+            name: 'Beneficio',
+            data: q7RankingRows.map((row: any) => Number(row.beneficio ?? 0)).reverse(),
+          },
+        ],
+        options: { orientation: 'horizontal', compact_bars: true },
+      }
+    : null
   const handleTableChange = (next: TableState) => {
     if (isQ8) {
       setTableState({ ...next, pageSize: 50 })
       return
     }
     setTableState(next)
+  }
+  const renderDetailedCell = (row: Record<string, unknown>, columnKey: string) => {
+    if (showDeputyPhotos && columnKey === 'id_deputado') {
+      return (
+        <DeputyAvatar
+          id={String(row.id_deputado ?? '')}
+          nome={String(row.nome ?? row.nome_parlamentar ?? 'Deputado')}
+          size={40}
+        />
+      )
+    }
+    return formatCellValue(row[columnKey])
   }
   return (
     <main className="question-page">
@@ -267,10 +319,48 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
                             partidos: next,
                           })
                         }
-                      : undefined
+                    : undefined
                   }
                 />
               )}
+              {q6ExtraCharts.map((chart, index) => (
+                <ChartPanel
+                  key={`q6-extra-chart-${index}`}
+                  spec={chart as any}
+                  activeFilters={undefined}
+                />
+              ))}
+              {q7BenefitRankingChart ? (
+                <>
+                  <section className="stagger-item q7-ranking-controls">
+                    <h2>Ranking horizontal por beneficio</h2>
+                    <p>Selecione o ano e o tamanho do ranking para comparar os deputados por beneficio.</p>
+                    <div className="filter-grid">
+                      <label>
+                        Ano
+                        <select value={q7SelectedYear ?? ''} onChange={(event) => setQ7RankingYear(event.target.value)}>
+                          {q7RankingYears.map((year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Top
+                        <select value={q7TopLimit} onChange={(event) => setQ7TopLimit(Number(event.target.value))}>
+                          {Q7_TOP_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              Top {option}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  </section>
+                  <ChartPanel spec={q7BenefitRankingChart as any} />
+                </>
+              ) : null}
             </>
           ) : null}
           {isQ2 && (
@@ -337,6 +427,7 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
                   onChange={handleTableChange}
                   lockPageSize={isQ8}
                   compact={isQ3}
+                  showDeputyPhotos={showDeputyPhotos}
                 />
               )}
               
@@ -349,6 +440,7 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
                       table={table}
                       state={tableStateView}
                       onChange={handleTableChange}
+                      showDeputyPhotos={showDeputyPhotos}
                     />
                   ) : (
                     <section key={table.title} className="complement-section">
@@ -366,7 +458,7 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
                             {table.rows.slice(0, 30).map((row, rowIndex) => (
                               <tr key={`${table.title}-${rowIndex}`}>
                                 {table.columns.map((column) => (
-                                  <td key={`${column.key}-${rowIndex}`}>{formatCellValue(row[column.key])}</td>
+                                  <td key={`${column.key}-${rowIndex}`}>{renderDetailedCell(row, column.key)}</td>
                                 ))}
                               </tr>
                             ))}
@@ -384,4 +476,3 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
     </main>
   )
 }
-
