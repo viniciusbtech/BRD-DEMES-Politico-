@@ -316,4 +316,4 @@ Crie um documento PDF sobre  Q8 - Metodologia
   17. O peso da aresta é o Kappa ponderado.
   18. O algoritmo Leiden detecta comunidades de deputados que votam parecido.
   19. O dashboard mostra essas comunidades em forma de grafo.
-  20. Assim, a Q8 combina duas ideias: influência por proposições aprovadas e alinhamento político por comportamento de voto. isso me gere depois para eu estudar
+  20. Assim, a Q8 combina duas ideias: influência por proposições aprovadas e alinhamento político por comportamento de voto. 
