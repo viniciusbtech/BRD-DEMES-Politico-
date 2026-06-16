@@ -7,7 +7,9 @@ Projeto local para padronizar dados da Camara dos Deputados, carregar o PostgreS
 - `src/`: ETL em Python para ler os CSVs, padronizar os dados e gerar as respostas.
 - `Banco/`: banco PostgreSQL, `docker-compose.yml` e schema inicial.
 - `dashboard/backend`: API FastAPI usada pelo dashboard.
-- `dashboard/frontend`: interface React/Vite.
+- `dashboard/frontend`: interface React/Vite original.
+- `dashboard/frontend-v2`: segunda interface React/Vite.
+- `dashboard/frontend-v3`: nova interface React/Vite independente.
 - `respostas/`: arquivos consumidos pelo backend quando disponiveis.
 
 ## Requisitos
@@ -31,6 +33,14 @@ Instale tambem as dependencias do frontend:
 
 ```powershell
 cd dashboard\frontend
+npm install
+cd ..\..
+```
+
+Para trabalhar no `frontend-v3`, instale as dependencias dele separadamente:
+
+```powershell
+cd dashboard\frontend-v3
 npm install
 cd ..\..
 ```
@@ -73,16 +83,33 @@ Na raiz do projeto:
 
 ```powershell
 cd dashboard\frontend
+
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-Acesse o dashboard em:
+Para abrir o frontend-v2:
 
-```text
-http://localhost:5173
+```powershell
+cd dashboard\frontend-v2
+npm run dev -- --host 0.0.0.0 --port 5174
 ```
 
-O frontend envia as chamadas `/api` para o backend em `http://127.0.0.1:8000`.
+Para abrir o frontend-v3:
+
+```powershell
+cd dashboard\frontend-v3
+npm run dev
+```
+
+Acesse os frontends em:
+
+```text
+Frontend original: http://localhost:5173
+Frontend v2:       http://localhost:5174
+Frontend v3:       http://localhost:5175
+```
+
+Os frontends enviam as chamadas `/api` para o backend em `http://127.0.0.1:8000`.
 
 ## Atalho com Makefile
 
@@ -107,7 +134,9 @@ make dashboard-dev
 
 ## Enderecos uteis
 
-- Frontend: `http://localhost:5173`
+- Frontend original: `http://localhost:5173`
+- Frontend v2: `http://localhost:5174`
+- Frontend v3: `http://localhost:5175`
 - Saude da API: `http://localhost:8000/api/health`
 - Metadados: `http://localhost:8000/api/meta`
 

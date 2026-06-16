@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { GlobalFilters } from '../GlobalFilters'
 import type { FilterCatalog, FilterState } from '../../types'
@@ -26,6 +26,7 @@ const catalog: FilterCatalog = {
     { value: 'Ana Silva', label: 'Ana Silva' },
     { value: 'Bruno Lima', label: 'Bruno Lima' },
   ],
+  escolaridade: [],
 }
 
 const value: FilterState = {
@@ -34,6 +35,7 @@ const value: FilterState = {
   partidos: [],
   ufs: [],
   deputados: [],
+  escolaridade: [],
   search: '',
 }
 

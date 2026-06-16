@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
 
 import { ExecutiveCards } from '../ExecutiveCards'
 
@@ -18,4 +19,3 @@ describe('ExecutiveCards', () => {
     expect(screen.getByText('1000')).toBeInTheDocument()
   })
 })
-

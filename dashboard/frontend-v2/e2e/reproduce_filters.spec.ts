@@ -15,7 +15,7 @@ test('Q1 filter and remove filter synchronization', async ({ page }) => {
       try {
         const text = await res.text()
         responses.push({ url: res.url(), status: res.status(), body: text })
-      } catch (e) {
+      } catch (_e) {
         // ignore body read errors for pending/canceled requests
       }
     }

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { MetaResponse } from '../types'
@@ -9,71 +8,64 @@ interface HomePageProps {
 }
 
 export function HomePage({ meta }: HomePageProps) {
-  const [questionsOpen, setQuestionsOpen] = useState(false)
-
   const questions = meta.questions || []
-
-  // Filter questions that are not hidden
   const visibleQuestions = questions.filter((question) => !isQuestionHidden(question.id))
 
   return (
     <main className="home-page">
-      {/* Hero — compact intro */}
       <section className="hero-card home-hero stagger-item">
-        <h1>Painel de Analise Parlamentar</h1>
+        <h1>MEMORIA  RASURADA</h1>
+        <img
+          className="home-hero-image"
+          src="/memoria-rasurada.png"
+          alt="Memoria Rasurada"
+        />
         <p className="home-hero-subtitle">
-          Visualize dados legislativos, gastos parlamentares e indicadores de desempenho.
+          Visualize dados legislativos, gastos parlamentares e indicadores de desempenho que eles nao querem que voce perceba.
+        </p>
+        <p className="home-hero-description">
+          Um trabalho de organizacao, cruzamento e analise de dados publicos da Camara dos Deputados para transformar registros dispersos em leituras claras sobre atuacao parlamentar.
         </p>
       </section>
 
-      {/* Primary CTA — Painel de Gastos */}
       <section className="home-primary-cta stagger-item">
         <div className="home-cta-content">
           <h2>Painel Consolidado de Gastos</h2>
           <p>Analise detalhada de despesas parlamentares com rankings, anomalias e filtros interativos.</p>
         </div>
         <Link to="/grupos/gastos" className="home-cta-btn">
-          Acessar Painel →
+          Acessar Painel
         </Link>
       </section>
 
-      {/* Secondary — Questions Q1-Q13 */}
       <section className="home-questions-section stagger-item">
-        <button
-          type="button"
-          className="home-questions-toggle"
-          onClick={() => setQuestionsOpen(!questionsOpen)}
-          aria-expanded={questionsOpen}
-        >
-          <span className="home-questions-toggle-label">
-            Questoes individuais
-            <span className="home-questions-count">{visibleQuestions.length}</span>
-          </span>
-          <span className={`home-questions-chevron${questionsOpen ? ' open' : ''}`}>▾</span>
-        </button>
+        <div className="home-section-heading">
+          <span className="eyebrow">Solucoes por pergunta</span>
+          <h2>Questoes analisadas</h2>
+        </div>
 
-        {questionsOpen && (
-          <ul className="home-questions-list">
-            {visibleQuestions.map((question) => {
-              const enabled = isQuestionEnabled(question.id)
-              return (
-                <li key={question.id} className="home-question-item">
-                  <span className="home-question-id">{question.id.toUpperCase()}</span>
-                  <div className="home-question-info">
-                    <span className="home-question-title">{question.title}</span>
-                  </div>
-                  {enabled ? (
-                    <Link to={`/q/${question.id}`} className="home-question-link">
-                      Abrir
-                    </Link>
-                  ) : (
-                    <span className="home-question-disabled">Em desenvolvimento</span>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
-        )}
+        <div className="home-questions-grid">
+          {visibleQuestions.map((question) => {
+            const enabled = isQuestionEnabled(question.id)
+            const content = (
+              <>
+                <span className="home-question-id">{question.id.toUpperCase()}</span>
+                <span className="home-question-title">{question.title}</span>
+              </>
+            )
+
+            return enabled ? (
+              <Link key={question.id} to={`/q/${question.id}`} className="home-question-card">
+                {content}
+              </Link>
+            ) : (
+              <div key={question.id} className="home-question-card home-question-card-disabled" aria-disabled="true">
+                {content}
+                <span className="home-question-status">Em desenvolvimento</span>
+              </div>
+            )
+          })}
+        </div>
       </section>
     </main>
   )

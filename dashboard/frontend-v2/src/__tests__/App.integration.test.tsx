@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import App from '../App'
 
@@ -44,9 +44,9 @@ describe('App integration', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText('BDR Painel Q1-Q13')).toBeInTheDocument()
+      expect(screen.getAllByText('MEMORIA  RASURADA').length).toBeGreaterThan(0)
     })
     expect(screen.getAllByText('Q1').length).toBeGreaterThan(0)
-    expect(screen.getByText('Painel de Analise Parlamentar')).toBeInTheDocument()
+    expect(screen.getByText(/Visualize dados legislativos/)).toBeInTheDocument()
   })
 })

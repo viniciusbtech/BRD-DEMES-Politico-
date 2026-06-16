@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { QuestionPage } from '../QuestionPage'
 import type { FilterState, MetaResponse, QuestionPayload } from '../../types'
@@ -48,6 +48,7 @@ const filters: FilterState = {
   partidos: [],
   ufs: [],
   deputados: [],
+  escolaridade: [],
   search: '',
 }
 
@@ -62,6 +63,7 @@ function buildMeta(questionId: string, title: string): MetaResponse {
       partidos: [],
       ufs: [],
       deputados: [],
+      escolaridade: [],
     },
     questions: [
       {
@@ -138,6 +140,36 @@ describe('QuestionPage', () => {
 
     expect(await screen.findByTestId('table-panel')).toHaveTextContent('Tabela principal')
     expect(await screen.findByTestId('chart-panel')).toBeInTheDocument()
+  })
+
+  it('renders bottom navigation links to other questions', async () => {
+    fetchQuestionMock.mockResolvedValue(payload)
+
+    const meta = buildMeta('q1', 'Gastos por deputado')
+    meta.questions.push(
+      {
+        id: 'q2',
+        title: 'Eixos e nuvem de palavras',
+        route: '/q/q2',
+        description: 'Descricao q2',
+        chart_type: 'wordcloud_images',
+        supported_filters: [],
+      },
+      {
+        id: 'q3',
+        title: 'Eixos por votacao',
+        route: '/q/q3',
+        description: 'Descricao q3',
+        chart_type: 'bar_horizontal',
+        supported_filters: [],
+      },
+    )
+
+    renderQuestionPage(meta, '/q/q1')
+
+    expect(await screen.findByText('Ir para outra questao')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Q2' })).toHaveAttribute('href', '/q/q2')
+    expect(screen.getByRole('link', { name: 'Q3' })).toHaveAttribute('href', '/q/q3')
   })
 
   it('renders Q2 word clouds without analytical table', async () => {

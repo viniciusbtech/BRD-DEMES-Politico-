@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 
 import { fetchQuestion } from '../api'
 import { ChartPanel } from '../components/ChartPanel'
@@ -48,6 +48,10 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
   const isHiddenQuestion = Boolean(questionMeta && isQuestionHidden(questionMeta.id))
   const isEnabledQuestion = isQuestionEnabled(questionMeta?.id)
   const isUnderDevelopment = Boolean(questionMeta && !isEnabledQuestion)
+  const visibleQuestions = useMemo(
+    () => meta.questions.filter((question) => !isQuestionHidden(question.id)),
+    [meta.questions],
+  )
 
   const [tableState, setTableState] = useState<TableState>(DEFAULT_TABLE_STATE)
   const [payload, setPayload] = useState<QuestionPayload | null>(null)
@@ -559,6 +563,39 @@ export function QuestionPage({ meta, filters, onFiltersChange }: QuestionPagePro
             </div>
         </section>
       ) : null}
+
+      <section className="question-bottom-nav stagger-item" aria-label="Navegacao entre questoes">
+        <div className="question-bottom-nav-heading">
+          <span className="eyebrow">Outras solucoes</span>
+          <h2>Ir para outra questao</h2>
+        </div>
+        <nav className="question-nav question-bottom-nav-links">
+          {visibleQuestions.map((question) => {
+            if (!isQuestionEnabled(question.id)) {
+              return (
+                <span
+                  key={question.id}
+                  className="question-link question-link-disabled"
+                  aria-disabled="true"
+                  title="Em desenvolvimento"
+                >
+                  {question.id.toUpperCase()}
+                </span>
+              )
+            }
+
+            return (
+              <NavLink
+                key={question.id}
+                to={`/q/${question.id}`}
+                className={({ isActive }) => `question-link${isActive ? ' active' : ''}`}
+              >
+                {question.id.toUpperCase()}
+              </NavLink>
+            )
+          })}
+        </nav>
+      </section>
 
       <QueryDrawer panel={payload.query_panel} />
     </main>
