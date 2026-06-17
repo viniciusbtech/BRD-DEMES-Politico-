@@ -16,13 +16,17 @@ const heroStats = [
   { value: '34.712', label: 'Proposicoes', sub: 'apresentadas no periodo' },
 ]
 
-const socialImages = [
-  { id: 'photo-1607920609380-4ce0f52486a9', alt: 'Desigualdade social' },
-  { id: 'photo-1517120026326-d87759a7b63b', alt: 'Crise na saude' },
-  { id: 'photo-1635068741358-ab1b9813623f', alt: 'Estradas esburacadas' },
-  { id: 'photo-1601195496005-f4f6092b0c69', alt: 'Pobreza urbana' },
-  { id: 'photo-1611587266391-2e1605329537', alt: 'Hospital precario' },
-  { id: 'photo-1572506532104-a982a90beccc', alt: 'Vulnerabilidade social' },
+const impactImages = [
+  '/intro/problemas/problema-01.jpg',
+  '/intro/problemas/problema-02.jpg',
+  '/intro/problemas/problema-03.jpg',
+  '/intro/problemas/problema-04.jpg',
+  '/intro/problemas/problema-05.jpg',
+  '/intro/problemas/problema-06.jpg',
+  '/intro/problemas/problema-07.jpg',
+  '/intro/problemas/problema-08.jpg',
+  '/intro/problemas/problema-09.jpg',
+  '/intro/problemas/problema-10.jpg',
 ]
 
 const analyses = [
@@ -182,13 +186,30 @@ export function HomePage({ meta }: HomePageProps) {
         </div>
       </section>
 
-      <section className="home-analyses-shell">
-        <div className="home-social-bg" aria-hidden="true">
-          {socialImages.map((image) => (
-            <img key={image.id} src={img(image.id, 700, 500)} alt="" />
+      <section className="home-impact-section" aria-label="Problemas sociais do Brasil">
+        <div className="home-impact-slideshow" aria-hidden="true">
+          {impactImages.map((src) => (
+            <img key={src} src={src} alt="" />
           ))}
         </div>
+        <div className="home-impact-copy">
+          <p className="home-kicker">O CONTEXTO QUE COBRA RESPOSTA</p>
+          <h2>Antes dos numeros, existe o pais que eles atravessam.</h2>
+          <p>
+            Fome, saude publica, violencia, abandono urbano e vulnerabilidade social compoem o pano de fundo real das
+            decisoes tomadas em Brasilia. Cada voto, gasto e ausencia tem consequencia fora do plenario.
+          </p>
+        </div>
+        <div className="home-impact-gallery" aria-label="Retratos de problemas sociais usados na introducao">
+          {impactImages.map((src, index) => (
+            <figure key={`impact-${src}`} className={index % 3 === 0 ? 'wide' : undefined}>
+              <img src={src} alt="" />
+            </figure>
+          ))}
+        </div>
+      </section>
 
+      <section className="home-analyses-shell">
         <div className="home-section-heading">
           <div>
             <p className="home-kicker">AS 13 ANALISES</p>

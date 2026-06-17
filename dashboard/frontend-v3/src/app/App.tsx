@@ -22,6 +22,13 @@ type ThemeImage = {
   label: string;
 };
 
+type QuestionCard = {
+  id: number;
+  image: string;
+  fallbackImage: string;
+  description: string;
+};
+
 const CAMARA_DEPUTADOS_URL =
   "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome&itens=20";
 
@@ -251,82 +258,95 @@ const referenceStats = [
   },
 ];
 
-const questionCards = [
+const questionCards: QuestionCard[] = [
   {
     id: 1,
-    image: "/intro/deputados/107283.jpg",
+    image: "/perguntas/q01/cover.jpg",
+    fallbackImage: "/intro/deputados/107283.jpg",
     description:
       "Ranking de gasto total por deputado, com partido, UF e identificação nominal para comparar quem mais usou recursos.",
   },
   {
     id: 2,
-    image: "/wordclouds/q2_nuvem_palavras_consolidado.png",
+    image: "/perguntas/q02/cover.jpg",
+    fallbackImage: "/wordclouds/q2_nuvem_palavras_consolidado.png",
     description:
       "Nuvens de palavras e eixos temáticos das proposições apresentadas entre 2023 e 2026.",
   },
   {
     id: 3,
-    image: "/intro/deputados/160592.jpg",
+    image: "/perguntas/q03/cover.jpg",
+    fallbackImage: "/intro/deputados/160592.jpg",
     description:
       "Como cada deputado votou nas votações classificadas por eixo temático principal.",
   },
   {
     id: 4,
-    image: "/intro/deputados/160674.jpg",
+    image: "/perguntas/q04/cover.jpg",
+    fallbackImage: "/intro/deputados/160674.jpg",
     description:
       "Distribuição da escolaridade dos deputados federais da 57ª Legislatura.",
   },
   {
     id: 5,
-    image: "/intro/deputados/178937.jpg",
+    image: "/perguntas/q05/cover.jpg",
+    fallbackImage: "/intro/deputados/178937.jpg",
     description:
       "Ranking dos fornecedores que mais receberam pagamentos e sua participação no total geral.",
   },
   {
     id: 6,
-    image: "/intro/deputados/204374.jpg",
+    image: "/perguntas/q06/cover.jpg",
+    fallbackImage: "/intro/deputados/204374.jpg",
     description:
       "Correlação entre escolaridade, gastos, fidelidade, proposições e presença parlamentar.",
   },
   {
     id: 7,
-    image: "/intro/deputados/204450.jpg",
+    image: "/perguntas/q07/cover.jpg",
+    fallbackImage: "/intro/deputados/204450.jpg",
     description:
       "Índice de custo-benefício que compara gasto total com presença, proposições e aprovações.",
   },
   {
     id: 8,
-    image: "/intro/deputados/204507.jpgmaior.jpg",
+    image: "/perguntas/q08/cover.jpg",
+    fallbackImage: "/intro/deputados/204507.jpgmaior.jpg",
     description:
       "Ranking de influência legislativa pela participação das proposições aprovadas de cada deputado.",
   },
   {
     id: 9,
-    image: "/intro/deputados/209787.jpg",
+    image: "/perguntas/q09/cover.jpg",
+    fallbackImage: "/intro/deputados/209787.jpg",
     description:
       "Classificação ideológica dos partidos e análise de votos Sim por campo ideológico e proposição.",
   },
   {
     id: 10,
-    image: "/intro/deputados/220639.jpgmaior.jpg",
+    image: "/perguntas/q10/cover.jpg",
+    fallbackImage: "/intro/deputados/220639.jpgmaior.jpg",
     description:
       "Alinhamento interno dos partidos: quem consegue orientar seus deputados com maior disciplina.",
   },
   {
     id: 11,
-    image: "/wordclouds/q11_nuvem_votacoes.png",
+    image: "/perguntas/q11/cover.jpg",
+    fallbackImage: "/wordclouds/q11_nuvem_votacoes.png",
     description:
       "Ranking partidário por frequência em votações, proposições, gastos e score composto.",
   },
   {
     id: 12,
-    image: "/intro/deputados/74161.jpg",
+    image: "/perguntas/q12/cover.jpg",
+    fallbackImage: "/intro/deputados/74161.jpg",
     description:
       "Ranking dos pares deputado-fornecedor, mostrando concentração de pagamentos por relação comercial.",
   },
   {
     id: 13,
-    image: "/intro/deputados/74398.jpg",
+    image: "/perguntas/q13/cover.jpg",
+    fallbackImage: "/intro/deputados/74398.jpg",
     description:
       "Categorias de gasto por deputado, reunindo despesas por tipo, valor total e participação percentual.",
   },
@@ -338,21 +358,70 @@ const questionBlocks = questionCards.reduce<(typeof questionCards)[]>((blocks, i
   return blocks;
 }, []);
 
+const problemImages = [
+  "/intro/problemas/principais-problemas-sociais.jpg",
+  "/intro/problemas/saude publica.jpg",
+  "/intro/problemas/saude 2.jpg",
+  "/intro/problemas/images.jpg",
+  "/intro/problemas/images (1).jpg",
+  "/intro/problemas/images (2).jpg",
+  "/intro/problemas/images (3).jpg",
+  "/intro/problemas/images (4).jpg",
+  "/intro/problemas/images (5).jpg",
+  "/intro/problemas/images (6).jpg",
+];
+
 function ReferenceHome() {
   return (
     <main
-      className="min-h-screen"
+      className="relative min-h-screen overflow-x-hidden"
       style={{
-        background: "#070707",
+        background: "#050505",
         color: "#f3efe8",
         fontFamily: "'Inter', sans-serif",
+        isolation: "isolate",
       }}
     >
+      <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
+        <img
+          src="/backgrounds/memoria-rasurada.png"
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover"
+          style={{
+            opacity: 0.24,
+            filter: "grayscale(42%) contrast(1.2) brightness(0.58) saturate(0.72)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.88) 39%, rgba(5,5,5,0.66) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 78% 30%, rgba(224,8,54,0.22) 0, rgba(224,8,54,0.08) 24%, rgba(5,5,5,0) 52%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-25"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 5px)",
+          }}
+        />
+      </div>
+
       <header
-        className="flex h-14 items-center justify-between border-b px-6 sm:px-10"
+        className="relative z-20 flex h-14 items-center justify-between border-b px-6 sm:px-10"
         style={{
           borderColor: "rgba(243,239,232,0.08)",
-          background: "#080808",
+          background: "rgba(8,8,8,0.88)",
+          backdropFilter: "blur(10px)",
         }}
       >
         <div className="flex items-center gap-3">
@@ -380,7 +449,7 @@ function ReferenceHome() {
         </nav>
       </header>
 
-      <section className="relative flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-5 pt-20 sm:h-[calc(100vh-56px)] sm:px-10 sm:pt-[88px]">
+      <section className="home-page relative z-10 flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-5 pt-20 sm:h-[calc(100vh-56px)] sm:px-10 sm:pt-[88px]">
         <div
           className="pointer-events-none absolute inset-y-0 right-0 w-[54vw]"
           style={{
@@ -392,7 +461,7 @@ function ReferenceHome() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(90deg, rgba(7,7,7,1) 0%, rgba(7,7,7,0.94) 46%, rgba(22,2,8,0.75) 100%)",
+              "linear-gradient(90deg, rgba(7,7,7,0.94) 0%, rgba(7,7,7,0.82) 46%, rgba(22,2,8,0.56) 100%)",
           }}
         />
 
@@ -485,11 +554,129 @@ function ReferenceHome() {
         </div>
       </section>
 
+      <section className="home-investigation relative z-10 overflow-hidden border-y px-6 py-16 sm:px-10 sm:py-20" style={{ borderColor: "rgba(243,239,232,0.12)" }}>
+        <div className="absolute inset-0 grid grid-cols-2 opacity-40 sm:grid-cols-5">
+          {problemImages.map((src, index) => (
+            <div key={src} className="relative min-h-[180px] overflow-hidden">
+              <img
+                src={src}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover"
+                style={{
+                  opacity: index % 2 === 0 ? 0.62 : 0.5,
+                  filter: "grayscale(70%) contrast(1.08) brightness(0.78)",
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(5,5,5,0.02) 0%, rgba(5,5,5,0.48) 100%)",
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.62) 48%, rgba(38,0,10,0.48) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(90deg, rgba(224,8,54,0.12) 0, rgba(224,8,54,0.12) 1px, transparent 1px, transparent 84px)",
+          }}
+        />
+
+        <div className="relative mx-auto max-w-[1434px]">
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p
+                className="mb-4 text-[11px] uppercase"
+                style={{
+                  color: "#e00836",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.42em",
+                }}
+              >
+                O CUSTO DO ABANDONO
+              </p>
+              <h2
+                className="max-w-[780px] text-[42px] font-black leading-[0.95] sm:text-[64px]"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Antes dos números, existe o país que eles atravessam.
+              </h2>
+            </div>
+            <p
+              className="max-w-[430px] text-[14px] leading-relaxed sm:text-[15px]"
+              style={{
+                color: "rgba(243,239,232,0.68)",
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Fome, saúde precária, insegurança, violência e falta de educação
+              compõem o pano de fundo das decisões, gastos e votos analisados.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {problemImages.map((src, index) => (
+              <figure
+                key={`problem-gallery-${src}`}
+                tabIndex={0}
+                className={`group relative m-0 min-h-[250px] overflow-hidden border bg-black ${
+                  index === 0 || index === 7 ? "lg:col-span-2" : ""
+                }`}
+                style={{ borderColor: "rgba(243,239,232,0.22)" }}
+                onMouseEnter={(event) => {
+                  const image = event.currentTarget.querySelector("img");
+                  if (image) image.style.filter = "grayscale(0%) contrast(1.03) brightness(1.02) saturate(1.08)";
+                }}
+                onMouseLeave={(event) => {
+                  const image = event.currentTarget.querySelector("img");
+                  if (image) image.style.filter = "grayscale(100%) contrast(1.18) brightness(0.52)";
+                }}
+                onFocus={(event) => {
+                  const image = event.currentTarget.querySelector("img");
+                  if (image) image.style.filter = "grayscale(0%) contrast(1.03) brightness(1.02) saturate(1.08)";
+                }}
+                onBlur={(event) => {
+                  const image = event.currentTarget.querySelector("img");
+                  if (image) image.style.filter = "grayscale(100%) contrast(1.18) brightness(0.52)";
+                }}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  className="h-full min-h-[250px] w-full object-cover transition duration-500 group-hover:scale-105"
+                  style={{
+                    filter: "grayscale(100%) contrast(1.18) brightness(0.52)",
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-0 transition-opacity duration-500 group-hover:opacity-10"
+                  style={{
+                    background: "linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0.54) 100%)",
+                  }}
+                />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section
-        className="px-6 py-16 sm:px-10 sm:py-20"
+        className="relative z-10 px-6 py-16 sm:px-10 sm:py-20"
         style={{
           background:
-            "linear-gradient(180deg, #070707 0%, #0b0b0b 46%, #070707 100%)",
+            "linear-gradient(180deg, rgba(7,7,7,0.88) 0%, rgba(11,11,11,0.92) 46%, rgba(7,7,7,0.9) 100%)",
         }}
       >
         <div className="mx-auto max-w-[1434px]">
@@ -545,13 +732,17 @@ function ReferenceHome() {
                         src={item.image}
                         alt={`Análise ${item.id}`}
                         className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
-                          item.image.includes("/wordclouds/") ? "object-contain p-5" : "object-cover"
+                          item.fallbackImage.includes("/wordclouds/") ? "object-contain p-5" : "object-cover"
                         }`}
                         style={{
-                          filter: item.image.includes("/wordclouds/")
+                          filter: item.fallbackImage.includes("/wordclouds/")
                             ? "grayscale(35%) contrast(1.08) brightness(0.9)"
                             : "grayscale(72%) contrast(1.08) brightness(0.86)",
-                          background: item.image.includes("/wordclouds/") ? "#101010" : "transparent",
+                          background: item.fallbackImage.includes("/wordclouds/") ? "#101010" : "transparent",
+                        }}
+                        onError={(event) => {
+                          if (event.currentTarget.src.endsWith(item.fallbackImage)) return;
+                          event.currentTarget.src = item.fallbackImage;
                         }}
                       />
                       <div
