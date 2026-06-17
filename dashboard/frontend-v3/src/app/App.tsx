@@ -233,6 +233,366 @@ const stats = [
   { label: "Vereadores no país", value: "58.839" },
 ];
 
+const referenceStats = [
+  {
+    value: "513",
+    title: "Deputados Federais",
+    detail: "na 57ª Legislatura",
+  },
+  {
+    value: "R$ 1,48 bi",
+    title: "Gastos Totais",
+    detail: "CEAP acumulada 2023-2026",
+  },
+  {
+    value: "34.712",
+    title: "Proposições",
+    detail: "apresentadas no período",
+  },
+];
+
+const questionCards = [
+  {
+    id: 1,
+    image: "/intro/deputados/107283.jpg",
+    description:
+      "Ranking de gasto total por deputado, com partido, UF e identificação nominal para comparar quem mais usou recursos.",
+  },
+  {
+    id: 2,
+    image: "/wordclouds/q2_nuvem_palavras_consolidado.png",
+    description:
+      "Nuvens de palavras e eixos temáticos das proposições apresentadas entre 2023 e 2026.",
+  },
+  {
+    id: 3,
+    image: "/intro/deputados/160592.jpg",
+    description:
+      "Como cada deputado votou nas votações classificadas por eixo temático principal.",
+  },
+  {
+    id: 4,
+    image: "/intro/deputados/160674.jpg",
+    description:
+      "Distribuição da escolaridade dos deputados federais da 57ª Legislatura.",
+  },
+  {
+    id: 5,
+    image: "/intro/deputados/178937.jpg",
+    description:
+      "Ranking dos fornecedores que mais receberam pagamentos e sua participação no total geral.",
+  },
+  {
+    id: 6,
+    image: "/intro/deputados/204374.jpg",
+    description:
+      "Correlação entre escolaridade, gastos, fidelidade, proposições e presença parlamentar.",
+  },
+  {
+    id: 7,
+    image: "/intro/deputados/204450.jpg",
+    description:
+      "Índice de custo-benefício que compara gasto total com presença, proposições e aprovações.",
+  },
+  {
+    id: 8,
+    image: "/intro/deputados/204507.jpgmaior.jpg",
+    description:
+      "Ranking de influência legislativa pela participação das proposições aprovadas de cada deputado.",
+  },
+  {
+    id: 9,
+    image: "/intro/deputados/209787.jpg",
+    description:
+      "Classificação ideológica dos partidos e análise de votos Sim por campo ideológico e proposição.",
+  },
+  {
+    id: 10,
+    image: "/intro/deputados/220639.jpgmaior.jpg",
+    description:
+      "Alinhamento interno dos partidos: quem consegue orientar seus deputados com maior disciplina.",
+  },
+  {
+    id: 11,
+    image: "/wordclouds/q11_nuvem_votacoes.png",
+    description:
+      "Ranking partidário por frequência em votações, proposições, gastos e score composto.",
+  },
+  {
+    id: 12,
+    image: "/intro/deputados/74161.jpg",
+    description:
+      "Ranking dos pares deputado-fornecedor, mostrando concentração de pagamentos por relação comercial.",
+  },
+  {
+    id: 13,
+    image: "/intro/deputados/74398.jpg",
+    description:
+      "Categorias de gasto por deputado, reunindo despesas por tipo, valor total e participação percentual.",
+  },
+];
+
+const questionBlocks = questionCards.reduce<(typeof questionCards)[]>((blocks, item, index) => {
+  if (index % 2 === 0) blocks.push([item]);
+  else blocks[blocks.length - 1].push(item);
+  return blocks;
+}, []);
+
+function ReferenceHome() {
+  return (
+    <main
+      className="min-h-screen"
+      style={{
+        background: "#070707",
+        color: "#f3efe8",
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <header
+        className="flex h-14 items-center justify-between border-b px-6 sm:px-10"
+        style={{
+          borderColor: "rgba(243,239,232,0.08)",
+          background: "#080808",
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="block h-[22px] w-1" style={{ background: "#e00836" }} />
+          <span
+            className="text-[16px] font-black tracking-[0.04em]"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            QUEM<span style={{ color: "#e00836" }}>GOVERNA</span>
+          </span>
+        </div>
+        <nav
+          className="hidden items-center gap-4 text-[11px] uppercase sm:flex"
+          style={{
+            color: "rgba(243,239,232,0.46)",
+            fontFamily: "'JetBrains Mono', monospace",
+            letterSpacing: "0.2em",
+          }}
+        >
+          <span>Transparência</span>
+          <span>·</span>
+          <span>Dados Públicos</span>
+          <span>·</span>
+          <span>57ª Legislatura</span>
+        </nav>
+      </header>
+
+      <section className="relative flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-5 pt-20 sm:h-[calc(100vh-56px)] sm:px-10 sm:pt-[88px]">
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-[54vw]"
+          style={{
+            background:
+              "radial-gradient(circle at 63% 47%, rgba(224,8,54,0.10) 0, rgba(224,8,54,0.045) 17%, rgba(7,7,7,0) 38%)",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(7,7,7,1) 0%, rgba(7,7,7,0.94) 46%, rgba(22,2,8,0.75) 100%)",
+          }}
+        />
+
+        <div className="relative z-10 max-w-[760px]">
+          <p
+            className="mb-7 text-[11px] uppercase"
+            style={{
+              color: "#e00836",
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.58em",
+            }}
+          >
+            ANÁLISE DE DADOS LEGISLATIVOS - BRASIL 2023-2026
+          </p>
+
+          <h1
+            className="mb-6 font-black"
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(62px, 7.2vw, 96px)",
+              lineHeight: 0.82,
+              letterSpacing: "-0.015em",
+            }}
+          >
+            <span className="block">QUEM</span>
+            <span className="mt-2 block" style={{ color: "#e00836" }}>
+              GOVERNA?
+            </span>
+          </h1>
+
+          <p
+            className="max-w-[640px] text-[16px] leading-[1.5] sm:text-[18px]"
+            style={{ color: "rgba(243,239,232,0.64)" }}
+          >
+            Uma análise de dados legislativos para revelar contradições entre
+            gastos, votos, proposições, ideologia e comportamento parlamentar.
+          </p>
+
+          <p
+            className="mt-4 text-[10px]"
+            style={{
+              color: "rgba(243,239,232,0.62)",
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.16em",
+            }}
+          >
+            — Pesquisa restrita a Deputados Federais. Não abrange senadores,
+            vereadores ou governadores.
+          </p>
+        </div>
+
+        <div
+          className="relative z-10 mt-12 grid border sm:grid-cols-3"
+          style={{ borderColor: "rgba(243,239,232,0.18)" }}
+        >
+          {referenceStats.map((item, index) => (
+            <article
+              key={item.title}
+              className="min-h-[145px] px-7 py-8 sm:px-8 sm:py-9"
+              style={{
+                borderLeft:
+                  index === 0 ? "0" : "1px solid rgba(243,239,232,0.10)",
+              }}
+            >
+              <p
+                className="text-[42px] font-black leading-none sm:text-[48px]"
+                style={{
+                  color: "#e00836",
+                  fontFamily: "'Playfair Display', serif",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                {item.value}
+              </p>
+              <h2 className="mt-1 text-[14px] font-black leading-tight text-white">
+                {item.title}
+              </h2>
+              <p
+                className="mt-1 text-[11px]"
+                style={{
+                  color: "rgba(243,239,232,0.62)",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                {item.detail}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="px-6 py-16 sm:px-10 sm:py-20"
+        style={{
+          background:
+            "linear-gradient(180deg, #070707 0%, #0b0b0b 46%, #070707 100%)",
+        }}
+      >
+        <div className="mx-auto max-w-[1434px]">
+          <div className="mb-10 flex flex-col justify-between gap-5 border-t pt-8 sm:flex-row sm:items-end">
+            <div>
+              <p
+                className="mb-3 text-[11px] uppercase"
+                style={{
+                  color: "#e00836",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.42em",
+                }}
+              >
+                ROTEIRO DE ANÁLISE
+              </p>
+              <h2
+                className="max-w-[720px] text-[38px] font-black leading-none sm:text-[52px]"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                13 recortes para entender quem governa.
+              </h2>
+            </div>
+            <p
+              className="max-w-[380px] text-[13px] leading-relaxed"
+              style={{
+                color: "rgba(243,239,232,0.56)",
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Cada bloco reúne duas análises relacionadas, com imagem e resumo
+              direto para manter a leitura limpa.
+            </p>
+          </div>
+
+          <div className="space-y-5">
+            {questionBlocks.map((block, blockIndex) => (
+              <div
+                key={blockIndex}
+                className={`grid gap-5 ${block.length === 1 ? "lg:grid-cols-2" : "lg:grid-cols-2"}`}
+              >
+                {block.map((item) => (
+                  <article
+                    key={item.id}
+                    className="group grid min-h-[250px] overflow-hidden border md:grid-cols-[220px_1fr]"
+                    style={{
+                      background: "rgba(255,255,255,0.018)",
+                      borderColor: "rgba(243,239,232,0.14)",
+                    }}
+                  >
+                    <div className="relative h-[210px] overflow-hidden md:h-full">
+                      <img
+                        src={item.image}
+                        alt={`Análise ${item.id}`}
+                        className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
+                          item.image.includes("/wordclouds/") ? "object-contain p-5" : "object-cover"
+                        }`}
+                        style={{
+                          filter: item.image.includes("/wordclouds/")
+                            ? "grayscale(35%) contrast(1.08) brightness(0.9)"
+                            : "grayscale(72%) contrast(1.08) brightness(0.86)",
+                          background: item.image.includes("/wordclouds/") ? "#101010" : "transparent",
+                        }}
+                      />
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background:
+                            "linear-gradient(180deg, rgba(7,7,7,0) 0%, rgba(224,8,54,0.18) 100%)",
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col justify-between p-6 sm:p-7">
+                      <span
+                        className="text-[58px] font-black leading-none"
+                        style={{
+                          color: "#e00836",
+                          fontFamily: "'Playfair Display', serif",
+                          letterSpacing: "-0.04em",
+                        }}
+                      >
+                        {item.id}
+                      </span>
+                      <p
+                        className="mt-8 max-w-[430px] text-[15px] leading-relaxed sm:text-[16px]"
+                        style={{ color: "rgba(243,239,232,0.74)" }}
+                      >
+                        {item.description}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+
+                {block.length === 1 && <div className="hidden lg:block" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
 type Phase = "intro" | "transitioning" | "home";
 
 export default function App() {
@@ -321,6 +681,10 @@ export default function App() {
   const strip1 = [...spendingImages, ...spendingImages, ...spendingImages];
   const strip2 = [...politicians, ...politicians].reverse();
   const strip3 = [...consequences, ...consequences, ...consequences];
+
+  if (phase === "home") {
+    return <ReferenceHome />;
+  }
 
   return (
     <div className="size-full overflow-hidden bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
