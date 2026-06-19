@@ -24,35 +24,11 @@ type ThemeImage = {
 
 type QuestionCard = {
   id: number;
+  title: string;
   image: string;
   fallbackImage: string;
   description: string;
 };
-
-type EyeOverlay = {
-  left: number;
-  top: number;
-  width: number;
-  mouthTop: number;
-  mouthWidth: number;
-};
-
-type FaceDetection = {
-  boundingBox: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-};
-
-declare global {
-  interface Window {
-    FaceDetector?: new (options?: { fastMode?: boolean; maxDetectedFaces?: number }) => {
-      detect: (source: HTMLImageElement) => Promise<FaceDetection[]>;
-    };
-  }
-}
 
 const CAMARA_DEPUTADOS_URL =
   "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome&itens=20";
@@ -61,7 +37,6 @@ const HERO_DEPUTADOS_URL =
 const HERO_DEPUTY_ROTATION_MS = 2600;
 
 const getDeputyPhoto = (id: number) => `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
-const DEFAULT_EYE_OVERLAY: EyeOverlay = { left: 50, top: 27, width: 46, mouthTop: 48, mouthWidth: 28 };
 const localDeputyImagePaths = [
   "107283.jpg",
   "160541.jpg",
@@ -292,94 +267,59 @@ const referenceStats = [
 const questionCards: QuestionCard[] = [
   {
     id: 1,
+    title: "Panorama Geral",
     image: "/perguntas/q01/cover.jpg",
     fallbackImage: "/intro/deputados/107283.jpg",
     description:
-      "Ranking de gasto total por deputado, com partido, UF e identificação nominal para comparar quem mais usou recursos.",
+      "Visão inicial dos principais indicadores da Câmara: deputados, gastos, votações, proposições e sinais gerais de comportamento parlamentar.",
   },
   {
     id: 2,
+    title: "Quem é seu deputado?",
     image: "/perguntas/q02/cover.jpg",
     fallbackImage: "/wordclouds/q2_nuvem_palavras_consolidado.png",
     description:
-      "Nuvens de palavras e eixos temáticos das proposições apresentadas entre 2023 e 2026.",
+      "Consulta centrada no parlamentar: perfil, atuação, gastos, presença, proposições e dados públicos que ajudam a entender quem representa cada eleitor.",
   },
   {
     id: 3,
+    title: "Partidos e como se comportam?",
     image: "/perguntas/q03/cover.jpg",
     fallbackImage: "/intro/deputados/160592.jpg",
     description:
-      "Como cada deputado votou nas votações classificadas por eixo temático principal.",
+      "Comparação entre partidos, disciplina interna, padrões de voto, alinhamentos e diferenças entre discurso partidário e comportamento observado.",
   },
   {
     id: 4,
+    title: "Fornecedores e deputados",
     image: "/perguntas/q04/cover.jpg",
     fallbackImage: "/intro/deputados/160674.jpg",
     description:
-      "Distribuição da escolaridade dos deputados federais da 57ª Legislatura.",
+      "Mapeamento das relações entre despesas parlamentares, fornecedores recorrentes, concentração de pagamentos e pares deputado-fornecedor.",
   },
   {
     id: 5,
+    title: "Influência na Câmara",
     image: "/perguntas/q05/cover.jpg",
     fallbackImage: "/intro/deputados/178937.jpg",
     description:
-      "Ranking dos fornecedores que mais receberam pagamentos e sua participação no total geral.",
+      "Leitura de influência legislativa a partir de proposições, aprovações, participação em votações e capacidade de movimentar pautas dentro da Câmara.",
   },
   {
     id: 6,
+    title: "Ideologia e deputado",
     image: "/perguntas/q06/cover.jpg",
     fallbackImage: "/intro/deputados/204374.jpg",
     description:
-      "Correlação entre escolaridade, gastos, fidelidade, proposições e presença parlamentar.",
+      "Análise do posicionamento ideológico de deputados e partidos com base em votos, blocos de comportamento e padrões de alinhamento político.",
   },
   {
     id: 7,
+    title: "Escolaridade",
     image: "/perguntas/q07/cover.jpg",
     fallbackImage: "/intro/deputados/204450.jpg",
     description:
-      "Índice de custo-benefício que compara gasto total com presença, proposições e aprovações.",
-  },
-  {
-    id: 8,
-    image: "/perguntas/q08/cover.jpg",
-    fallbackImage: "/intro/deputados/204507.jpgmaior.jpg",
-    description:
-      "Ranking de influência legislativa pela participação das proposições aprovadas de cada deputado.",
-  },
-  {
-    id: 9,
-    image: "/perguntas/q09/cover.jpg",
-    fallbackImage: "/intro/deputados/209787.jpg",
-    description:
-      "Classificação ideológica dos partidos e análise de votos Sim por campo ideológico e proposição.",
-  },
-  {
-    id: 10,
-    image: "/perguntas/q10/cover.jpg",
-    fallbackImage: "/intro/deputados/220639.jpgmaior.jpg",
-    description:
-      "Alinhamento interno dos partidos: quem consegue orientar seus deputados com maior disciplina.",
-  },
-  {
-    id: 11,
-    image: "/perguntas/q11/cover.jpg",
-    fallbackImage: "/wordclouds/q11_nuvem_votacoes.png",
-    description:
-      "Ranking partidário por frequência em votações, proposições, gastos e score composto.",
-  },
-  {
-    id: 12,
-    image: "/perguntas/q12/cover.jpg",
-    fallbackImage: "/intro/deputados/74161.jpg",
-    description:
-      "Ranking dos pares deputado-fornecedor, mostrando concentração de pagamentos por relação comercial.",
-  },
-  {
-    id: 13,
-    image: "/perguntas/q13/cover.jpg",
-    fallbackImage: "/intro/deputados/74398.jpg",
-    description:
-      "Categorias de gasto por deputado, reunindo despesas por tipo, valor total e participação percentual.",
+      "Distribuição da escolaridade dos deputados federais e cruzamentos com atuação parlamentar, produção legislativa e outros indicadores.",
   },
 ];
 
@@ -407,7 +347,6 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
   const [shockDeputies, setShockDeputies] = useState<Politician[]>(() =>
     shufflePoliticians(deputies).slice(0, 40),
   );
-  const [eyeOverlay, setEyeOverlay] = useState<EyeOverlay>(DEFAULT_EYE_OVERLAY);
   const currentShockDeputy = shockDeputies[shockIndex % Math.max(shockDeputies.length, 1)];
 
   useEffect(() => {
@@ -424,55 +363,6 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
 
     return () => window.clearInterval(intervalId);
   }, [shockDeputies.length]);
-
-  useEffect(() => {
-    setEyeOverlay(DEFAULT_EYE_OVERLAY);
-  }, [currentShockDeputy?.id]);
-
-  const updateEyeOverlay = useCallback(async (image: HTMLImageElement) => {
-    const Detector = window.FaceDetector;
-    if (!Detector || !image.naturalWidth || !image.naturalHeight) {
-      setEyeOverlay(DEFAULT_EYE_OVERLAY);
-      return;
-    }
-
-    try {
-      const detections = await new Detector({ fastMode: true, maxDetectedFaces: 1 }).detect(image);
-      const face = detections
-        .map((detection) => detection.boundingBox)
-        .sort((a, b) => b.width * b.height - a.width * a.height)[0];
-
-      if (!face) {
-        setEyeOverlay(DEFAULT_EYE_OVERLAY);
-        return;
-      }
-
-      const frame = image.parentElement?.getBoundingClientRect();
-      if (!frame?.width || !frame.height) {
-        setEyeOverlay(DEFAULT_EYE_OVERLAY);
-        return;
-      }
-
-      const scale = Math.max(frame.width / image.naturalWidth, frame.height / image.naturalHeight);
-      const renderedWidth = image.naturalWidth * scale;
-      const offsetX = (frame.width - renderedWidth) / 2;
-      const eyeCenterX = offsetX + (face.x + face.width * 0.5) * scale;
-      const eyeCenterY = (face.y + face.height * 0.38) * scale;
-      const eyeWidth = face.width * 0.54 * scale;
-      const mouthCenterY = (face.y + face.height * 0.72) * scale;
-      const mouthWidth = face.width * 0.34 * scale;
-
-      setEyeOverlay({
-        left: Math.min(64, Math.max(36, (eyeCenterX / frame.width) * 100)),
-        top: Math.min(40, Math.max(18, (eyeCenterY / frame.height) * 100)),
-        width: Math.min(62, Math.max(38, (eyeWidth / frame.width) * 100)),
-        mouthTop: Math.min(68, Math.max(38, (mouthCenterY / frame.height) * 100)),
-        mouthWidth: Math.min(42, Math.max(20, (mouthWidth / frame.width) * 100)),
-      });
-    } catch {
-      setEyeOverlay(DEFAULT_EYE_OVERLAY);
-    }
-  }, []);
 
   return (
     <main
@@ -511,18 +401,18 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
             transform: scale(1.07);
           }
         }
-        @keyframes deputy-eye-x-cycle {
+        @keyframes deputy-full-x-cycle {
           0%, 34% {
             opacity: 0;
-            transform: translateY(-2px) scale(0.82);
+            transform: scale(0.92);
           }
           46%, 90% {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: scale(1);
           }
           100% {
             opacity: 0;
-            transform: translateY(1px) scale(1.04);
+            transform: scale(1.04);
           }
         }
       `}</style>
@@ -674,9 +564,6 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
                 alt=""
                 className="h-full w-full object-cover object-top"
                 style={{ animation: "deputy-shock-cycle 2.6s ease-in-out both" }}
-                onLoad={(event) => {
-                  void updateEyeOverlay(event.currentTarget);
-                }}
                 onError={(event) => {
                   event.currentTarget.src = getDeputyPhoto(currentShockDeputy.id);
                 }}
@@ -694,48 +581,20 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
               }}
             />
             <div
-              key={`eyes-${currentShockDeputy?.id ?? "empty"}`}
-              className="pointer-events-none absolute z-10 flex -translate-x-1/2 items-center justify-between"
-              style={{
-                left: `${eyeOverlay.left}%`,
-                top: `${eyeOverlay.top}%`,
-                width: `${eyeOverlay.width}%`,
-                animation: "deputy-eye-x-cycle 2.6s ease-in-out both",
-              }}
+              key={`full-x-${currentShockDeputy?.id ?? "empty"}`}
+              className="pointer-events-none absolute inset-0 z-10"
+              style={{ animation: "deputy-full-x-cycle 2.6s ease-in-out both" }}
             >
               <span
-                className="relative block h-10 w-10 sm:h-12 sm:w-12"
-                style={{ filter: "drop-shadow(0 0 8px rgba(224,8,54,0.65))" }}
-              >
-                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#e00836]" />
-                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#e00836]" />
-              </span>
-              <span
-                className="relative block h-10 w-10 sm:h-12 sm:w-12"
-                style={{ filter: "drop-shadow(0 0 8px rgba(224,8,54,0.65))" }}
-              >
-                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#e00836]" />
-                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#e00836]" />
-              </span>
-            </div>
-            <div
-              key={`mouth-${currentShockDeputy?.id ?? "empty"}`}
-              className="pointer-events-none absolute left-1/2 z-10 -translate-x-1/2"
-              style={{
-                top: `${eyeOverlay.mouthTop}%`,
-                width: `${eyeOverlay.mouthWidth}%`,
-                height: "10%",
-                animation: "deputy-eye-x-cycle 2.6s ease-in-out both",
-                filter: "drop-shadow(0 0 8px rgba(224,8,54,0.65))",
-              }}
-            >
-              <span
-                className="block h-full w-full"
+                className="absolute left-1/2 top-1/2 block h-[8px] w-[145%] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#e00836] sm:h-[10px]"
                 style={{
-                  borderTop: "5px solid #e00836",
-                  borderLeft: "5px solid transparent",
-                  borderRight: "5px solid transparent",
-                  borderRadius: "999px 999px 0 0",
+                  boxShadow: "0 0 14px rgba(224,8,54,0.72), 0 0 2px rgba(255,255,255,0.35)",
+                }}
+              />
+              <span
+                className="absolute left-1/2 top-1/2 block h-[8px] w-[145%] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#e00836] sm:h-[10px]"
+                style={{
+                  boxShadow: "0 0 14px rgba(224,8,54,0.72), 0 0 2px rgba(255,255,255,0.35)",
                 }}
               />
             </div>
@@ -935,7 +794,7 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
                 className="max-w-[720px] text-[38px] font-black leading-none sm:text-[52px]"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                13 recortes para entender quem governa.
+                7 recortes para entender quem governa.
               </h2>
             </div>
             <p
@@ -946,8 +805,8 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
                 letterSpacing: "0.04em",
               }}
             >
-              Cada bloco reúne duas análises relacionadas, com imagem e resumo
-              direto para manter a leitura limpa.
+              Cada bloco reúne um panorama de investigação, com imagem provisória
+              até a escolha visual definitiva de cada recorte.
             </p>
           </div>
 
@@ -993,18 +852,26 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
                       />
                     </div>
                     <div className="flex flex-col justify-between p-6 sm:p-7">
-                      <span
-                        className="text-[58px] font-black leading-none"
-                        style={{
-                          color: "#e00836",
-                          fontFamily: "'Playfair Display', serif",
-                          letterSpacing: "-0.04em",
-                        }}
-                      >
-                        {item.id}
-                      </span>
+                      <div>
+                        <span
+                          className="text-[58px] font-black leading-none"
+                          style={{
+                            color: "#e00836",
+                            fontFamily: "'Playfair Display', serif",
+                            letterSpacing: "-0.04em",
+                          }}
+                        >
+                          {item.id}
+                        </span>
+                        <h3
+                          className="mt-3 max-w-[430px] text-[24px] font-black leading-tight sm:text-[28px]"
+                          style={{ fontFamily: "'Playfair Display', serif" }}
+                        >
+                          {item.title}
+                        </h3>
+                      </div>
                       <p
-                        className="mt-8 max-w-[430px] text-[15px] leading-relaxed sm:text-[16px]"
+                        className="mt-6 max-w-[430px] text-[15px] leading-relaxed sm:text-[16px]"
                         style={{ color: "rgba(243,239,232,0.74)" }}
                       >
                         {item.description}
