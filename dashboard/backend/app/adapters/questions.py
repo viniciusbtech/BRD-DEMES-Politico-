@@ -661,6 +661,21 @@ class Q7Adapter(QuestionAdapter):
 
     def build_payload(self, state: FilterState) -> QuestionPayload:
         payload = super().build_payload(state)
+        if state.deputados and not payload.table_spec.rows:
+            fallback = next(
+                (
+                    table
+                    for table in payload.complement_tables
+                    if table.rows
+                    and {"gasto_total", "qtd_proposicoes", "proposicoes_aprovadas", "presenca_total", "beneficio", "custo_beneficio"}.issubset(
+                        {column.key for column in table.columns}
+                    )
+                ),
+                None,
+            )
+            if fallback is not None:
+                payload.table_spec = fallback
+
         main_rows = self.main_table.rows if self.main_table else []
         filtered_rows = FilterEngine.apply_filters(
             main_rows,
@@ -1265,6 +1280,7 @@ class Q3NormalizedAdapter(QuestionAdapter):
         chart_spec = self.build_chart_spec(filtered_resumo)
         donut_data = self._build_donut_data(filtered_resumo)
         chart_spec.options["donut"] = donut_data
+        chart_spec.options["by_theme"] = self._build_theme_vote_data(filtered_resumo)
         chart_spec.options["second_chart"] = {
             "type": "donut",
             "title": "Distribuicao dos votos",
@@ -1489,6 +1505,29 @@ class Q3NormalizedAdapter(QuestionAdapter):
             {"name": "Abstencao", "value": abstencao},
             {"name": "Outros", "value": outros},
         ]
+
+    def _build_theme_vote_data(self, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        themes: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            theme = str(row.get("eixo_principal") or row.get("eixo_maior") or "Sem classificacao")
+            current = themes.setdefault(
+                theme,
+                {
+                    "eixo_principal": theme,
+                    "voto_sim": 0,
+                    "voto_nao": 0,
+                    "voto_abstencao": 0,
+                    "voto_outro": 0,
+                    "votos_total": 0,
+                },
+            )
+            current["voto_sim"] += self._to_int(row.get("voto_sim") or row.get("votos_sim"))
+            current["voto_nao"] += self._to_int(row.get("voto_nao") or row.get("votos_nao"))
+            current["voto_abstencao"] += self._to_int(row.get("voto_abstencao") or row.get("abstencoes"))
+            current["voto_outro"] += self._to_int(row.get("voto_outro"))
+            current["votos_total"] += self._to_int(row.get("votos_total"))
+
+        return sorted(themes.values(), key=lambda item: self._to_int(item.get("votos_total")), reverse=True)
 
     @staticmethod
     def _to_int(value: Any) -> int:

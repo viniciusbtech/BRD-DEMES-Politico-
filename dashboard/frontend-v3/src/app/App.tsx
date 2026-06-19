@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import DeputadoPage from "./pages/DeputadoPage";
 
 type Politician = {
   id: number;
@@ -324,7 +325,7 @@ const questionCards: QuestionCard[] = [
 ];
 
 const questionBlocks = questionCards.reduce<(typeof questionCards)[]>((blocks, item, index) => {
-  if (index % 2 === 0) blocks.push([item]);
+  if (index % 3 === 0) blocks.push([item]);
   else blocks[blocks.length - 1].push(item);
   return blocks;
 }, []);
@@ -342,7 +343,13 @@ const problemImages = [
   "/intro/problemas/images (6).jpg",
 ];
 
-function ReferenceHome({ deputies }: { deputies: Politician[] }) {
+function ReferenceHome({
+  deputies,
+  onNavigateDeputado,
+}: {
+  deputies: Politician[];
+  onNavigateDeputado: () => void;
+}) {
   const [shockIndex, setShockIndex] = useState(0);
   const [shockDeputies, setShockDeputies] = useState<Politician[]>(() =>
     shufflePoliticians(deputies).slice(0, 40),
@@ -814,12 +821,25 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
             {questionBlocks.map((block, blockIndex) => (
               <div
                 key={blockIndex}
-                className={`grid gap-5 ${block.length === 1 ? "lg:grid-cols-2" : "lg:grid-cols-2"}`}
+                className="grid gap-5 lg:grid-cols-3"
               >
                 {block.map((item) => (
                   <article
                     key={item.id}
-                    className="group grid min-h-[250px] overflow-hidden border md:grid-cols-[220px_1fr]"
+                    role={item.id === 2 ? "button" : undefined}
+                    tabIndex={item.id === 2 ? 0 : undefined}
+                    onClick={item.id === 2 ? onNavigateDeputado : undefined}
+                    onKeyDown={
+                      item.id === 2
+                        ? (event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              onNavigateDeputado();
+                            }
+                          }
+                        : undefined
+                    }
+                    className="group grid min-h-[250px] overflow-hidden border md:grid-cols-[220px_1fr] lg:grid-cols-1 xl:grid-cols-[180px_1fr]"
                     style={{
                       background: "rgba(255,255,255,0.018)",
                       borderColor: "rgba(243,239,232,0.14)",
@@ -879,8 +899,6 @@ function ReferenceHome({ deputies }: { deputies: Politician[] }) {
                     </div>
                   </article>
                 ))}
-
-                {block.length === 1 && <div className="hidden lg:block" />}
               </div>
             ))}
           </div>
@@ -894,11 +912,29 @@ type Phase = "intro" | "transitioning" | "home";
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>("intro");
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [flash, setFlash] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
   const [politicians, setPoliticians] = useState<Politician[]>(officialFallbackPoliticians);
   const [heroDeputies, setHeroDeputies] = useState<Politician[]>(officialFallbackPoliticians);
   const [consequences, setConsequences] = useState<ThemeImage[]>(consequenceImages);
+
+  useEffect(() => {
+    const handlePopState = () => setCurrentPath(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const navigateTo = useCallback((path: string) => {
+    window.history.pushState({}, "", path);
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
+  const navigateHome = useCallback(() => {
+    setPhase("home");
+    navigateTo("/");
+  }, [navigateTo]);
 
   useEffect(() => {
     const t = setInterval(() => setCursorVisible((v) => !v), 600);
@@ -1003,8 +1039,12 @@ export default function App() {
   const strip2 = [...politicians, ...politicians].reverse();
   const strip3 = [...consequences, ...consequences, ...consequences];
 
+  if (["/q/q2", "/recortes/deputado", "/deputado"].includes(currentPath)) {
+    return <DeputadoPage onNavigateHome={navigateHome} />;
+  }
+
   if (phase === "home") {
-    return <ReferenceHome deputies={heroDeputies} />;
+    return <ReferenceHome deputies={heroDeputies} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   return (

@@ -9,6 +9,7 @@ class FilterChoice(BaseModel):
     value: str
     label: str
     status: str | None = None
+    photo_url: str | None = None
 
 
 class FilterCatalog(BaseModel):
@@ -113,4 +114,3 @@ class QuestionPayload(BaseModel):
     empty_state: EmptyState
     dataset_version: str
     generated_at: str
-

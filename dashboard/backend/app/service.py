@@ -292,6 +292,7 @@ class DashboardService:
             return {}
 
         deputy_names = self._load_deputy_public_names()
+        all_deputies = self._load_deputy_filter_choices()
         anos = {str(row.get("ano_dados")).strip() for row in rows if row.get("ano_dados") not in (None, "")}
         eixos = {str(row.get("eixo_principal")).strip() for row in rows if row.get("eixo_principal")}
         deputy_ids: dict[str, str] = {}
@@ -307,12 +308,30 @@ class DashboardService:
             partidos=[],
             ufs=[],
             deputados=[
-                FilterChoice(value=dep_id, label=label)
+                self._deputy_choice(dep_id, label)
                 for dep_id, label in sorted(deputy_ids.items(), key=lambda item: item[1].lower())
             ],
             escolaridade=[],
         )
-        return {"q3": q3_catalog}
+        available = self._collect_global_filters()
+        profile_catalog = FilterCatalog(
+            anos=available.anos,
+            eixos=available.eixos,
+            partidos=available.partidos,
+            ufs=available.ufs,
+            deputados=all_deputies,
+            escolaridade=[],
+        )
+        catalogs = {question_id: profile_catalog for question_id in ("q1", "q2", "q7", "q13")}
+        catalogs["q3"] = FilterCatalog(
+            anos=q3_catalog.anos,
+            eixos=q3_catalog.eixos,
+            partidos=[],
+            ufs=[],
+            deputados=q3_catalog.deputados or all_deputies,
+            escolaridade=[],
+        )
+        return catalogs
 
     def _load_deputy_public_names(self) -> dict[str, str]:
         path = self.repo_root / "dados_padronizados" / "deputados.csv"
@@ -328,6 +347,20 @@ class DashboardService:
                 if dep_id and name:
                     names[dep_id] = name
         return names
+
+    def _load_deputy_filter_choices(self) -> list[FilterChoice]:
+        names = self._load_deputy_public_names()
+        return [
+            self._deputy_choice(dep_id, label)
+            for dep_id, label in sorted(names.items(), key=lambda item: item[1].lower())
+        ]
+
+    @staticmethod
+    def _deputy_photo_url(dep_id: str) -> str | None:
+        return f"https://www.camara.leg.br/internet/deputado/bandep/{dep_id}.jpg" if dep_id.isdigit() else None
+
+    def _deputy_choice(self, dep_id: str, label: str) -> FilterChoice:
+        return FilterChoice(value=dep_id, label=label, photo_url=self._deputy_photo_url(dep_id))
 
     def _load_filter_documents(self, question: QuestionDefinition) -> list[ParsedDocument]:
         if question.id != "q3":
@@ -464,4 +497,3 @@ def _relative_path(path: Path, base_dir: Path) -> str:
         return str(path.relative_to(base_dir))
     except ValueError:
         return str(path)
-
