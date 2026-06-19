@@ -83,15 +83,31 @@ export default function DeputadoPage() {
       </nav>
 
       {/* SEARCH HEADER */}
-      <div className="px-6 md:px-14 pt-14 pb-10">
-        <p className="text-xs tracking-[0.35em] text-primary mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          PESQUISE UM DEPUTADO FEDERAL
-        </p>
-        <h1 className="text-4xl md:text-6xl font-black mb-8"
-          style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}>
-          {selected ? selected.name : "Quem você quer analisar?"}
-        </h1>
+      <div className="relative overflow-hidden border-b border-border">
+        {/* background strip of politician photos */}
+        <div className="absolute inset-0 grid" style={{ gridTemplateColumns: "repeat(4,1fr)" }}>
+          {["photo-1519085360753-af0119f7cbe7","photo-1648448942225-7aa06c7e8f79","photo-1531630142108-cb432ed39657","photo-1740906010746-72aa48cea181"].map((id) => (
+            <div key={id} className="relative overflow-hidden">
+              <img src={`https://images.unsplash.com/${id}?w=400&h=400&fit=crop&auto=format`}
+                alt="" className="w-full h-full object-cover object-top"
+                style={{ filter: "grayscale(55%) contrast(1.1) brightness(0.38)" }} />
+            </div>
+          ))}
+        </div>
+        <div className="absolute inset-0"
+          style={{ background: "linear-gradient(to right, rgba(10,10,10,0.95) 45%, rgba(10,10,10,0.55) 100%)" }} />
+        <div className="absolute bottom-0 inset-x-0 h-16"
+          style={{ background: "linear-gradient(to top, #0a0a0a, transparent)" }} />
+
+        <div className="relative z-10 px-6 md:px-14 pt-16 pb-10">
+          <p className="text-xs tracking-[0.35em] text-primary mb-4"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            02 — PESQUISE UM DEPUTADO FEDERAL
+          </p>
+          <h1 className="text-4xl md:text-6xl font-black mb-8"
+            style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}>
+            {selected ? selected.name : "Quem você quer analisar?"}
+          </h1>
 
         {/* search */}
         <div className="relative max-w-xl">
@@ -130,7 +146,8 @@ export default function DeputadoPage() {
             ))}
           </div>
         )}
-      </div>
+        </div>{/* end z-10 content */}
+      </div>{/* end header wrapper */}
 
       {/* DEPUTY CONTENT */}
       {selected ? (

@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import DeputadoPage from "./pages/DeputadoPage";
+import EscolaridadePage from "./pages/EscolaridadePage";
+import FornecedoresPage from "./pages/FornecedoresPage";
+import GastosSociaisPage from "./pages/GastosSociaisPage";
+import IdeologiaPage from "./pages/IdeologiaPage";
+import InfluenciaPage from "./pages/InfluenciaPage";
+import PanoramaPage from "./pages/PanoramaPage";
+import PartidosPage from "./pages/PartidosPage";
 
 type Politician = {
   id: number;
@@ -292,32 +299,40 @@ const questionCards: QuestionCard[] = [
   },
   {
     id: 4,
-    title: "Fornecedores e deputados",
+    title: "Gastos e problemas sociais",
     image: "/perguntas/q04/cover.jpg",
+    fallbackImage: "/intro/problemas/principais-problemas-sociais.jpg",
+    description:
+      "Conexão entre os gastos públicos analisados e problemas sociais como saúde, educação, insegurança, pobreza e infraestrutura precária.",
+  },
+  {
+    id: 5,
+    title: "Fornecedores e deputados",
+    image: "/perguntas/q05/cover.jpg",
     fallbackImage: "/intro/deputados/160674.jpg",
     description:
       "Mapeamento das relações entre despesas parlamentares, fornecedores recorrentes, concentração de pagamentos e pares deputado-fornecedor.",
   },
   {
-    id: 5,
+    id: 6,
     title: "Influência na Câmara",
-    image: "/perguntas/q05/cover.jpg",
+    image: "/perguntas/q06/cover.jpg",
     fallbackImage: "/intro/deputados/178937.jpg",
     description:
       "Leitura de influência legislativa a partir de proposições, aprovações, participação em votações e capacidade de movimentar pautas dentro da Câmara.",
   },
   {
-    id: 6,
+    id: 7,
     title: "Ideologia e deputado",
-    image: "/perguntas/q06/cover.jpg",
+    image: "/perguntas/q07/cover.jpg",
     fallbackImage: "/intro/deputados/204374.jpg",
     description:
       "Análise do posicionamento ideológico de deputados e partidos com base em votos, blocos de comportamento e padrões de alinhamento político.",
   },
   {
-    id: 7,
+    id: 8,
     title: "Escolaridade",
-    image: "/perguntas/q07/cover.jpg",
+    image: "/perguntas/q08/cover.jpg",
     fallbackImage: "/intro/deputados/204450.jpg",
     description:
       "Distribuição da escolaridade dos deputados federais e cruzamentos com atuação parlamentar, produção legislativa e outros indicadores.",
@@ -345,10 +360,24 @@ const problemImages = [
 
 function ReferenceHome({
   deputies,
+  onNavigatePanorama,
   onNavigateDeputado,
+  onNavigateFornecedores,
+  onNavigateGastosSociais,
+  onNavigateInfluencia,
+  onNavigatePartidos,
+  onNavigateIdeologia,
+  onNavigateEscolaridade,
 }: {
   deputies: Politician[];
+  onNavigatePanorama: () => void;
   onNavigateDeputado: () => void;
+  onNavigateFornecedores: () => void;
+  onNavigateGastosSociais: () => void;
+  onNavigateInfluencia: () => void;
+  onNavigatePartidos: () => void;
+  onNavigateIdeologia: () => void;
+  onNavigateEscolaridade: () => void;
 }) {
   const [shockIndex, setShockIndex] = useState(0);
   const [shockDeputies, setShockDeputies] = useState<Politician[]>(() =>
@@ -801,7 +830,7 @@ function ReferenceHome({
                 className="max-w-[720px] text-[38px] font-black leading-none sm:text-[52px]"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                7 recortes para entender quem governa.
+                8 recortes para entender quem governa.
               </h2>
             </div>
             <p
@@ -826,15 +855,40 @@ function ReferenceHome({
                 {block.map((item) => (
                   <article
                     key={item.id}
-                    role={item.id === 2 ? "button" : undefined}
-                    tabIndex={item.id === 2 ? 0 : undefined}
-                    onClick={item.id === 2 ? onNavigateDeputado : undefined}
+                    role={item.id >= 1 && item.id <= 8 ? "button" : undefined}
+                    tabIndex={item.id >= 1 && item.id <= 8 ? 0 : undefined}
+                    onClick={
+                      item.id === 1
+                        ? onNavigatePanorama
+                        : item.id === 2
+                          ? onNavigateDeputado
+                          : item.id === 3
+                          ? onNavigatePartidos
+                          : item.id === 4
+                            ? onNavigateGastosSociais
+                            : item.id === 5
+                              ? onNavigateFornecedores
+                              : item.id === 6
+                                ? onNavigateInfluencia
+                                : item.id === 7
+                                  ? onNavigateIdeologia
+                                  : item.id === 8
+                                    ? onNavigateEscolaridade
+                                  : undefined
+                    }
                     onKeyDown={
-                      item.id === 2
+                      item.id >= 1 && item.id <= 8
                         ? (event) => {
                             if (event.key === "Enter" || event.key === " ") {
                               event.preventDefault();
-                              onNavigateDeputado();
+                              if (item.id === 1) onNavigatePanorama();
+                              if (item.id === 2) onNavigateDeputado();
+                              if (item.id === 3) onNavigatePartidos();
+                              if (item.id === 4) onNavigateGastosSociais();
+                              if (item.id === 5) onNavigateFornecedores();
+                              if (item.id === 6) onNavigateInfluencia();
+                              if (item.id === 7) onNavigateIdeologia();
+                              if (item.id === 8) onNavigateEscolaridade();
                             }
                           }
                         : undefined
@@ -1039,12 +1093,52 @@ export default function App() {
   const strip2 = [...politicians, ...politicians].reverse();
   const strip3 = [...consequences, ...consequences, ...consequences];
 
+  if (["/q/q1", "/recortes/panorama", "/panorama"].includes(currentPath)) {
+    return <PanoramaPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
   if (["/q/q2", "/recortes/deputado", "/deputado"].includes(currentPath)) {
     return <DeputadoPage onNavigateHome={navigateHome} />;
   }
 
+  if (["/q/q3", "/recortes/partidos", "/partidos"].includes(currentPath)) {
+    return <PartidosPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
+  if (["/q/q4", "/recortes/gastos-sociais", "/gastos-sociais"].includes(currentPath)) {
+    return <GastosSociaisPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
+  if (["/q/q5", "/recortes/fornecedores", "/fornecedores"].includes(currentPath)) {
+    return <FornecedoresPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
+  if (["/q/q6", "/recortes/influencia", "/influencia"].includes(currentPath)) {
+    return <InfluenciaPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
+  if (["/q/q7", "/recortes/ideologia", "/ideologia", "/comportamento"].includes(currentPath)) {
+    return <IdeologiaPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
+  if (["/q/q8", "/recortes/escolaridade", "/escolaridade"].includes(currentPath)) {
+    return <EscolaridadePage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+  }
+
   if (phase === "home") {
-    return <ReferenceHome deputies={heroDeputies} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return (
+      <ReferenceHome
+        deputies={heroDeputies}
+        onNavigatePanorama={() => navigateTo("/q/q1")}
+        onNavigateDeputado={() => navigateTo("/q/q2")}
+        onNavigateFornecedores={() => navigateTo("/q/q5")}
+        onNavigateGastosSociais={() => navigateTo("/q/q4")}
+        onNavigateInfluencia={() => navigateTo("/q/q6")}
+        onNavigatePartidos={() => navigateTo("/q/q3")}
+        onNavigateIdeologia={() => navigateTo("/q/q7")}
+        onNavigateEscolaridade={() => navigateTo("/q/q8")}
+      />
+    );
   }
 
   return (
