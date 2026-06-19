@@ -29,10 +29,39 @@ type QuestionCard = {
   description: string;
 };
 
+type EyeOverlay = {
+  left: number;
+  top: number;
+  width: number;
+  mouthTop: number;
+  mouthWidth: number;
+};
+
+type FaceDetection = {
+  boundingBox: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+};
+
+declare global {
+  interface Window {
+    FaceDetector?: new (options?: { fastMode?: boolean; maxDetectedFaces?: number }) => {
+      detect: (source: HTMLImageElement) => Promise<FaceDetection[]>;
+    };
+  }
+}
+
 const CAMARA_DEPUTADOS_URL =
   "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome&itens=20";
+const HERO_DEPUTADOS_URL =
+  "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome&itens=100";
+const HERO_DEPUTY_ROTATION_MS = 2600;
 
 const getDeputyPhoto = (id: number) => `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
+const DEFAULT_EYE_OVERLAY: EyeOverlay = { left: 50, top: 27, width: 46, mouthTop: 48, mouthWidth: 28 };
 const localDeputyImagePaths = [
   "107283.jpg",
   "160541.jpg",
@@ -206,6 +235,8 @@ const toPolitician = (deputado: CamaraDeputado): Politician => ({
   bio: "Deputado federal em exercicio, com dados publicos da Camara dos Deputados.",
 });
 
+const shufflePoliticians = (items: Politician[]) => [...items].sort(() => Math.random() - 0.5);
+
 const newsItems = [
   {
     date: "16 JUN 2026",
@@ -371,7 +402,78 @@ const problemImages = [
   "/intro/problemas/images (6).jpg",
 ];
 
-function ReferenceHome() {
+function ReferenceHome({ deputies }: { deputies: Politician[] }) {
+  const [shockIndex, setShockIndex] = useState(0);
+  const [shockDeputies, setShockDeputies] = useState<Politician[]>(() =>
+    shufflePoliticians(deputies).slice(0, 40),
+  );
+  const [eyeOverlay, setEyeOverlay] = useState<EyeOverlay>(DEFAULT_EYE_OVERLAY);
+  const currentShockDeputy = shockDeputies[shockIndex % Math.max(shockDeputies.length, 1)];
+
+  useEffect(() => {
+    setShockDeputies(shufflePoliticians(deputies).slice(0, 40));
+    setShockIndex(0);
+  }, [deputies]);
+
+  useEffect(() => {
+    if (shockDeputies.length < 2) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setShockIndex((index) => (index + 1) % shockDeputies.length);
+    }, HERO_DEPUTY_ROTATION_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [shockDeputies.length]);
+
+  useEffect(() => {
+    setEyeOverlay(DEFAULT_EYE_OVERLAY);
+  }, [currentShockDeputy?.id]);
+
+  const updateEyeOverlay = useCallback(async (image: HTMLImageElement) => {
+    const Detector = window.FaceDetector;
+    if (!Detector || !image.naturalWidth || !image.naturalHeight) {
+      setEyeOverlay(DEFAULT_EYE_OVERLAY);
+      return;
+    }
+
+    try {
+      const detections = await new Detector({ fastMode: true, maxDetectedFaces: 1 }).detect(image);
+      const face = detections
+        .map((detection) => detection.boundingBox)
+        .sort((a, b) => b.width * b.height - a.width * a.height)[0];
+
+      if (!face) {
+        setEyeOverlay(DEFAULT_EYE_OVERLAY);
+        return;
+      }
+
+      const frame = image.parentElement?.getBoundingClientRect();
+      if (!frame?.width || !frame.height) {
+        setEyeOverlay(DEFAULT_EYE_OVERLAY);
+        return;
+      }
+
+      const scale = Math.max(frame.width / image.naturalWidth, frame.height / image.naturalHeight);
+      const renderedWidth = image.naturalWidth * scale;
+      const offsetX = (frame.width - renderedWidth) / 2;
+      const eyeCenterX = offsetX + (face.x + face.width * 0.5) * scale;
+      const eyeCenterY = (face.y + face.height * 0.38) * scale;
+      const eyeWidth = face.width * 0.54 * scale;
+      const mouthCenterY = (face.y + face.height * 0.72) * scale;
+      const mouthWidth = face.width * 0.34 * scale;
+
+      setEyeOverlay({
+        left: Math.min(64, Math.max(36, (eyeCenterX / frame.width) * 100)),
+        top: Math.min(40, Math.max(18, (eyeCenterY / frame.height) * 100)),
+        width: Math.min(62, Math.max(38, (eyeWidth / frame.width) * 100)),
+        mouthTop: Math.min(68, Math.max(38, (mouthCenterY / frame.height) * 100)),
+        mouthWidth: Math.min(42, Math.max(20, (mouthWidth / frame.width) * 100)),
+      });
+    } catch {
+      setEyeOverlay(DEFAULT_EYE_OVERLAY);
+    }
+  }, []);
+
   return (
     <main
       className="relative min-h-screen overflow-x-hidden"
@@ -382,6 +484,49 @@ function ReferenceHome() {
         isolation: "isolate",
       }}
     >
+      <style>{`
+        @keyframes deputy-shock-cycle {
+          0% {
+            opacity: 1;
+            filter: grayscale(0%) contrast(1) brightness(1) saturate(1);
+            transform: scale(1);
+          }
+          26% {
+            opacity: 1;
+            filter: grayscale(0%) contrast(1) brightness(1) saturate(1);
+            transform: scale(1.01);
+          }
+          42% {
+            filter: grayscale(100%) contrast(1.85) brightness(0.72) saturate(0);
+            transform: scale(1.04);
+          }
+          90% {
+            opacity: 1;
+            filter: grayscale(100%) contrast(1.85) brightness(0.72) saturate(0);
+            transform: scale(1.04);
+          }
+          100% {
+            opacity: 0;
+            filter: grayscale(100%) contrast(2.2) brightness(0.52) saturate(0);
+            transform: scale(1.07);
+          }
+        }
+        @keyframes deputy-eye-x-cycle {
+          0%, 34% {
+            opacity: 0;
+            transform: translateY(-2px) scale(0.82);
+          }
+          46%, 90% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(1px) scale(1.04);
+          }
+        }
+      `}</style>
+
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
         <img
           src="/backgrounds/memoria-rasurada.png"
@@ -465,52 +610,142 @@ function ReferenceHome() {
           }}
         />
 
-        <div className="relative z-10 max-w-[760px]">
-          <p
-            className="mb-7 text-[11px] uppercase"
-            style={{
-              color: "#e00836",
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: "0.58em",
-            }}
-          >
-            ANÁLISE DE DADOS LEGISLATIVOS - BRASIL 2023-2026
-          </p>
+        <div className="relative z-10 grid max-w-[1120px] items-center gap-8 lg:grid-cols-[minmax(0,760px)_minmax(250px,330px)]">
+          <div>
+            <p
+              className="mb-7 text-[11px] uppercase"
+              style={{
+                color: "#e00836",
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.58em",
+              }}
+            >
+              ANÁLISE DE DADOS LEGISLATIVOS - BRASIL 2023-2026
+            </p>
 
-          <h1
-            className="mb-6 font-black"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(62px, 7.2vw, 96px)",
-              lineHeight: 0.82,
-              letterSpacing: "-0.015em",
-            }}
-          >
-            <span className="block">QUEM</span>
-            <span className="mt-2 block" style={{ color: "#e00836" }}>
-              GOVERNA?
-            </span>
-          </h1>
+            <h1
+              className="mb-6 font-black"
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(62px, 7.2vw, 96px)",
+                lineHeight: 0.82,
+                letterSpacing: "-0.015em",
+              }}
+            >
+              <span className="block">QUEM</span>
+              <span className="mt-2 block" style={{ color: "#e00836" }}>
+                GOVERNA?
+              </span>
+            </h1>
 
-          <p
-            className="max-w-[640px] text-[16px] leading-[1.5] sm:text-[18px]"
-            style={{ color: "rgba(243,239,232,0.64)" }}
-          >
-            Uma análise de dados legislativos para revelar contradições entre
-            gastos, votos, proposições, ideologia e comportamento parlamentar.
-          </p>
+            <p
+              className="max-w-[640px] text-[16px] leading-[1.5] sm:text-[18px]"
+              style={{ color: "rgba(243,239,232,0.64)" }}
+            >
+              Uma análise de dados legislativos para revelar contradições entre
+              gastos, votos, proposições, ideologia e comportamento parlamentar.
+            </p>
 
-          <p
-            className="mt-4 text-[10px]"
+            <p
+              className="mt-4 text-[10px]"
+              style={{
+                color: "rgba(243,239,232,0.62)",
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.16em",
+              }}
+            >
+              — Pesquisa restrita a Deputados Federais. Não abrange senadores,
+              vereadores ou governadores.
+            </p>
+          </div>
+
+          <div
+            className="relative aspect-[0.78] w-full max-w-[280px] overflow-hidden border bg-black sm:max-w-[330px]"
             style={{
-              color: "rgba(243,239,232,0.62)",
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: "0.16em",
+              borderColor: "rgba(243,239,232,0.2)",
+              boxShadow: "0 30px 90px rgba(0,0,0,0.64), inset 0 0 0 1px rgba(224,8,54,0.28)",
             }}
+            aria-hidden="true"
           >
-            — Pesquisa restrita a Deputados Federais. Não abrange senadores,
-            vereadores ou governadores.
-          </p>
+            {currentShockDeputy ? (
+              <img
+                key={currentShockDeputy.id}
+                src={currentShockDeputy.img}
+                alt=""
+                className="h-full w-full object-cover object-top"
+                style={{ animation: "deputy-shock-cycle 2.6s ease-in-out both" }}
+                onLoad={(event) => {
+                  void updateEyeOverlay(event.currentTarget);
+                }}
+                onError={(event) => {
+                  event.currentTarget.src = getDeputyPhoto(currentShockDeputy.id);
+                }}
+              />
+            ) : (
+              <div className="h-full w-full bg-black" />
+            )}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0) 34%, rgba(5,5,5,0.74) 100%), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 5px)",
+                mixBlendMode: "screen",
+                opacity: 0.34,
+              }}
+            />
+            <div
+              key={`eyes-${currentShockDeputy?.id ?? "empty"}`}
+              className="pointer-events-none absolute z-10 flex -translate-x-1/2 items-center justify-between"
+              style={{
+                left: `${eyeOverlay.left}%`,
+                top: `${eyeOverlay.top}%`,
+                width: `${eyeOverlay.width}%`,
+                animation: "deputy-eye-x-cycle 2.6s ease-in-out both",
+              }}
+            >
+              <span
+                className="relative block h-10 w-10 sm:h-12 sm:w-12"
+                style={{ filter: "drop-shadow(0 0 8px rgba(224,8,54,0.65))" }}
+              >
+                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#e00836]" />
+                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#e00836]" />
+              </span>
+              <span
+                className="relative block h-10 w-10 sm:h-12 sm:w-12"
+                style={{ filter: "drop-shadow(0 0 8px rgba(224,8,54,0.65))" }}
+              >
+                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#e00836]" />
+                <i className="absolute left-1/2 top-1/2 block h-[4px] w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#e00836]" />
+              </span>
+            </div>
+            <div
+              key={`mouth-${currentShockDeputy?.id ?? "empty"}`}
+              className="pointer-events-none absolute left-1/2 z-10 -translate-x-1/2"
+              style={{
+                top: `${eyeOverlay.mouthTop}%`,
+                width: `${eyeOverlay.mouthWidth}%`,
+                height: "10%",
+                animation: "deputy-eye-x-cycle 2.6s ease-in-out both",
+                filter: "drop-shadow(0 0 8px rgba(224,8,54,0.65))",
+              }}
+            >
+              <span
+                className="block h-full w-full"
+                style={{
+                  borderTop: "5px solid #e00836",
+                  borderLeft: "5px solid transparent",
+                  borderRight: "5px solid transparent",
+                  borderRadius: "999px 999px 0 0",
+                }}
+              />
+            </div>
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                boxShadow: "inset 0 0 0 10px rgba(5,5,5,0.28), inset 0 0 54px rgba(224,8,54,0.22)",
+              }}
+            />
+          </div>
         </div>
 
         <div
@@ -795,6 +1030,7 @@ export default function App() {
   const [flash, setFlash] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
   const [politicians, setPoliticians] = useState<Politician[]>(officialFallbackPoliticians);
+  const [heroDeputies, setHeroDeputies] = useState<Politician[]>(officialFallbackPoliticians);
   const [consequences, setConsequences] = useState<ThemeImage[]>(consequenceImages);
 
   useEffect(() => {
@@ -847,6 +1083,29 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
+
+    fetch(HERO_DEPUTADOS_URL, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Falha ao carregar deputados para a home");
+        return response.json() as Promise<{ dados?: CamaraDeputado[] }>;
+      })
+      .then((payload) => {
+        const deputados = (payload.dados || []).filter((deputado) => deputado.urlFoto);
+        if (deputados.length > 0) setHeroDeputies(shufflePoliticians(deputados.map(toPolitician)));
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        console.warn("Nao foi possivel carregar deputados da API para a home.", error);
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
     let active = true;
 
     loadExistingImages(localConsequenceImagePaths).then((localImages) => {
@@ -878,7 +1137,7 @@ export default function App() {
   const strip3 = [...consequences, ...consequences, ...consequences];
 
   if (phase === "home") {
-    return <ReferenceHome />;
+    return <ReferenceHome deputies={heroDeputies} />;
   }
 
   return (
