@@ -72,8 +72,8 @@ def _build_registry(root: Path) -> Path:
             {
                 "id": "q2",
                 "title": "New response path",
-                "description": "Question that already points to a member/question path.",
-                "response_files": ["Caio/q2/q2_new.txt"],
+                "description": "Question that already points to the questoes tree.",
+                "response_files": ["questoes/q2/respostas/q2_new.txt"],
                 "sql_file": "q2.sql",
                 "chart_type": "bar_horizontal",
                 "supported_filters": ["anos"],
@@ -85,8 +85,8 @@ def _build_registry(root: Path) -> Path:
             },
             {
                 "id": "q3",
-                "title": "Member fallback",
-                "description": "Question that still uses a legacy filename but lives under Caio/q3.",
+                "title": "Filename fallback",
+                "description": "Question that still uses a legacy filename but lives under questoes/q3.",
                 "response_files": ["q3_member_fallback.txt"],
                 "sql_file": "q3.sql",
                 "chart_type": "bar_horizontal",
@@ -109,8 +109,8 @@ def _build_service(root: Path) -> DashboardService:
     sql_dir = root / "sql"
 
     _write_response_file(responses_dir / "legacy_q1.txt", TABLE_TEXT_Q1)
-    _write_response_file(root / "Caio" / "q2" / "q2_new.txt", TABLE_TEXT_Q2)
-    _write_response_file(root / "Caio" / "q3" / "q3_member_fallback.txt", TABLE_TEXT_Q3)
+    _write_response_file(root / "questoes" / "q2" / "respostas" / "q2_new.txt", TABLE_TEXT_Q2)
+    _write_response_file(root / "questoes" / "q3" / "respostas" / "q3_member_fallback.txt", TABLE_TEXT_Q3)
     _write_sql_file(sql_dir / "q1.sql")
     _write_sql_file(sql_dir / "q2.sql")
     _write_sql_file(sql_dir / "q3.sql")
@@ -226,7 +226,7 @@ ano_dados | eixo_maior | sigla_partido | sigla_uf | id_deputado | nome | valor_t
     assert payload["table_spec"]["rows"][0]["sigla_partido"] == "REPUBLICANOS"
 
 
-def test_question_endpoint_uses_new_paths_and_member_fallback(tmp_path: Path) -> None:
+def test_question_endpoint_uses_new_paths_and_filename_fallback(tmp_path: Path) -> None:
     client = _client_for(_build_service(tmp_path))
 
     new_path_response = client.get("/api/questions/q2?page=1&page_size=10")
@@ -309,8 +309,8 @@ escolaridade | id_deputado | nome
  Mestrado    | 2           | Bruno Lima
 (2 rows)
 """
-    _write_response_file(root / "Caio" / "q4" / "q4_escolaridade.txt", main_content)
-    _write_response_file(root / "Caio" / "q4" / "q4_escolaridade_complementar.txt", comp_content)
+    _write_response_file(root / "questoes" / "q4" / "respostas" / "q4_escolaridade.txt", main_content)
+    _write_response_file(root / "questoes" / "q4" / "respostas" / "q4_escolaridade_complementar.txt", comp_content)
     _write_sql_file(sql_dir / "q4.sql")
     
     registry = {
@@ -320,7 +320,7 @@ escolaridade | id_deputado | nome
                 "id": "q4",
                 "title": "Escolaridade",
                 "description": "Escolaridade da 57 legislatura",
-                "response_files": ["Caio/q4/q4_escolaridade.txt", "Caio/q4/q4_escolaridade_complementar.txt"],
+                "response_files": ["questoes/q4/respostas/q4_escolaridade.txt", "questoes/q4/respostas/q4_escolaridade_complementar.txt"],
                 "sql_file": "q4.sql",
                 "chart_type": "bar_vertical",
                 "supported_filters": ["deputados", "escolaridade"],
@@ -392,8 +392,8 @@ escolaridade | id_deputado | nome
  Mestrado    | 2           | Bruno Lima
 (2 rows)
 """
-    _write_response_file(root / "Caio" / "q4" / "q4_escolaridade.txt", main_content)
-    _write_response_file(root / "Caio" / "q4" / "q4_escolaridade_complementar.txt", comp_content)
+    _write_response_file(root / "questoes" / "q4" / "respostas" / "q4_escolaridade.txt", main_content)
+    _write_response_file(root / "questoes" / "q4" / "respostas" / "q4_escolaridade_complementar.txt", comp_content)
     _write_sql_file(sql_dir / "q4.sql")
     
     registry = {
@@ -403,7 +403,7 @@ escolaridade | id_deputado | nome
                 "id": "q4",
                 "title": "Escolaridade",
                 "description": "Escolaridade da 57 legislatura",
-                "response_files": ["Caio/q4/q4_escolaridade.txt", "Caio/q4/q4_escolaridade_complementar.txt"],
+                "response_files": ["questoes/q4/respostas/q4_escolaridade.txt", "questoes/q4/respostas/q4_escolaridade_complementar.txt"],
                 "sql_file": "q4.sql",
                 "chart_type": "bar_vertical",
                 "supported_filters": ["partidos", "escolaridade"],
@@ -463,5 +463,4 @@ escolaridade | id_deputado | nome
     table_rows_pt = payload_pt["table_spec"]["rows"]
     assert len(table_rows_pt) == 1
     assert table_rows_pt[0]["escolaridade"] == "Superior"
-
 

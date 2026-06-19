@@ -6,11 +6,22 @@ Projeto local para padronizar dados da Camara dos Deputados, carregar o PostgreS
 
 - `src/`: ETL em Python para ler os CSVs, padronizar os dados e gerar as respostas.
 - `Banco/`: banco PostgreSQL, `docker-compose.yml` e schema inicial.
+- `questoes/`: consultas, respostas e artefatos organizados por pergunta (`q1` a `q13`).
 - `dashboard/backend`: API FastAPI usada pelo dashboard.
 - `dashboard/frontend`: interface React/Vite original.
 - `dashboard/frontend-v2`: segunda interface React/Vite.
 - `dashboard/frontend-v3`: nova interface React/Vite independente.
-- `respostas/`: arquivos consumidos pelo backend quando disponiveis.
+- `respostas/`: pasta legada de execucoes anteriores; o fluxo atual usa `questoes/qN/respostas`.
+
+Cada pergunta fica autocontida:
+
+```text
+questoes/
+  qN/
+    consultas/
+    respostas/
+    artifacts/
+```
 
 ## Requisitos
 
@@ -142,10 +153,10 @@ make dashboard-dev
 
 ## Q8 - grafo de comunidades de voto
 
-A Q8 combina o ranking de influencia legislativa com um complemento de comunidades de voto. O complemento fica em `Caio/q8/q8_influencia_por_voto_extra.txt` e e gerado por:
+A Q8 combina o ranking de influencia legislativa com um complemento de comunidades de voto. O complemento fica em `questoes/q8/respostas/q8_influencia_por_voto_extra.txt` e e gerado por:
 
 ```powershell
-python Caio\q8\gerar_comunidades_leiden.py
+python questoes\q8\scripts\gerar_comunidades_leiden.py
 ```
 
 Metodologia do grafo da Q8:
@@ -172,4 +183,4 @@ Metodologia do grafo da Q8:
 ## Observacoes
 
 - O dashboard le os arquivos exportados via API, sem consultar o banco direto.
-- O backend aceita caminhos por membro/pergunta e mantem fallback para `respostas/` quando necessario.
+- O backend usa caminhos por pergunta em `questoes/qN` e ainda aceita fallback para `respostas/` quando necessario.

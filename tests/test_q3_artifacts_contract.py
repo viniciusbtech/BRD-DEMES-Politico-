@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-Q3_DIR = ROOT / "artifacts" / "q3"
+Q3_DIR = ROOT / "questoes" / "q3" / "artifacts"
 
 
 def _rows(path: Path):
@@ -94,14 +94,14 @@ def test_no_tracked_file_exceeds_github_100mb_limit() -> None:
 
 def test_q3_analytic_csv_is_not_tracked_or_staged() -> None:
     tracked = subprocess.run(
-        ["git", "ls-files", "--", "artifacts/q3/q3_votos_analitico.csv"],
+        ["git", "ls-files", "--", "questoes/q3/artifacts/q3_votos_analitico.csv"],
         cwd=ROOT,
         check=True,
         text=True,
         capture_output=True,
     )
     staged = subprocess.run(
-        ["git", "diff", "--cached", "--name-only", "--", "artifacts/q3/q3_votos_analitico.csv"],
+        ["git", "diff", "--cached", "--name-only", "--", "questoes/q3/artifacts/q3_votos_analitico.csv"],
         cwd=ROOT,
         check=True,
         text=True,

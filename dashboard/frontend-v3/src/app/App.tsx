@@ -449,7 +449,7 @@ function ReferenceHome() {
         </nav>
       </header>
 
-      <section className="home-page relative z-10 flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-5 pt-20 sm:h-[calc(100vh-56px)] sm:px-10 sm:pt-[88px]">
+      <section className="home-page relative z-10 flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-10 pt-20 sm:px-10 sm:pt-[88px]">
         <div
           className="pointer-events-none absolute inset-y-0 right-0 w-[54vw]"
           style={{
@@ -514,16 +514,20 @@ function ReferenceHome() {
         </div>
 
         <div
-          className="relative z-10 mt-12 grid border sm:grid-cols-3"
-          style={{ borderColor: "rgba(243,239,232,0.18)" }}
+          className="relative z-10 mt-12 grid shrink-0 border sm:grid-cols-3"
+          style={{ borderColor: "rgba(243,239,232,0.18)",
+     
+           }}
         >
           {referenceStats.map((item, index) => (
             <article
               key={item.title}
-              className="min-h-[145px] px-7 py-8 sm:px-8 sm:py-9"
+              className="min-h-[190px] px-7 pt-8 pb-16 sm:px-8 sm:pt-9 sm:pb-20"
               style={{
                 borderLeft:
                   index === 0 ? "0" : "1px solid rgba(243,239,232,0.10)",
+                      minHeight: "230px",
+                         paddingBottom:"80px"
               }}
             >
               <p

@@ -51,11 +51,11 @@ Crie um documento PDF sobre  Q8 - Metodologia
 
   E gera o complemento:
 
-  Caio/q8/q8_influencia_por_voto_extra.txt
+  questoes/q8/respostas/q8_influencia_por_voto_extra.txt
 
   O script responsável é:
 
-  Caio/q8/gerar_comunidades_leiden.py
+  questoes/q8/scripts/gerar_comunidades_leiden.py
 
   3. Seleção Dos Votos Considerados
   A metodologia considera somente votos binários:

@@ -28,7 +28,7 @@ except ImportError as exc:
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORDCLOUD_DIR = REPO_ROOT / "dashboard" / "frontend" / "public" / "wordclouds"
-RESPONSE_FILE = REPO_ROOT / "JF" / "q11" / "q11_ranking_partidos.txt"
+RESPONSE_FILE = REPO_ROOT / "questoes" / "q11" / "respostas" / "q11_ranking_partidos.txt"
 
 WIDTH = 1280
 HEIGHT = 720
@@ -98,9 +98,13 @@ def main() -> None:
 
 def read_response_file() -> str:
     if not RESPONSE_FILE.exists():
-        fallback = REPO_ROOT / "Banco" / "respostas" / "q11_ranking_partidos.txt"
-        if fallback.exists():
-            return fallback.read_text(encoding="utf-8", errors="replace")
+        fallbacks = [
+            REPO_ROOT / "respostas" / "q11_ranking_partidos.txt",
+            REPO_ROOT / "Banco" / "respostas" / "q11_ranking_partidos.txt",
+        ]
+        for fallback in fallbacks:
+            if fallback.exists():
+                return fallback.read_text(encoding="utf-8", errors="replace")
         raise SystemExit(f"Arquivo de resposta nao encontrado: {RESPONSE_FILE}")
     return RESPONSE_FILE.read_text(encoding="utf-8", errors="replace")
 

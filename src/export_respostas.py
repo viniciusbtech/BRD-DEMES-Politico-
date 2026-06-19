@@ -6,6 +6,8 @@ import sys
 def main():
     print("Exporting answers from database and generating artifacts...")
     
+    questoes_dir = Path("questoes")
+
     # 1. Clean up Banco/respostas/ directory
     banco_respostas_dir = Path("Banco/respostas")
     banco_respostas_dir.mkdir(parents=True, exist_ok=True)
@@ -18,14 +20,14 @@ def main():
         
     # 2. Run SQL queries in Postgres container
     queries = {
-        "q1": Path("Caio/consultas/q1.sql"),
-        "q3": Path("Cirilo/consultas/q3.sql"),
-        "q4": Path("Caio/consultas/q4.sql"),
-        "q5": Path("Cirilo/consultas/q5.sql"),
-        "q13": Path("Cirilo/consultas/q13.sql"),
-        "q9": Path("JF/consultas/q9.sql"),
-        "q10": Path("JF/consultas/q10.sql"),
-        "q11": Path("JF/consultas/q11.sql"),
+        "q1": questoes_dir / "q1" / "consultas" / "q1.sql",
+        "q3": questoes_dir / "q3" / "consultas" / "q3.sql",
+        "q4": questoes_dir / "q4" / "consultas" / "q4.sql",
+        "q5": questoes_dir / "q5" / "consultas" / "q5.sql",
+        "q13": questoes_dir / "q13" / "consultas" / "q13.sql",
+        "q9": questoes_dir / "q9" / "consultas" / "q9.sql",
+        "q10": questoes_dir / "q10" / "consultas" / "q10.sql",
+        "q11": questoes_dir / "q11" / "consultas" / "q11.sql",
     }
     
     for name, sql_path in queries.items():
@@ -76,52 +78,40 @@ def main():
     # Note: Q2 files are already written to targets by the Q2 generator script
     targets = {
         "q1_gastos_deputados.txt": [
-            Path("respostas/q1_gastos_deputados.txt"),
-            Path("Caio/q1/q1_gastos_deputados.txt")
+            questoes_dir / "q1" / "respostas" / "q1_gastos_deputados.txt",
         ],
         "q3_voto_deputado_tema.txt": [
-            Path("respostas/q3_voto_deputado_tema.txt"),
-            Path("Cirilo/q3/q3_voto_deputado_tema.txt")
+            questoes_dir / "q3" / "respostas" / "q3_voto_deputado_tema.txt",
         ],        
         "q4_escolaridade.txt": [
-            Path("respostas/q4_escolaridade.txt"),
-            Path("Caio/q4/q4_escolaridade.txt")
+            questoes_dir / "q4" / "respostas" / "q4_escolaridade.txt",
         ],
         "q4_escolaridade_complementar.txt": [
-            Path("respostas/q4_escolaridade_complementar.txt"),
-            Path("Caio/q4/q4_escolaridade_complementar.txt")
+            questoes_dir / "q4" / "respostas" / "q4_escolaridade_complementar.txt",
         ],
         "q5_fornecedores.txt": [
-            Path("respostas/q5_fornecedores.txt"),
-            Path("Cirilo/q5/q5_fornecedores.txt")
+            questoes_dir / "q5" / "respostas" / "q5_fornecedores.txt",
         ],
         "q5_fornecedores_complemento.txt": [
-            Path("respostas/q5_fornecedores_complemento.txt"),
-            Path("Cirilo/q5/q5_fornecedores_complemento.txt")
+            questoes_dir / "q5" / "respostas" / "q5_fornecedores_complemento.txt",
         ],
         "q13_categorias_gasto_deputado.txt": [
-            Path("respostas/q13_categorias_gasto_deputado.txt"),
-            Path("Cirilo/q13/q13_categorias_gasto_deputado.txt")
+            questoes_dir / "q13" / "respostas" / "q13_categorias_gasto_deputado.txt",
         ],
         "q13_categorias_gasto_deputado_complemento.txt": [
-            Path("respostas/q13_categorias_gasto_deputado_complemento.txt"),
-            Path("Cirilo/q13/q13_categorias_gasto_deputado_complemento.txt")
+            questoes_dir / "q13" / "respostas" / "q13_categorias_gasto_deputado_complemento.txt",
         ],
         "q9_vies_deputado.txt": [
-            Path("respostas/q9_vies_deputado.txt"),
-            Path("JF/q9/q9_vies_deputado.txt")
+            questoes_dir / "q9" / "respostas" / "q9_vies_deputado.txt",
         ],
         "q9_vies_deputado_detalhe.csv": [
-            Path("respostas/q9_vies_deputado_detalhe.csv"),
-            Path("JF/q9/q9_vies_deputado_detalhe.csv")
+            questoes_dir / "q9" / "respostas" / "q9_vies_deputado_detalhe.csv",
         ],
         "q10_alinhamento_partidos.txt": [
-            Path("respostas/q10_alinhamento_partidos.txt"),
-            Path("JF/q10/q10_alinhamento_partidos.txt")
+            questoes_dir / "q10" / "respostas" / "q10_alinhamento_partidos.txt",
         ],
         "q11_ranking_partidos.txt": [
-            Path("respostas/q11_ranking_partidos.txt"),
-            Path("JF/q11/q11_ranking_partidos.txt")
+            questoes_dir / "q11" / "respostas" / "q11_ranking_partidos.txt",
         ],
     }
     

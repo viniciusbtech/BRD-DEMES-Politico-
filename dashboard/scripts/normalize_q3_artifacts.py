@@ -12,7 +12,7 @@ from typing import Any, TextIO
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-ARTIFACTS_DIR = REPO_ROOT / "artifacts" / "q3"
+ARTIFACTS_DIR = REPO_ROOT / "questoes" / "q3" / "artifacts"
 
 VOTOS_MIN_COLUMNS = [
     "ano_dados",

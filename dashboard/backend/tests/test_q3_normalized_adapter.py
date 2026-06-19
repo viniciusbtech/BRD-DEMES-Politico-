@@ -39,9 +39,9 @@ def _build_q3_service(root: Path) -> DashboardService:
                 "title": "Q3",
                 "description": "Q3 normalizada",
                 "response_files": [
-                    "artifacts/q3/q3_resumos_agregados.csv",
-                    "artifacts/q3/q3_votos_min.csv",
-                    "artifacts/q3/q3_classificacao_votacoes.csv",
+                    "questoes/q3/artifacts/q3_resumos_agregados.csv",
+                    "questoes/q3/artifacts/q3_votos_min.csv",
+                    "questoes/q3/artifacts/q3_classificacao_votacoes.csv",
                 ],
                 "sql_file": "q3.sql",
                 "chart_type": "bar_vertical",
@@ -62,7 +62,7 @@ def _build_q3_service(root: Path) -> DashboardService:
         "1;;Ana Publica;Ana;;57;57;Superior\n",
     )
     _write(
-        root / "artifacts" / "q3" / "q3_resumos_agregados.csv",
+        root / "questoes" / "q3" / "artifacts" / "q3_resumos_agregados.csv",
         "\n".join(
             [
                 "ano_dados;eixo_principal;sigla_partido;sigla_uf;id_deputado;nome;voto_sim;voto_nao;voto_abstencao;voto_outro;votos_total;votos_classificados",
@@ -73,7 +73,7 @@ def _build_q3_service(root: Path) -> DashboardService:
         + "\n",
     )
     _write(
-        root / "artifacts" / "q3" / "q3_votos_min.csv",
+        root / "questoes" / "q3" / "artifacts" / "q3_votos_min.csv",
         "\n".join(
             [
                 "ano_dados;data_votacao;id_votacao;id_deputado;nome;sigla_partido;sigla_uf;voto;voto_sim;voto_nao;voto_abstencao;voto_outro;eixo_principal;tem_classificacao_tematica",
@@ -86,7 +86,7 @@ def _build_q3_service(root: Path) -> DashboardService:
         + "\n",
     )
     _write(
-        root / "artifacts" / "q3" / "q3_classificacao_votacoes.csv",
+        root / "questoes" / "q3" / "artifacts" / "q3_classificacao_votacoes.csv",
         "\n".join(
             [
                 "ano_dados;id_votacao;eixo_principal;eixos_secundarios;confianca_classificacao;evidencias_eixo_principal;materia_resumo;ementa_resumo;qtd_proposicoes_associadas;qtd_objetos_associados",

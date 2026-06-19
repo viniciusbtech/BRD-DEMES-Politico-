@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 def test_q1_export_uses_civil_name_as_display_label() -> None:
     deputies = _load_deputy_labels(REPO_ROOT / "dados_padronizados" / "deputados.csv")
-    document = parse_psql_file(REPO_ROOT / "Caio" / "q1" / "q1_gastos_deputados.txt")
+    document = parse_psql_file(REPO_ROOT / "questoes" / "q1" / "respostas" / "q1_gastos_deputados.txt")
 
     rows = document.tables[0].rows
     assert rows
@@ -24,14 +24,14 @@ def test_q1_export_uses_civil_name_as_display_label() -> None:
 
 
 def test_q1_export_keeps_descending_total_order() -> None:
-    document = parse_psql_file(REPO_ROOT / "Caio" / "q1" / "q1_gastos_deputados.txt")
+    document = parse_psql_file(REPO_ROOT / "questoes" / "q1" / "respostas" / "q1_gastos_deputados.txt")
     totals = [Decimal(str(row["gasto_total"])) for row in document.tables[0].rows[:50]]
 
     assert totals == sorted(totals, reverse=True)
 
 
 def test_q1_sql_uses_nome_civil_with_nome_fallback() -> None:
-    sql = (REPO_ROOT / "Caio" / "consultas" / "q1.sql").read_text(encoding="utf-8")
+    sql = (REPO_ROOT / "questoes" / "q1" / "consultas" / "q1.sql").read_text(encoding="utf-8")
     normalized = " ".join(sql.split())
 
     assert "COALESCE(NULLIF(BTRIM(d.nome_civil), ''), d.nome) AS nome" in normalized
