@@ -4,6 +4,7 @@ import EscolaridadePage from "./pages/EscolaridadePage";
 import FornecedoresPage from "./pages/FornecedoresPage";
 import GastosSociaisPage from "./pages/GastosSociaisPage";
 import IdeologiaPage from "./pages/IdeologiaPage";
+import ViesPage from "./pages/ViesPage";
 import InfluenciaPage from "./pages/InfluenciaPage";
 import PanoramaPage from "./pages/PanoramaPage";
 import PartidosPage from "./pages/PartidosPage";
@@ -1128,7 +1129,7 @@ export default function App() {
   }
 
   if (["/q/q7", "/recortes/ideologia", "/ideologia", "/comportamento"].includes(currentPath)) {
-    return <IdeologiaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <ViesPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q8", "/recortes/escolaridade", "/escolaridade"].includes(currentPath)) {
