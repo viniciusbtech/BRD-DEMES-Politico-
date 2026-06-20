@@ -1213,6 +1213,88 @@ class Q11Adapter(QuestionAdapter):
 class Q12Adapter(QuestionAdapter):
     """Deputado x fornecedor."""
 
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        payload = super().build_payload(state)
+
+        full_table = _find_table_by_hint(self.complement_tables, "ranking completo deputado x fornecedor")
+        if full_table is None:
+            return payload
+
+        filtered = FilterEngine.apply_filters(
+            full_table.rows,
+            state,
+            self.context.question.supported_filters,
+        )
+
+        if state.deputados:
+            rows = filtered
+            columns = full_table.columns
+            title = full_table.title
+        else:
+            rows = self._aggregate_by_deputy(filtered)
+            columns = [
+                "id_deputado",
+                "nome",
+                "sigla_uf",
+                "sigla_partido",
+                "qtd_fornecedores",
+                "qtd_lancamentos",
+                "total_pago",
+            ]
+            title = "Ranking de deputados por gasto total com fornecedores"
+
+        sorted_rows = FilterEngine.apply_sort(rows, state.sort_by or "total_pago", state.sort_dir)
+        paged_rows = FilterEngine.apply_pagination(sorted_rows, state.page, state.page_size)
+
+        payload.table_spec = self._build_table_spec(
+            title=title,
+            columns=columns,
+            rows=paged_rows,
+            total=len(sorted_rows),
+            state=state,
+        )
+        payload.empty_state = EmptyState(
+            is_empty=payload.table_spec.total == 0,
+            message="Sem dados para os filtros selecionados." if payload.table_spec.total == 0 else "",
+        )
+        return payload
+
+    @staticmethod
+    def _aggregate_by_deputy(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        grouped: dict[str, dict[str, Any]] = {}
+        suppliers: dict[str, set[str]] = {}
+
+        for row in rows:
+            dep_id = str(row.get("id_deputado") or "").strip()
+            name = str(row.get("nome") or "").strip()
+            if not dep_id and not name:
+                continue
+
+            key = dep_id or name.lower()
+            current = grouped.setdefault(
+                key,
+                {
+                    "id_deputado": dep_id,
+                    "nome": name,
+                    "sigla_uf": row.get("sigla_uf") or "",
+                    "sigla_partido": row.get("sigla_partido") or "",
+                    "qtd_fornecedores": 0,
+                    "qtd_lancamentos": 0,
+                    "total_pago": 0.0,
+                },
+            )
+            current["qtd_lancamentos"] = int(current["qtd_lancamentos"] or 0) + int(float(row.get("qtd_lancamentos") or 0))
+            current["total_pago"] = float(current["total_pago"] or 0) + float(row.get("total_pago") or 0)
+
+            supplier = str(row.get("fornecedor") or "").strip()
+            if supplier:
+                suppliers.setdefault(key, set()).add(supplier)
+
+        for key, current in grouped.items():
+            current["qtd_fornecedores"] = len(suppliers.get(key, set()))
+
+        return list(grouped.values())
+
 
 class Q13Adapter(QuestionAdapter):
     """Categorias de gasto por deputado."""

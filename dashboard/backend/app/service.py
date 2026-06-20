@@ -322,7 +322,7 @@ class DashboardService:
             deputados=all_deputies,
             escolaridade=[],
         )
-        catalogs = {question_id: profile_catalog for question_id in ("q1", "q2", "q7", "q13")}
+        catalogs = {question_id: profile_catalog for question_id in ("q1", "q2", "q7", "q12", "q13")}
         catalogs["q3"] = FilterCatalog(
             anos=q3_catalog.anos,
             eixos=q3_catalog.eixos,

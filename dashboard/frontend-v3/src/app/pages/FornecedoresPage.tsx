@@ -1,559 +1,771 @@
-import { useMemo, useState, type ReactNode } from "react";
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useEffect, useMemo, useState } from "react";
+import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
-import {
-  backgroundImages,
-  deputySuppliers,
-  formatCurrency,
-  mockDeputies,
-  suppliers,
-  unsplashImage,
-  type MockDeputy,
-  type Supplier,
-} from "../data/fornecedoresMock";
+import type { FilterChoice, QuestionPayload } from "../types";
 
-type FornecedoresPageProps = {
+// ─── tipos ───────────────────────────────────────────────────────────────────
+type Props = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
+type Row = Record<string, unknown>;
+type DepStats = { id: string; lancamentos: number; total: number; partido: string; uf: string };
 
-type SectionBgProps = {
-  imgId: string;
-  alt: string;
-  children: ReactNode;
-  className?: string;
-};
-
-type SearchInputProps = {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-};
-
-type SupplierDropdownProps = {
-  value: string;
-  onChange: (value: string) => void;
-  onSelect: (supplier: Supplier) => void;
-};
-
-type TooltipValue = string | number | Array<string | number>;
-
-const MONO = "'JetBrains Mono', monospace";
+// ─── constantes de estilo ────────────────────────────────────────────────────
+const MONO  = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
+const RED   = "#c41230";
 
-function SectionBg({ imgId, alt, children, className = "" }: SectionBgProps) {
-  return (
-    <div className={`relative ${className}`}>
-      <img
-        src={unsplashImage(imgId, 1600, 900)}
-        alt={alt}
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        style={{ filter: "grayscale(30%) contrast(1.05) brightness(0.38)" }}
-      />
+// ─── helpers ─────────────────────────────────────────────────────────────────
+const raw = (r: Row, k: string) => Number(r?.[k] ?? 0);
+const str = (r: Row, k: string) => String(r?.[k] ?? "");
+
+const fmtCurrency = (v: number) =>
+  `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const fmtShort = (v: number) => {
+  if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}M`;
+  if (v >= 1_000)     return `R$ ${(v / 1_000).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}K`;
+  return fmtCurrency(v);
+};
+const fmtNum = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+const camaraPhoto = (id: string | number) =>
+  `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
+const deputyPhoto = (deputy: Pick<FilterChoice, "value" | "photo_url"> | null, id?: string | number) => {
+  const photoUrl = deputy?.photo_url;
+  const depId = String(deputy?.value ?? id ?? "");
+  return photoUrl || (/^\d+$/.test(depId) ? camaraPhoto(depId) : "");
+};
+
+// ─── componente de foto com fallback de iniciais ─────────────────────────────
+function DeputyAvatar({
+  nome,
+  id,
+  deputy,
+  size = 48,
+}: {
+  nome: string;
+  id?: string | number;
+  deputy?: Pick<FilterChoice, "value" | "photo_url"> | null;
+  size?: number;
+}) {
+  const [failed, setFailed] = useState(false);
+  const src = deputyPhoto(deputy ?? null, id);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  const initials = nome
+    .split(" ")
+    .filter((w) => w.length > 2)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() || nome.slice(0, 2).toUpperCase();
+
+  if (!src || failed) {
+    return (
       <div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: "linear-gradient(to right, rgba(10,10,10,0.88) 50%, rgba(10,10,10,0.55) 100%)" }}
-      />
-      <div className="relative z-10">{children}</div>
-    </div>
-  );
-}
-
-function SearchInput({ value, onChange, placeholder }: SearchInputProps) {
-  return (
-    <div className="relative max-w-xl">
-      <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-        ⌕
-      </span>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        className="w-full border border-border bg-card py-3.5 pl-10 pr-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-      />
-      {value ? (
-        <button onClick={() => onChange("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground">
-          ×
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-function SupplierDropdown({ value, onChange, onSelect }: SupplierDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const filtered = value
-    ? suppliers.filter(
-        (supplier) =>
-          supplier.name.toLowerCase().includes(value.toLowerCase()) ||
-          supplier.category.toLowerCase().includes(value.toLowerCase()),
-      )
-    : suppliers;
-
-  return (
-    <div className="relative max-w-xl">
-      <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-        ⌕
-      </span>
-      <input
-        value={value}
-        onChange={(event) => {
-          onChange(event.target.value);
-          setOpen(true);
+        style={{
+          width: size, height: size, flexShrink: 0,
+          background: "#1a1a1a",
+          border: "1px solid rgba(240,236,228,0.10)",
+          display: "flex", alignItems: "center", justifyContent: "center",
         }}
-        onFocus={() => setOpen(true)}
-        placeholder="Nome ou categoria do fornecedor..."
-        className="w-full border border-border bg-card py-3.5 pl-10 pr-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+      >
+        <span style={{ fontFamily: MONO, fontSize: size * 0.32, color: RED, fontWeight: "bold" }}>
+          {initials}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        width: size, height: size, flexShrink: 0,
+        overflow: "hidden",
+        border: "1px solid rgba(240,236,228,0.12)",
+      }}
+    >
+      <img
+        src={src}
+        alt={nome}
+        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", filter: "grayscale(25%)" }}
+        onError={() => setFailed(true)}
       />
-      {value ? (
-        <button
-          onClick={() => {
-            onChange("");
-            setOpen(false);
-          }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-        >
-          ×
-        </button>
-      ) : null}
-      {open ? (
-        <div className="absolute left-0 right-0 top-full z-20 max-h-72 overflow-y-auto border border-border" style={{ background: "#141414" }}>
-          {filtered.map((supplier) => (
-            <button
-              key={supplier.id}
-              onClick={() => {
-                onSelect(supplier);
-                onChange(supplier.name);
-                setOpen(false);
-              }}
-              className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                  {supplier.name}
-                </p>
-                <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  {supplier.category} · {supplier.deputies} dep. · {formatCurrency(supplier.total)}
-                </p>
-              </div>
-              <span className="shrink-0 text-xs text-primary" style={{ fontFamily: MONO }}>
-                VER →
-              </span>
-            </button>
-          ))}
-          {filtered.length === 0 ? (
-            <p className="px-4 py-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-              NENHUM RESULTADO
-            </p>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }
 
-export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: FornecedoresPageProps) {
-  const [supplierQuery, setSupplierQuery] = useState("");
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
-  const [deputyQuery, setDeputyQuery] = useState("");
-  const [selectedDeputy, setSelectedDeputy] = useState<MockDeputy | null>(null);
-  const [showDeputyDrop, setShowDeputyDrop] = useState(false);
-  const [contractsQuery, setContractsQuery] = useState("");
-
-  const suppliersByDeputies = useMemo(() => [...suppliers].sort((a, b) => b.deputies - a.deputies), []);
-  const suppliersByTotal = useMemo(() => [...suppliers].sort((a, b) => b.total - a.total), []);
-  const selectedCategorySuppliers = selectedSupplier ? suppliers.filter((supplier) => supplier.category === selectedSupplier.category) : [];
-  const maxSupplierTotal = suppliersByTotal[0]?.total ?? 1;
-
-  const filteredDeputies = mockDeputies.filter(
-    (deputy) =>
-      deputy.name.toLowerCase().includes(deputyQuery.toLowerCase()) ||
-      deputy.party.toLowerCase().includes(deputyQuery.toLowerCase()),
+// ─── sub-componentes de layout ────────────────────────────────────────────────
+function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title: string; desc: string }) {
+  return (
+    <div className="mb-8">
+      <div className="mb-2 flex items-baseline gap-4">
+        <span className="select-none text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.18)" }}>{n}</span>
+        <span className="text-xs tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
+      </div>
+      <h2 className="mb-2 text-3xl font-black leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{title}</h2>
+      <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
+    </div>
   );
+}
 
-  const deputyLinks = selectedDeputy
-    ? (deputySuppliers[selectedDeputy.id] ?? [])
-        .map((link) => ({ ...link, supplier: suppliers.find((supplier) => supplier.id === link.supplierId) }))
-        .filter((link): link is typeof link & { supplier: Supplier } => Boolean(link.supplier))
-    : [];
+function YearPills({ years, selected, onChange }: { years: FilterChoice[]; selected: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      <button
+        onClick={() => onChange("")}
+        className="border px-3 py-1.5 text-xs font-bold uppercase transition-colors"
+        style={{
+          fontFamily: MONO,
+          borderColor: !selected ? RED : "rgba(240,236,228,0.12)",
+          background:  !selected ? `${RED}22` : "transparent",
+          color:       !selected ? RED : "var(--muted-foreground)",
+        }}
+      >
+        TODOS
+      </button>
+      {years.map((y) => (
+        <button
+          key={y.value}
+          onClick={() => onChange(y.value)}
+          className="border px-3 py-1.5 text-xs font-bold transition-colors"
+          style={{
+            fontFamily: MONO,
+            borderColor: selected === y.value ? RED : "rgba(240,236,228,0.12)",
+            background:  selected === y.value ? `${RED}22` : "transparent",
+            color:       selected === y.value ? RED : "var(--muted-foreground)",
+          }}
+        >
+          {y.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
-  const filteredContracts = contractsQuery
-    ? suppliersByTotal.filter(
-        (supplier) =>
-          supplier.name.toLowerCase().includes(contractsQuery.toLowerCase()) ||
-          supplier.category.toLowerCase().includes(contractsQuery.toLowerCase()),
-      )
-    : suppliersByTotal;
+function EmptyMsg({ text }: { text: string }) {
+  return (
+    <div className="border border-border px-6 py-10 text-center" style={{ background: "#111" }}>
+      <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{text}</p>
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="bg-background px-6 py-6">
+      <p className="mb-1.5 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{label}</p>
+      <p className="text-2xl font-black text-primary" style={{ fontFamily: SERIF }}>{value}</p>
+      {sub ? <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p> : null}
+    </div>
+  );
+}
+
+// ─── componente principal ─────────────────────────────────────────────────────
+export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: Props) {
+
+  // ── Q5 (seção 1) ──
+  const [q5Payload, setQ5Payload]     = useState<QuestionPayload | null>(null);
+  const [q5Year, setQ5Year]           = useState("");
+  const [q5Search, setQ5Search]       = useState("");
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+
+  // ── Q12 overview (para top 10 + stats por deputado) ──
+  const [q12Overview, setQ12Overview] = useState<Row[]>([]);
+  const [depStats, setDepStats] = useState<Map<string, DepStats>>(new Map());
+
+  // ── Q12 selecionado (seção 2) ──
+  const [allYears, setAllYears]           = useState<FilterChoice[]>([]);
+  const [deputyCatalog, setDeputyCatalog] = useState<FilterChoice[]>([]);
+  const [depSearch, setDepSearch]         = useState("");
+  const [showDepDrop, setShowDepDrop]     = useState(false);
+  const [selectedDep, setSelectedDep]     = useState<FilterChoice | null>(null);
+  const [q12Year, setQ12Year]             = useState("");
+  const [q12Rows, setQ12Rows]             = useState<Row[]>([]);
+  const [loadingQ12, setLoadingQ12]       = useState(false);
+
+  const [pageLoading, setPageLoading] = useState(true);
+
+  // ── carga inicial ──
+  useEffect(() => {
+    let mounted = true;
+    Promise.all([
+      fetchMeta(),
+      fetchQuestion("q5", {}, { page: 1, pageSize: 200 }),
+      fetchQuestion("q12", {}, { page: 1, pageSize: 200 }),
+    ])
+      .then(([meta, q5, q12]) => {
+        if (!mounted) return;
+        const q12Filters = meta.question_filters?.q12 ?? meta.question_filters?.q13 ?? meta.available_filters;
+        setAllYears(q12Filters.anos ?? meta.available_filters.anos ?? []);
+        setDeputyCatalog(q12Filters.deputados ?? []);
+        setQ5Payload(q5);
+
+        const overviewRows = q12.table_spec.rows as Row[];
+
+        setQ12Overview(overviewRows);
+
+        // Monta mapa nome → { id, lancamentos, total, partido, uf }
+        const stats = new Map<string, DepStats>();
+        overviewRows.forEach((r) => {
+          const nome = str(r, "nome").trim();
+          const id   = str(r, "id_deputado").trim();
+          const lc   = raw(r, "qtd_lancamentos");
+          const tp   = raw(r, "total_pago");
+          if (!nome) return;
+          const key = nome.toLowerCase();
+          if (!stats.has(key)) {
+            stats.set(key, { id, lancamentos: 0, total: 0, partido: str(r, "sigla_partido"), uf: str(r, "sigla_uf") });
+          }
+          if (id && !stats.has(id.toLowerCase())) {
+            stats.set(id.toLowerCase(), { id, lancamentos: 0, total: 0, partido: str(r, "sigla_partido"), uf: str(r, "sigla_uf") });
+          }
+          const e = stats.get(key)!;
+          e.lancamentos += lc;
+          e.total       += tp;
+          if (id) {
+            const byId = stats.get(id.toLowerCase())!;
+            byId.lancamentos += lc;
+            byId.total       += tp;
+          }
+        });
+        setDepStats(stats);
+      })
+      .catch(console.error)
+      .finally(() => { if (mounted) setPageLoading(false); });
+    return () => { mounted = false; };
+  }, []);
+
+  // ── fetch Q12 filtrado ao selecionar deputado ──
+  useEffect(() => {
+    if (!selectedDep) { setQ12Rows([]); return; }
+    let mounted = true;
+    setLoadingQ12(true);
+    const anos = q12Year ? [q12Year] : [];
+
+    const loadDeputyRows = async () => {
+      const pageSize = 200;
+      const firstPage = await fetchQuestion("q12", { deputados: [selectedDep.value], anos }, { page: 1, pageSize });
+      const firstRows = firstPage.table_spec.rows as Row[];
+      const total = firstPage.table_spec.total;
+      const totalPages = Math.ceil(total / pageSize);
+
+      if (totalPages <= 1) return firstRows;
+
+      const nextPages = await Promise.all(
+        Array.from({ length: totalPages - 1 }, (_, index) =>
+          fetchQuestion("q12", { deputados: [selectedDep.value], anos }, { page: index + 2, pageSize }),
+        ),
+      );
+
+      return [
+        ...firstRows,
+        ...nextPages.flatMap((page) => page.table_spec.rows as Row[]),
+      ];
+    };
+
+    loadDeputyRows()
+      .then((rows) => { if (mounted) setQ12Rows(rows); })
+      .catch(() => { if (mounted) setQ12Rows([]); })
+      .finally(() => { if (mounted) setLoadingQ12(false); });
+    return () => { mounted = false; };
+  }, [selectedDep, q12Year]);
+
+  // ── helper: busca stats pelo id do catalogo; cai para nome quando vem do top 10 ──
+  const statsForDeputy = (deputy: Pick<FilterChoice, "value" | "label"> | null) => {
+    if (!deputy) return undefined;
+    return depStats.get(deputy.value.trim().toLowerCase()) ?? depStats.get(deputy.label.trim().toLowerCase());
+  };
+
+  // ── Q5: linhas anuais e globais ──
+  const q5AnnualRows = useMemo(() => (q5Payload?.table_spec.rows ?? []) as Row[], [q5Payload]);
+  const q5GlobalRows = useMemo(() => {
+    for (const ct of q5Payload?.complement_tables ?? []) {
+      const rows = (ct.rows ?? []) as Row[];
+      if (rows.length > 0 && str(rows[0], "ano_dados") === "GLOBAL") return rows;
+    }
+    return [] as Row[];
+  }, [q5Payload]);
+
+  const q5BaseRows = useMemo(() => {
+    if (q5Year) return q5AnnualRows.filter((r) => str(r, "ano_dados") === q5Year);
+    return q5GlobalRows.length > 0 ? q5GlobalRows : q5AnnualRows;
+  }, [q5Year, q5AnnualRows, q5GlobalRows]);
+
+  const q5Visible = useMemo(() => {
+    if (!q5Search.trim()) return q5BaseRows;
+    const q = q5Search.toLowerCase();
+    return q5BaseRows.filter((r) => str(r, "fornecedor").toLowerCase().includes(q));
+  }, [q5BaseRows, q5Search]);
+
+  const q5Max = useMemo(() => Math.max(...q5BaseRows.map((r) => raw(r, "total_pago")), 1), [q5BaseRows]);
+  const s1Total       = useMemo(() => q5Visible.reduce((s, r) => s + raw(r, "total_pago"), 0), [q5Visible]);
+  const s1Lancamentos = useMemo(() => q5Visible.reduce((s, r) => s + raw(r, "qtd_lancamentos"), 0), [q5Visible]);
+
+  const expandedBreakdown = useMemo(() => {
+    if (!expandedRow) return [];
+    return q5AnnualRows
+      .filter((r) => str(r, "fornecedor") === expandedRow)
+      .sort((a, b) => raw(a, "ano_dados") - raw(b, "ano_dados"));
+  }, [q5AnnualRows, expandedRow]);
+
+  // ── Top 10 deputados (de Q12 overview) ──
+  const top10Deputies = useMemo(() => {
+    const map = new Map<string, { nome: string; id: number; partido: string; uf: string; total: number; lancamentos: number }>();
+    q12Overview.forEach((r) => {
+      const nome = str(r, "nome");
+      const id   = raw(r, "id_deputado");
+      if (!nome || !id) return;
+      if (!map.has(nome)) map.set(nome, { nome, id, partido: str(r, "sigla_partido"), uf: str(r, "sigla_uf"), total: 0, lancamentos: 0 });
+      const e = map.get(nome)!;
+      e.total       += raw(r, "total_pago");
+      e.lancamentos += raw(r, "qtd_lancamentos");
+    });
+    return [...map.values()].sort((a, b) => b.total - a.total).slice(0, 10);
+  }, [q12Overview]);
+
+  // ── Filtro deputados no dropdown ──
+  const filteredDeps = useMemo(() => {
+    if (!depSearch.trim()) return deputyCatalog.slice(0, 25);
+    const q = depSearch.toLowerCase();
+    return deputyCatalog.filter((d) => `${d.label} ${d.value}`.toLowerCase().includes(q));
+  }, [deputyCatalog, depSearch]);
+
+  // ── Resultados seção 2 ──
+  const s2Results = useMemo(() => {
+    if (!q12Rows.length) return [];
+    const map = new Map<string, { fornecedor: string; total: number; lancamentos: number; anos: Set<string> }>();
+    q12Rows.forEach((r) => {
+      const name = str(r, "fornecedor");
+      if (!name) return;
+      if (!map.has(name)) map.set(name, { fornecedor: name, total: 0, lancamentos: 0, anos: new Set() });
+      const e = map.get(name)!;
+      e.total       += raw(r, "total_pago");
+      e.lancamentos += raw(r, "qtd_lancamentos");
+      e.anos.add(str(r, "ano_dados"));
+    });
+    const entries = [...map.values()].sort((a, b) => b.total - a.total);
+    const grandTotal = entries.reduce((s, e) => s + e.total, 0);
+    const maxTotal   = entries[0]?.total ?? 1;
+    return entries.map((e) => ({ ...e, pct: grandTotal > 0 ? (e.total / grandTotal) * 100 : 0, barPct: (e.total / maxTotal) * 100 }));
+  }, [q12Rows]);
+
+  const s2Total       = useMemo(() => s2Results.reduce((s, e) => s + e.total, 0), [s2Results]);
+  const s2Lancamentos = useMemo(() => s2Results.reduce((s, e) => s + e.lancamentos, 0), [s2Results]);
+
+  const selectDeputy = (deputy: FilterChoice) => {
+    setSelectedDep(deputy);
+    setDepSearch(deputy.label);
+    setShowDepDrop(false);
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+        <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+          CARREGANDO DADOS…
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
-      <SectionBg imgId={backgroundImages[4].id} alt={backgroundImages[4].alt}>
-        <div className="border-b border-border px-6 pb-12 pt-16 md:px-14">
-          <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-            05 — CONTRATOS
-          </p>
-          <h1 className="mb-4 text-5xl font-black md:text-7xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-            Fornecedores
-            <br />
-            <span className="text-primary">× Deputados</span>
-          </h1>
-          <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
-            Quem recebeu dinheiro público, quais empresas dominam os contratos e o que cada deputado comprou.
-          </p>
-        </div>
-      </SectionBg>
+      {/* ── HERO ── */}
+      <div
+        className="relative overflow-hidden border-b border-border px-6 pb-20 pt-20 md:px-14 md:pb-24 md:pt-24"
+      >
+        <img
+          src="/perguntas/q05/ChatGPT Image Jun 16, 2026, 10_05_56 PM.png"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(5,5,5,0.78) 0%, rgba(5,5,5,0.46) 42%, rgba(5,5,5,0.10) 100%)",
+          }}
+        />
+        <div className="absolute inset-0" style={{ boxShadow: "inset 0 -70px 90px rgba(10,10,10,0.52)" }} />
+        <p className="relative z-10 mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>05 — CONTRATOS</p>
+        <h1 className="relative z-10 mb-4 font-black leading-none" style={{ fontFamily: SERIF, color: "#f0ece4", fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
+          Fornecedores
+          <br />
+          <span style={{ color: RED }}>× Deputados</span>
+        </h1>
+        <p className="relative z-10 max-w-2xl text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.82)" }}>
+          Quem recebeu dinheiro da cota parlamentar — quanto cada empresa foi paga ao longo da 57ª Legislatura e com quais fornecedores cada deputado fez seus gastos.
+        </p>
+      </div>
 
-      <SectionBg imgId={backgroundImages[0].id} alt={backgroundImages[0].alt}>
-        <section className="border-b border-border px-6 py-14 md:px-14">
-          <div className="mb-2 flex items-baseline gap-4">
-            <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-              01
-            </span>
-            <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              BUSCA POR FORNECEDOR
-            </p>
+      {/* ══════════════════════════════════════════════════════════
+          SEÇÃO 01 — FORNECEDORES POR VALOR  (Q5)
+      ══════════════════════════════════════════════════════════ */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0c0c0c" }}>
+        <SectionHeader
+          n="01"
+          tag="FORNECEDORES POR VALOR"
+          title="Ordenados pelo total recebido da cota parlamentar"
+          desc="Ranking dos maiores fornecedores. Filtre por ano ou pesquise um fornecedor específico. Clique em qualquer linha para ver o detalhamento por ano."
+        />
+
+        {/* Filtros */}
+        <div className="mb-6 flex flex-wrap items-center gap-4">
+          <YearPills years={allYears} selected={q5Year} onChange={(v) => { setQ5Year(v); setExpandedRow(null); }} />
+          <div className="relative max-w-xs flex-1">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">⌕</span>
+            <input
+              value={q5Search}
+              onChange={(e) => setQ5Search(e.target.value)}
+              placeholder="Pesquisar fornecedor..."
+              className="w-full border border-border bg-card py-2.5 pl-9 pr-9 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            />
+            {q5Search ? (
+              <button onClick={() => setQ5Search("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">×</button>
+            ) : null}
           </div>
-          <h2 className="mb-2 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-            Quanto foi gasto com esse fornecedor?
-          </h2>
-          <p className="mb-8 max-w-lg text-sm text-muted-foreground">
-            Pesquise pelo nome ou categoria para ver o total recebido e o comparativo com outros fornecedores do mesmo setor.
-          </p>
+        </div>
 
-          <SupplierDropdown value={supplierQuery} onChange={setSupplierQuery} onSelect={setSelectedSupplier} />
+        {/* Cards de resumo */}
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+          <StatCard
+            label={q5Year ? `TOTAL PAGO — ${q5Year}` : "TOTAL PAGO — TODOS OS ANOS"}
+            value={fmtShort(s1Total)}
+            sub={fmtCurrency(s1Total)}
+          />
+          <StatCard
+            label="FORNECEDORES NO RANKING"
+            value={fmtNum(q5Visible.length)}
+            sub={q5Search ? `filtrado de ${q5BaseRows.length}` : `top ${q5BaseRows.length}`}
+          />
+          <StatCard label="LANÇAMENTOS" value={fmtNum(s1Lancamentos)} />
+        </div>
 
-          {selectedSupplier ? (
-            <div className="mt-8">
-              <div className="mb-8 flex items-center gap-4 border-l-4 border-primary px-6 py-5" style={{ background: "#141414" }}>
-                <div>
-                  <h3 className="mb-0.5 text-2xl font-black text-foreground" style={{ fontFamily: SERIF }}>
-                    {selectedSupplier.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                    {selectedSupplier.category}
-                  </p>
-                </div>
-              </div>
+        {/* Ranking de fornecedores */}
+        {q5Visible.length === 0 ? (
+          <EmptyMsg text="NENHUM FORNECEDOR ENCONTRADO." />
+        ) : (
+          <div>
+            {/* Cabeçalho */}
+            <div
+              className="grid items-center gap-3 px-4 py-2.5"
+              style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#0a0a0a", borderBottom: "1px solid rgba(240,236,228,0.08)" }}
+            >
+              {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
+                <span key={h} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{h}</span>
+              ))}
+            </div>
 
-              <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.07)" }}>
-                {[
-                  { label: "TOTAL RECEBIDO", value: formatCurrency(selectedSupplier.total) },
-                  { label: "DEPUTADOS", value: `${selectedSupplier.deputies}` },
-                  { label: "TICKET MÉDIO", value: formatCurrency(Math.round(selectedSupplier.total / selectedSupplier.deputies)) },
-                ].map((metric) => (
-                  <div key={metric.label} className="bg-background px-6 py-7">
-                    <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
-                      {metric.label}
-                    </p>
-                    <p className="text-2xl font-black text-primary" style={{ fontFamily: SERIF }}>
-                      {metric.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            {q5Visible.map((row, idx) => {
+              const name   = str(row, "fornecedor");
+              const total  = raw(row, "total_pago");
+              const lanc   = raw(row, "qtd_lancamentos");
+              const pos    = raw(row, "posicao") || idx + 1;
+              const barPct = (total / q5Max) * 100;
+              const isTop3 = pos <= 3;
+              const isExp  = expandedRow === name;
 
-              {selectedCategorySuppliers.length > 1 ? (
-                <div>
-                  <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                    COMPARATIVO — {selectedSupplier.category.toUpperCase()}
-                  </p>
-                  <div className="h-40">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={selectedCategorySuppliers} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
-                        <XAxis
-                          type="number"
-                          tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }}
-                          axisLine={false}
-                          tickLine={false}
-                          tickFormatter={(value: number) => `R$${(value / 1_000_000).toFixed(0)}M`}
-                        />
-                        <YAxis type="category" dataKey="name" tick={{ fill: "#f0ece4", fontSize: 10, fontFamily: SERIF }} axisLine={false} tickLine={false} width={150} />
-                        <Tooltip
-                          contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
-                          formatter={(value: TooltipValue) => [formatCurrency(Number(value)), "Total"]}
-                        />
-                        <Bar dataKey="total" radius={[0, 2, 2, 0]} maxBarSize={18}>
-                          {selectedCategorySuppliers.map((supplier) => (
-                            <Cell key={supplier.id} fill={supplier.id === selectedSupplier.id ? "#c41230" : "rgba(196,18,48,0.25)"} />
+              return (
+                <div key={name + pos} style={{ borderBottom: "1px solid rgba(240,236,228,0.06)" }}>
+                  <button
+                    onClick={() => setExpandedRow(isExp ? null : name)}
+                    className="grid w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-card"
+                    style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: isExp ? "rgba(196,18,48,0.06)" : undefined }}
+                  >
+                    <span
+                      className="font-black"
+                      style={{ fontFamily: SERIF, fontSize: isTop3 ? "1.25rem" : "1rem", color: isTop3 ? RED : "rgba(240,236,228,0.3)" }}
+                    >
+                      {String(pos).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="mb-1.5 truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{name}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1" style={{ background: "rgba(240,236,228,0.07)", height: "6px" }}>
+                          <div style={{ width: `${barPct}%`, height: "100%", background: isTop3 ? RED : "rgba(196,18,48,0.4)" }} />
+                        </div>
+                        <span className="shrink-0 text-xs" style={{ fontFamily: MONO, color: "#666660" }}>{barPct.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                    <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(lanc)}</span>
+                    <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: isTop3 ? RED : "#f0ece4" }}>{fmtShort(total)}</span>
+                  </button>
+
+                  {/* Painel de breakdown por ano */}
+                  {isExp ? (
+                    <div className="px-4 pb-4 pt-2" style={{ background: "rgba(196,18,48,0.04)", borderTop: "1px solid rgba(196,18,48,0.15)" }}>
+                      <p className="mb-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                        DETALHAMENTO POR ANO — {name}
+                      </p>
+                      {expandedBreakdown.length === 0 ? (
+                        <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>DADOS ANUAIS NÃO DISPONÍVEIS.</p>
+                      ) : (
+                        <div className="flex flex-wrap gap-3">
+                          {expandedBreakdown.map((yr) => (
+                            <div key={str(yr, "ano_dados")} className="border border-border px-4 py-3" style={{ background: "#111", minWidth: "160px" }}>
+                              <p className="mb-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{str(yr, "ano_dados")}</p>
+                              <p className="text-base font-black text-primary" style={{ fontFamily: SERIF }}>{fmtShort(raw(yr, "total_pago"))}</p>
+                              <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                                {fmtNum(raw(yr, "qtd_lancamentos"))} lanç. · #{raw(yr, "posicao")} no ranking
+                              </p>
+                            </div>
                           ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          SEÇÃO 02 — DEPUTADO × FORNECEDORES  (Q12)
+      ══════════════════════════════════════════════════════════ */}
+      <section className="px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+        <SectionHeader
+          n="02"
+          tag="DEPUTADO × FORNECEDORES"
+          title="Com quais fornecedores esse deputado gastou?"
+          desc="Veja os maiores gastadores com fornecedores ou pesquise um deputado específico para ver todos os fornecedores com quem ele realizou gastos da cota parlamentar."
+        />
+
+        {/* TOP 10 DEPUTADOS */}
+        {top10Deputies.length > 0 ? (
+          <div className="mb-10">
+            <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              TOP 10 — MAIORES GASTOS COM FORNECEDORES (dados disponíveis)
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+              {top10Deputies.map((dep, idx) => {
+                const deputy = {
+                  value: String(dep.id),
+                  label: dep.nome,
+                  photo_url: camaraPhoto(dep.id),
+                };
+                const isSelected = selectedDep?.value === deputy.value;
+                return (
+                  <button
+                    key={dep.nome}
+                    onClick={() => selectDeputy(deputy)}
+                    className="flex flex-col items-center border p-3 text-center transition-colors hover:border-primary"
+                    style={{
+                      background:  isSelected ? "rgba(196,18,48,0.09)" : "#111",
+                      borderColor: isSelected ? RED : "rgba(240,236,228,0.10)",
+                    }}
+                  >
+                    {/* Foto */}
+                    <div className="relative mb-2">
+                      <DeputyAvatar nome={dep.nome} deputy={deputy} size={64} />
+                      <span
+                        className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center text-xs font-black"
+                        style={{ fontFamily: MONO, background: idx < 3 ? RED : "#222", color: "#fff" }}
+                      >
+                        {idx + 1}
+                      </span>
+                    </div>
+                    {/* Nome */}
+                    <p className="mb-0.5 line-clamp-2 text-xs font-bold text-foreground" style={{ fontFamily: SERIF }}>
+                      {dep.nome}
+                    </p>
+                    {/* Partido · UF */}
+                    {dep.partido ? (
+                      <p className="mb-1.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                        {dep.partido}{dep.uf ? ` · ${dep.uf}` : ""}
+                      </p>
+                    ) : null}
+                    {/* Total */}
+                    <p className="text-xs font-bold" style={{ fontFamily: MONO, color: RED }}>
+                      {fmtShort(dep.total)}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {/* DIVIDER */}
+        <div className="mb-8 flex items-center gap-4">
+          <div className="flex-1 border-t border-border" />
+          <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>OU PESQUISE UM DEPUTADO</span>
+          <div className="flex-1 border-t border-border" />
+        </div>
+
+        {/* CONTROLES: busca + filtro de ano */}
+        <div className="mb-6 flex flex-wrap items-start gap-4">
+          {/* Busca — estilo Recorte 2 */}
+          <div className="w-full max-w-xl">
+        <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+              SELECIONE UM DEPUTADO
+            </p>
+            <div
+              className="relative"
+              onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setShowDepDrop(false); }}
+            >
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                ⌕
+              </span>
+              <input
+                value={depSearch}
+                onChange={(e) => { setDepSearch(e.target.value); setShowDepDrop(true); }}
+                onFocus={() => setShowDepDrop(true)}
+                placeholder="Nome do deputado..."
+                className="w-full border border-border bg-card py-3.5 pl-10 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              />
+              {depSearch ? (
+                <button
+                  type="button"
+                  onClick={() => { setDepSearch(""); setSelectedDep(null); setShowDepDrop(true); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  x
+                </button>
+              ) : null}
+
+              {showDepDrop ? (
+                <div className="absolute left-0 right-0 top-full z-30 max-h-80 overflow-y-auto border border-border" style={{ background: "#141414" }}>
+                  {filteredDeps.length === 0 ? (
+                    <div className="px-4 py-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      Nenhum deputado encontrado.
+                    </div>
+                  ) : filteredDeps.map((d) => {
+                    const s = statsForDeputy(d);
+                    const isSelected = selectedDep?.value === d.value;
+                    return (
+                      <button
+                        key={d.value}
+                        type="button"
+                        onMouseDown={() => selectDeputy(d)}
+                        className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
+                      >
+                        <DeputyAvatar nome={d.label} id={s?.id} deputy={d} size={40} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
+                            {d.label}
+                          </span>
+                          <span className="block text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                            {s?.id ? `ID ${s.id}` : "—"}{s?.lancamentos ? ` · ${fmtNum(s.lancamentos)} lançamentos` : ""}
+                            {s?.partido ? ` · ${s.partido}` : ""}
+                            {s?.uf ? ` · ${s.uf}` : ""}
+                          </span>
+                        </span>
+                        {isSelected ? (
+                          <span className="shrink-0 text-xs text-primary" style={{ fontFamily: MONO }}>SELECIONADO</span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
                 </div>
               ) : null}
             </div>
-          ) : null}
-        </section>
-      </SectionBg>
-
-      <SectionBg imgId={backgroundImages[1].id} alt={backgroundImages[1].alt}>
-        <section className="border-b border-border px-6 py-14 md:px-14">
-          <div className="mb-2 flex items-baseline gap-4">
-            <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-              02
-            </span>
-            <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              ALCANCE
-            </p>
-          </div>
-          <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-            Fornecedores com mais deputados
-          </h2>
-
-          <div className="mb-8 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={suppliersByDeputies} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
-                <XAxis type="number" tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" tick={{ fill: "#f0ece4", fontSize: 10, fontFamily: SERIF }} axisLine={false} tickLine={false} width={170} />
-                <Tooltip
-                  contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
-                  formatter={(value: TooltipValue) => [`${value} deputados`, ""]}
-                />
-                <Bar dataKey="deputies" radius={[0, 2, 2, 0]} maxBarSize={18}>
-                  {suppliersByDeputies.map((supplier, index) => (
-                    <Cell key={supplier.id} fill={index === 0 ? "#c41230" : index < 3 ? "#d4841a" : "rgba(196,18,48,0.3)"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
           </div>
 
-          <div className="flex flex-col gap-px overflow-x-auto border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
-            <div className="grid min-w-[720px] grid-cols-4 bg-background px-6 py-3">
-              {["#", "FORNECEDOR", "CATEGORIA", "DEPUTADOS"].map((heading) => (
-                <span key={heading} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  {heading}
-                </span>
-              ))}
-            </div>
-            {suppliersByDeputies.map((supplier, index) => (
-              <div key={supplier.id} className="grid min-w-[720px] grid-cols-4 items-center bg-background px-6 py-3.5 transition-colors hover:bg-card">
-                <span className="text-2xl font-black" style={{ fontFamily: SERIF, color: index === 0 ? "#c41230" : "rgba(240,236,228,0.25)" }}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                  {supplier.name}
-                </span>
-                <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  {supplier.category}
-                </span>
-                <span className="text-sm font-bold" style={{ fontFamily: MONO, color: index === 0 ? "#c41230" : "#f0ece4" }}>
-                  {supplier.deputies}
-                </span>
-              </div>
-            ))}
+          {/* Filtro de ano */}
+          <div className="pt-7">
+            <YearPills years={allYears} selected={q12Year} onChange={setQ12Year} />
           </div>
-        </section>
-      </SectionBg>
+        </div>
 
-      <SectionBg imgId={backgroundImages[2].id} alt={backgroundImages[2].alt}>
-        <section className="border-b border-border px-6 py-14 md:px-14">
-          <div className="mb-2 flex items-baseline gap-4">
-            <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-              03
-            </span>
-            <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              POR DEPUTADO
-            </p>
-          </div>
-          <h2 className="mb-2 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-            Quais são os fornecedores desse deputado?
-          </h2>
-          <p className="mb-8 max-w-lg text-sm text-muted-foreground">
-            Busque um deputado para ver com quais empresas ele mais gastou a cota parlamentar.
-          </p>
-
-          <div className="relative max-w-xl">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-              ⌕
-            </span>
-            <input
-              value={deputyQuery}
-              onChange={(event) => {
-                setDeputyQuery(event.target.value);
-                setShowDeputyDrop(true);
-              }}
-              onFocus={() => setShowDeputyDrop(true)}
-              placeholder="Nome ou partido do deputado..."
-              className="w-full border border-border bg-card py-3.5 pl-10 pr-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-            />
-            {deputyQuery ? (
-              <button
-                onClick={() => {
-                  setDeputyQuery("");
-                  setShowDeputyDrop(false);
-                  setSelectedDeputy(null);
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-              >
-                ×
-              </button>
-            ) : null}
-            {showDeputyDrop ? (
-              <div className="absolute left-0 right-0 top-full z-20 border border-border" style={{ background: "#141414" }}>
-                {(deputyQuery ? filteredDeputies : mockDeputies).map((deputy) => (
-                  <button
-                    key={deputy.id}
-                    onClick={() => {
-                      setSelectedDeputy(deputy);
-                      setDeputyQuery(deputy.name);
-                      setShowDeputyDrop(false);
-                    }}
-                    className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
-                  >
-                    <div className="h-9 w-9 shrink-0 overflow-hidden">
-                      <img src={unsplashImage(deputy.img, 72, 72)} alt={deputy.name} className="h-full w-full object-cover" style={{ filter: "grayscale(40%)" }} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                        {deputy.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                        {deputy.party} · {deputy.state}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-                {deputyQuery && filteredDeputies.length === 0 ? (
-                  <p className="px-4 py-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                    NENHUM RESULTADO
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          {selectedDeputy ? (
-            <div className="mt-8">
-              <div className="relative mb-8 h-[320px] overflow-hidden border border-primary">
-                <img
-                  src={unsplashImage(selectedDeputy.img, 1400, 640)}
-                  alt={selectedDeputy.name}
-                  className="absolute inset-0 h-full w-full object-cover object-top"
-                  style={{ filter: "grayscale(30%) contrast(1.05)" }}
-                />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(10,10,10,0.92) 40%, rgba(10,10,10,0.2) 100%)" }} />
-                <div className="pointer-events-none absolute inset-0" style={{ boxShadow: "inset 0 0 60px rgba(196,18,48,0.15)" }} />
-                <div className="relative z-10 flex h-full flex-col justify-end px-8 pb-8">
-                  <div className="mb-2 flex items-center gap-3">
-                    <span className="bg-primary px-2 py-0.5 text-xs text-primary-foreground" style={{ fontFamily: MONO }}>
-                      {selectedDeputy.party}
-                    </span>
-                    <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                      {selectedDeputy.state} · {selectedDeputy.mandate}
-                    </span>
+        {/* RESULTADO DA SEÇÃO 2 */}
+        {!selectedDep ? (
+          <EmptyMsg text="SELECIONE UM DEPUTADO ACIMA PARA VER OS FORNECEDORES." />
+        ) : (
+          <div>
+            {/* Header do deputado */}
+            {(() => {
+              const s = statsForDeputy(selectedDep);
+              return (
+                <div className="mb-6 flex items-center gap-4 border-l-4 py-4 pl-5" style={{ background: "#111", borderColor: RED }}>
+                  <DeputyAvatar nome={selectedDep.label} id={s?.id} deputy={selectedDep} size={72} />
+                  <div>
+                    <h3 className="text-2xl font-black text-foreground" style={{ fontFamily: SERIF }}>{selectedDep.label}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      {s?.id ? `ID ${s.id}` : ""}
+                      {s?.partido ? ` · ${s.partido}` : ""}
+                      {s?.uf ? ` · ${s.uf}` : ""}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      {q12Year ? `ANO ${q12Year}` : "TODOS OS ANOS"}
+                      {s2Lancamentos > 0 ? ` · ${fmtNum(s2Lancamentos)} lançamentos` : ""}
+                    </p>
                   </div>
-                  <h3 className="text-4xl font-black text-foreground" style={{ fontFamily: SERIF, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
-                    {selectedDeputy.name}
-                  </h3>
                 </div>
-              </div>
+              );
+            })()}
 
-              {deputyLinks.length > 0 ? (
-                <div className="flex flex-col gap-3">
-                  {deputyLinks.map((link, index) => (
-                    <div key={link.supplierId} className="flex items-center gap-5 border border-border px-5 py-4 transition-colors hover:border-primary" style={{ background: "#111111" }}>
-                      <span className="shrink-0 text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.4)" }}>
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex items-baseline justify-between gap-4">
-                          <p className="truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                            {link.supplier.name}
-                          </p>
-                          <p className="shrink-0 text-sm font-black text-primary" style={{ fontFamily: MONO }}>
-                            {formatCurrency(link.total)}
-                          </p>
-                        </div>
-                        <p className="mb-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                          {link.supplier.category} · {link.percent}% do gasto total
-                        </p>
-                        <div className="h-1.5 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)" }}>
-                          <div style={{ width: `${Math.min(link.percent * 5, 100)}%`, background: "#c41230", height: "100%" }} />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground" style={{ fontFamily: MONO }}>
-                  DADOS NÃO DISPONÍVEIS PARA ESTE DEPUTADO.
-                </p>
-              )}
-            </div>
-          ) : null}
-        </section>
-      </SectionBg>
-
-      <SectionBg imgId={backgroundImages[3].id} alt={backgroundImages[3].alt}>
-        <section className="px-6 py-14 md:px-14">
-          <div className="mb-2 flex items-baseline gap-4">
-            <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-              04
-            </span>
-            <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              CONTRATOS
-            </p>
-          </div>
-          <h2 className="mb-2 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-            Quanto esse fornecedor ganhou em contratos?
-          </h2>
-          <p className="mb-8 max-w-lg text-sm text-muted-foreground">
-            Filtre pelo nome para encontrar um fornecedor específico e ver o total de contratos recebidos.
-          </p>
-
-          <SearchInput value={contractsQuery} onChange={setContractsQuery} placeholder="Filtrar por nome ou categoria..." />
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {filteredContracts.length === 0 ? (
-              <p className="col-span-2 text-sm text-muted-foreground" style={{ fontFamily: MONO }}>
-                NENHUM FORNECEDOR ENCONTRADO PARA "{contractsQuery.toUpperCase()}"
-              </p>
+            {loadingQ12 ? (
+              <EmptyMsg text="CARREGANDO FORNECEDORES DO DEPUTADO…" />
+            ) : s2Results.length === 0 ? (
+              <EmptyMsg text="NENHUM DADO ENCONTRADO PARA ESSE DEPUTADO NO PERÍODO SELECIONADO." />
             ) : (
-              filteredContracts.map((supplier) => {
-                const rank = suppliersByTotal.findIndex((item) => item.id === supplier.id);
-                return (
-                  <div key={supplier.id} className="border border-border p-5 transition-colors hover:border-primary" style={{ background: "#141414" }}>
-                    <div className="mb-3 flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <span className="shrink-0 text-2xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.4)" }}>
-                          {String(rank + 1).padStart(2, "0")}
-                        </span>
-                        <div>
-                          <p className="text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                            {supplier.name}
-                          </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                            {supplier.category}
-                          </p>
+              <>
+                {/* Cards de totais */}
+                <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+                  <StatCard label="TOTAL GASTO"  value={fmtShort(s2Total)} sub={fmtCurrency(s2Total)} />
+                  <StatCard label="FORNECEDORES" value={fmtNum(s2Results.length)} />
+                  <StatCard label="LANÇAMENTOS"  value={fmtNum(s2Lancamentos)} />
+                </div>
+
+                {/* Tabela de fornecedores */}
+                <div className="grid items-center gap-3 px-4 py-2.5" style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#0a0a0a", borderBottom: "1px solid rgba(240,236,228,0.08)" }}>
+                  {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
+                    <span key={h} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{h}</span>
+                  ))}
+                </div>
+
+                {s2Results.map((item, idx) => (
+                  <div
+                    key={item.fornecedor}
+                    className="grid items-center gap-3 px-4 py-4 transition-colors hover:bg-card"
+                    style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#111", borderBottom: "1px solid rgba(240,236,228,0.06)" }}
+                  >
+                    <span className="font-black" style={{ fontFamily: SERIF, fontSize: idx < 3 ? "1.25rem" : "1rem", color: idx < 3 ? RED : "rgba(240,236,228,0.3)" }}>
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="mb-1 truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{item.fornecedor}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1" style={{ background: "rgba(240,236,228,0.07)", height: "6px" }}>
+                          <div style={{ width: `${item.barPct}%`, height: "100%", background: idx === 0 ? RED : "rgba(196,18,48,0.4)" }} />
                         </div>
+                        <span className="shrink-0 text-xs" style={{ fontFamily: MONO, color: "#666660" }}>{item.pct.toFixed(1)}%</span>
                       </div>
-                      <span className="shrink-0 border border-border px-2 py-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                        {supplier.deputies} dep.
-                      </span>
+                      {item.anos.size > 1 ? (
+                        <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{[...item.anos].sort().join(" · ")}</p>
+                      ) : null}
                     </div>
-
-                    <p className="mb-3 text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
-                      {formatCurrency(supplier.total)}
-                    </p>
-
-                    <div className="mb-2 h-1.5 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)" }}>
-                      <div style={{ width: `${(supplier.total / maxSupplierTotal) * 100}%`, background: "#c41230", height: "100%" }} />
-                    </div>
-                    <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                      {((supplier.total / maxSupplierTotal) * 100).toFixed(0)}% do maior contratado
-                    </p>
+                    <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(item.lancamentos)}</span>
+                    <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: idx === 0 ? RED : "#f0ece4" }}>{fmtShort(item.total)}</span>
                   </div>
-                );
-              })
+                ))}
+
+                {/* Rodapé de total */}
+                <div
+                  className="grid items-center gap-3 px-4 py-3"
+                  style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: `${RED}11`, borderTop: `1px solid ${RED}44` }}
+                >
+                  <span />
+                  <span className="text-xs font-bold text-primary" style={{ fontFamily: MONO }}>TOTAL GASTO</span>
+                  <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(s2Lancamentos)}</span>
+                  <span className="text-right text-sm font-black text-primary" style={{ fontFamily: SERIF }}>{fmtShort(s2Total)}</span>
+                </div>
+              </>
             )}
           </div>
-        </section>
-      </SectionBg>
+        )}
+      </section>
     </div>
   );
 }
