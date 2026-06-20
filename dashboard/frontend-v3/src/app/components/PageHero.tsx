@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type StripImage = {
   id: string;
   alt: string;
@@ -10,6 +12,7 @@ type PageHeroProps = {
   titleRed?: string;
   desc: string;
   imgId: string;
+  bgImages?: string[];
   stripImgs?: StripImage[];
 };
 
@@ -23,15 +26,35 @@ const imageUrl = (id: string, width: number, height: number) => {
   return `${UNSPLASH_BASE}${id}?w=${width}&h=${height}&fit=crop&auto=format`;
 };
 
-export default function PageHero({ n, tag, title, titleRed, desc, imgId, stripImgs }: PageHeroProps) {
+export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImages, stripImgs }: PageHeroProps) {
+  const images = bgImages && bgImages.length > 0 ? bgImages : [imgId];
+  const [currentSrc, setCurrentSrc] = useState(images[0]);
+  const [opacity, setOpacity] = useState(1);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    let idx = 0;
+    const cycle = () => {
+      setOpacity(0);
+      setTimeout(() => {
+        idx = (idx + 1) % images.length;
+        setCurrentSrc(images[idx]);
+        setOpacity(1);
+      }, 700);
+    };
+    const id = setInterval(cycle, 3000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <div className="relative min-h-[420px] overflow-hidden border-b border-border">
         <img
-          src={imageUrl(imgId, 1800, 840)}
+          src={imageUrl(currentSrc, 1800, 840)}
           alt={title}
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: "grayscale(20%) contrast(1.05) brightness(0.68)" }}
+          style={{ filter: "grayscale(20%) contrast(1.05) brightness(0.68)", opacity, transition: "opacity 0.7s ease" }}
         />
         <div
           className="absolute inset-0"

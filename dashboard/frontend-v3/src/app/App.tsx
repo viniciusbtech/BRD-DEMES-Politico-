@@ -308,7 +308,7 @@ const questionCards: QuestionCard[] = [
   {
     id: 5,
     title: "Fornecedores e deputados",
-    image: "/perguntas/q05/cover.jpg",
+    image: "/perguntas/q05/ChatGPT Image Jun 16, 2026, 10_05_56 PM.png",
     fallbackImage: "/intro/deputados/160674.jpg",
     description:
       "Mapeamento das relações entre despesas parlamentares, fornecedores recorrentes, concentração de pagamentos e pares deputado-fornecedor.",
@@ -316,7 +316,7 @@ const questionCards: QuestionCard[] = [
   {
     id: 6,
     title: "Influência na Câmara",
-    image: "/perguntas/q06/cover.jpg",
+    image: "/perguntas/q06/Captura de tela 2026-06-20 150902.png",
     fallbackImage: "/intro/deputados/178937.jpg",
     description:
       "Leitura de influência legislativa a partir de proposições, aprovações, participação em votações e capacidade de movimentar pautas dentro da Câmara.",
@@ -324,7 +324,7 @@ const questionCards: QuestionCard[] = [
   {
     id: 7,
     title: "Ideologia e deputado",
-    image: "/perguntas/q07/cover.jpg",
+    image: "/perguntas/q07/Captura de tela 2026-06-20 150755.png",
     fallbackImage: "/intro/deputados/204374.jpg",
     description:
       "Análise do posicionamento ideológico de deputados e partidos com base em votos, blocos de comportamento e padrões de alinhamento político.",
@@ -332,7 +332,7 @@ const questionCards: QuestionCard[] = [
   {
     id: 8,
     title: "Escolaridade",
-    image: "/perguntas/q08/cover.jpg",
+    image: "/perguntas/q08/download.png",
     fallbackImage: "/intro/deputados/204450.jpg",
     description:
       "Distribuição da escolaridade dos deputados federais e cruzamentos com atuação parlamentar, produção legislativa e outros indicadores.",

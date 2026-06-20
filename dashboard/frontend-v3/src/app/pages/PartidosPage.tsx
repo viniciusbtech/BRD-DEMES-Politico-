@@ -176,6 +176,7 @@ function EmptyPanel({ message }: { message: string }) {
   );
 }
 
+
 export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PartidosPageProps) {
   const [payload, setPayload] = useState<QuestionPayload | null>(null);
   const [selectedPayload, setSelectedPayload] = useState<QuestionPayload | null>(null);
@@ -388,10 +389,11 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         title="Partidos"
         desc="Selecione um partido para ver presenca, gastos, proposicoes, nuvem de palavras e ranking de influencia."
         imgId="recorte3/hero.png"
-        stripImgs={[
-          { id: "recorte3/faixa1.png", alt: "Fundo recorte 3 - faixa 1" },
-          { id: "recorte3/faixa2.png", alt: "Fundo recorte 3 - faixa 2" },
-          { id: "recorte3/faixa3.png", alt: "Fundo recorte 3 - faixa 3" },
+        bgImages={[
+          "recorte3/hero.png",
+          "recorte3/faixa1.png",
+          "recorte3/faixa2.png",
+          "recorte3/faixa3.png",
         ]}
       />
 
