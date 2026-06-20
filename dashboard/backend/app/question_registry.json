@@ -230,6 +230,22 @@
       "chart": { "x_field": "sigla_partido", "y_fields": ["votacoes_participadas"] }
     },
     {
+      "id": "q11_extra",
+      "title": "Temas das proposicoes por partido",
+      "group_id": "partidos",
+      "tags": ["partidos", "proposicoes", "temas", "nuvem"],
+      "description": "Frequencia dos temas legislativos nas proposicoes apresentadas por cada partido. Use o filtro de partido para ver a nuvem de palavras tematica.",
+      "response_files": ["questoes/q11_extra/respostas/q11_extra_temas.txt"],
+      "sql_file": "questoes/q11_extra/consultas/q11_extra.sql",
+      "chart_type": "wordcloud_party",
+      "supported_filters": ["partidos", "anos"],
+      "expected_columns": ["sigla_partido", "tema", "frequencia"],
+      "main_table_contains": "todos os anos",
+      "summary_table_contains": "",
+      "explanation": "Conta quantas vezes cada tema legislativo aparece nas proposicoes de autoria do partido selecionado, cruzando proposicoes_temas com proposicoes_autores via uri_proposicao.",
+      "chart": { "x_field": "tema", "y_fields": ["frequencia"] }
+    },
+    {
       "id": "q12",
       "title": "Deputado x fornecedor",
       "group_id": "gastos",

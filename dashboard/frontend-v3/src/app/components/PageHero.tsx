@@ -17,8 +17,11 @@ const UNSPLASH_BASE = "https://images.unsplash.com/";
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
 
-const imageUrl = (id: string, width: number, height: number) =>
-  `${UNSPLASH_BASE}${id}?w=${width}&h=${height}&fit=crop&auto=format`;
+const imageUrl = (id: string, width: number, height: number) => {
+  if (id.startsWith("/") || id.startsWith("./")) return id;
+  if (!id.startsWith("photo-")) return `/backgrounds/${id}`;
+  return `${UNSPLASH_BASE}${id}?w=${width}&h=${height}&fit=crop&auto=format`;
+};
 
 export default function PageHero({ n, tag, title, titleRed, desc, imgId, stripImgs }: PageHeroProps) {
   return (
@@ -28,7 +31,7 @@ export default function PageHero({ n, tag, title, titleRed, desc, imgId, stripIm
           src={imageUrl(imgId, 1800, 840)}
           alt={title}
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: "grayscale(40%) contrast(1.08) brightness(0.42)" }}
+          style={{ filter: "grayscale(20%) contrast(1.05) brightness(0.68)" }}
         />
         <div
           className="absolute inset-0"

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
@@ -10,8 +9,6 @@ type PartidosPageProps = {
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
-
-type TooltipValue = string | number | Array<string | number>;
 
 type Party = {
   id: string;
@@ -38,19 +35,6 @@ type Party = {
   normSpending: number;
 };
 
-type ProposalSummary = {
-  id: string;
-  title: string;
-  author: string;
-  status: string;
-  date: string;
-};
-
-type WordCloudItem = {
-  word: string;
-  size: number;
-  weight: number;
-};
 
 type AnnualPartySnapshot = {
   year: string;
@@ -88,11 +72,6 @@ const PARTY_NAMES: Record<string, string> = {
   CIDADANIA: "Cidadania",
 };
 
-const statusColor: Record<string, string> = {
-  "Mais ativo": "#4a7c59",
-  "Acima da media": "#d4841a",
-  "Abaixo da media": "#c41230",
-};
 
 const formatCurrency = (value: number) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const formatNumber = (value: number) => value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
@@ -138,6 +117,7 @@ function normalizePartyOptions(rows: Array<Record<string, unknown>>, metaParties
   );
   const metaLabels = new Map(metaParties.map((party) => [party.value, party.label]));
 
+  const seen = new Set<string>();
   return presenceRows
     .map((row, index) => {
       const id = text(row, "sigla_partido");
@@ -172,7 +152,11 @@ function normalizePartyOptions(rows: Array<Record<string, unknown>>, metaParties
         normSpending: raw(score, "norm_gastos"),
       };
     })
-    .filter((party) => party.id);
+    .filter((party) => {
+      if (!party.id || seen.has(party.id)) return false;
+      seen.add(party.id);
+      return true;
+    });
 }
 
 function buildParties(payload: QuestionPayload | null, metaParties: FilterChoice[]): Party[] {
@@ -183,30 +167,6 @@ function buildParties(payload: QuestionPayload | null, metaParties: FilterChoice
   return normalizePartyOptions([...presenceRows, ...proposalRows, ...spendingRows, ...(scoreRows ?? [])], metaParties);
 }
 
-function buildProposalRows(party: Party | null, selectedYear: string): ProposalSummary[] {
-  if (!party) return [];
-  return [
-    {
-      id: party.proposalRank ? `#${party.proposalRank}` : "-",
-      title: `${formatNumber(party.proposals)} proposicoes registradas${selectedYear ? ` em ${selectedYear}` : " no periodo"}`,
-      author: party.name,
-      status: party.proposalRank <= 5 ? "Mais ativo" : party.proposalRank <= 12 ? "Acima da media" : "Abaixo da media",
-      date: selectedYear || "Todos",
-    },
-  ];
-}
-
-function buildWords(party: Party | null): WordCloudItem[] {
-  if (!party) return [];
-  return [
-    { word: party.name, size: 2.4, weight: 900 },
-    { word: party.ideology, size: 1.8, weight: 700 },
-    { word: `score ${formatNumber(party.scoreTotal)}`, size: 1.55, weight: 700 },
-    { word: `${formatNumber(party.votes)} votacoes`, size: 1.5, weight: 600 },
-    { word: `${formatNumber(party.proposals)} proposicoes`, size: 1.35, weight: 500 },
-    { word: formatCurrency(party.spending), size: 1.15, weight: 500 },
-  ];
-}
 
 function EmptyPanel({ message }: { message: string }) {
   return (
@@ -226,6 +186,9 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
   const [selectedYear, setSelectedYear] = useState("");
   const [partyQuery, setPartyQuery] = useState("");
   const [showPartyDrop, setShowPartyDrop] = useState(false);
+  const [selectedPartyLogo, setSelectedPartyLogo] = useState<string | null>(null);
+  const [partyThemes, setPartyThemes] = useState<Array<{ tema: string; frequencia: number }>>([]);
+  const [selectedTema, setSelectedTema] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -315,6 +278,39 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
     };
   }, [selectedPartyId, years]);
 
+  useEffect(() => {
+    if (!selectedPartyId) { setSelectedPartyLogo(null); return; }
+    fetch(`https://dadosabertos.camara.leg.br/api/v2/partidos?sigla=${selectedPartyId}&itens=1`)
+      .then((res) => res.json())
+      .then((data: { dados: Array<{ urlLogo: string }> }) => {
+        setSelectedPartyLogo(data.dados[0]?.urlLogo ?? null);
+      })
+      .catch(() => setSelectedPartyLogo(null));
+  }, [selectedPartyId]);
+
+  useEffect(() => {
+    if (!selectedPartyId) { setPartyThemes([]); return; }
+    let mounted = true;
+    fetchQuestion(
+      "q11_extra",
+      { partidos: [selectedPartyId], anos: selectedYear ? [selectedYear] : [] },
+      { page: 1, pageSize: 200 },
+    )
+      .then((payload) => {
+        if (!mounted) return;
+        const rows = payload.table_spec.rows as Array<Record<string, unknown>>;
+        setPartyThemes(
+          rows
+            .filter((r) => r.tema && r.frequencia)
+            .map((r) => ({ tema: String(r.tema), frequencia: Number(r.frequencia) }))
+            .sort((a, b) => b.frequencia - a.frequencia)
+            .slice(0, 40),
+        );
+      })
+      .catch(() => { if (mounted) setPartyThemes([]); });
+    return () => { mounted = false; };
+  }, [selectedPartyId, selectedYear]);
+
   const parties = useMemo(() => buildParties(payload, metaParties), [payload, metaParties]);
   const selectedParties = useMemo(() => buildParties(selectedPayload, metaParties), [selectedPayload, metaParties]);
   const selectedFromBackend = selectedParties.find((party) => party.id === selectedPartyId);
@@ -354,8 +350,6 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
     return parties.filter((party) => `${party.full} ${party.name}`.toLowerCase().includes(query));
   }, [parties, partyQuery, selected?.full]);
 
-  const words = useMemo(() => buildWords(selected), [selected]);
-  const proposals = useMemo(() => buildProposalRows(selected, selectedYear), [selected, selectedYear]);
   const sortedParties = useMemo(
     () => [...parties].sort((a, b) => b.averageVotesPerSession - a.averageVotesPerSession || a.name.localeCompare(b.name)),
     [parties],
@@ -393,11 +387,11 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         tag="AGREMIACOES"
         title="Partidos"
         desc="Selecione um partido para ver presenca, gastos, proposicoes, nuvem de palavras e ranking de influencia."
-        imgId="photo-1699112204356-532841a77e07"
+        imgId="recorte3/hero.png"
         stripImgs={[
-          { id: "photo-1741030766598-d4810a5a7563", alt: "Manifestacao com megafone" },
-          { id: "photo-1567965142886-f347ae9b829b", alt: "Bandeira politica" },
-          { id: "photo-1561489396-888724a1543d", alt: "Reuniao de lideres" },
+          { id: "recorte3/faixa1.png", alt: "Fundo recorte 3 - faixa 1" },
+          { id: "recorte3/faixa2.png", alt: "Fundo recorte 3 - faixa 2" },
+          { id: "recorte3/faixa3.png", alt: "Fundo recorte 3 - faixa 3" },
         ]}
       />
 
@@ -449,7 +443,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                         className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
                       >
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center text-sm font-black" style={{ background: party.color, fontFamily: SERIF, color: "#f0ece4" }}>
-                          {party.name}
+                          {party.name === "REPUBLICANOS" ? "RP" : party.name === "SOLIDARIEDADE" ? "SD" : party.name}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
@@ -524,7 +518,19 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         </section>
       ) : (
         <>
-          <div className="flex items-center gap-5 border-b border-border px-6 py-8 md:px-14" style={{ borderLeft: `4px solid ${selected.color}`, background: "#111111" }}>
+          <div className="flex items-center gap-6 border-b border-border px-6 py-8 md:px-14" style={{ borderLeft: `4px solid ${selected.color}`, background: "#111111" }}>
+            {selectedPartyLogo ? (
+              <img
+                src={selectedPartyLogo}
+                alt={selected.name}
+                className="h-20 w-20 shrink-0 object-contain"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            ) : (
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center text-xl font-black" style={{ background: selected.color, color: "#f0ece4", fontFamily: SERIF }}>
+                {selected.name === "REPUBLICANOS" ? "RP" : selected.name === "SOLIDARIEDADE" ? "SD" : selected.name}
+              </div>
+            )}
             <div>
               <h2 className="text-3xl font-black text-foreground" style={{ fontFamily: SERIF }}>
                 {selected.full}
@@ -576,22 +582,51 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               </p>
             </div>
 
-            <div className="mt-10 h-52">
+            <div className="mt-10">
               <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                 COMPARATIVO DE MEDIA DE VOTOS POR VOTACAO
               </p>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={sortedParties}>
-                  <XAxis dataKey="name" tick={{ fill: "#888880", fontSize: 11, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }} formatter={(value: TooltipValue) => [Number(value).toFixed(1), "Votos por votacao"]} />
-                  <Bar dataKey="averageVotesPerSession" radius={[2, 2, 0, 0]} maxBarSize={48}>
-                    {sortedParties.map((party) => (
-                      <Cell key={party.id} fill={party.id === selected.id ? selected.color : "rgba(240,236,228,0.12)"} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="flex flex-col gap-2">
+                {(() => {
+                  const maxVal = Math.max(...sortedParties.map((p) => p.averageVotesPerSession), 1);
+                  return sortedParties.map((party) => {
+                    const pct = (party.averageVotesPerSession / maxVal) * 100;
+                    const isSelected = party.id === selected.id;
+                    return (
+                      <div key={party.id} className="flex items-center gap-3">
+                        <span
+                          className="w-28 shrink-0 text-right text-xs"
+                          style={{
+                            fontFamily: MONO,
+                            fontWeight: isSelected ? 700 : 500,
+                            color: isSelected ? selected.color : "#c8c4bc",
+                          }}
+                        >
+                          {party.name}
+                        </span>
+                        <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
+                          <div
+                            style={{
+                              width: `${pct}%`,
+                              height: "100%",
+                              background: isSelected ? selected.color : "rgba(240,236,228,0.22)",
+                            }}
+                          />
+                        </div>
+                        <span
+                          className="w-10 shrink-0 text-xs"
+                          style={{
+                            fontFamily: MONO,
+                            color: isSelected ? selected.color : "#888880",
+                          }}
+                        >
+                          {party.averageVotesPerSession.toFixed(1)}
+                        </span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
           </section>
 
@@ -616,43 +651,35 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 </p>
               </div>
 
-              <div className="h-72">
+              <div>
                 <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                   COMPARATIVO DE PROPOSICOES - PARTIDOS
                 </p>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={proposalRankParties} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 16 }}>
-                    <XAxis type="number" tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                    <YAxis dataKey="name" type="category" width={92} tick={{ fill: "#888880", fontSize: 11, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
-                      formatter={(value: TooltipValue) => [formatNumber(Number(value)), "Proposicoes"]}
-                    />
-                    <Bar dataKey="proposals" radius={[0, 2, 2, 0]} maxBarSize={18}>
-                      {proposalRankParties.map((party) => (
-                        <Cell key={party.id} fill={party.id === selected.id ? selected.color : "rgba(240,236,228,0.16)"} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="flex flex-col gap-2">
+                  {(() => {
+                    const maxVal = Math.max(...proposalRankParties.map((p) => p.proposals), 1);
+                    return proposalRankParties.map((party) => {
+                      const pct = (party.proposals / maxVal) * 100;
+                      const isSel = party.id === selected.id;
+                      return (
+                        <div key={party.id} className="flex items-center gap-3">
+                          <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "#c8c4bc" }}>
+                            {party.name}
+                          </span>
+                          <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
+                            <div style={{ width: `${pct}%`, height: "100%", background: isSel ? selected.color : "rgba(240,236,228,0.22)" }} />
+                          </div>
+                          <span className="w-20 shrink-0 text-right text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "#888880" }}>
+                            {formatNumber(party.proposals)}
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col gap-px overflow-x-auto border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
-              {proposals.map((proposal) => (
-                <div key={proposal.id} className="grid min-w-[760px] items-center gap-4 bg-background px-6 py-4 transition-colors hover:bg-card" style={{ gridTemplateColumns: "120px 1fr 150px 110px" }}>
-                  <div>
-                    <p className="text-xs font-bold text-primary" style={{ fontFamily: MONO }}>{proposal.id}</p>
-                    <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{proposal.date}</p>
-                  </div>
-                  <p className="text-sm leading-snug text-foreground">{proposal.title}</p>
-                  <p className="truncate text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{proposal.author}</p>
-                  <span className="px-2 py-1 text-center text-xs" style={{ fontFamily: MONO, color: statusColor[proposal.status], background: `${statusColor[proposal.status]}18` }}>
-                    {proposal.status}
-                  </span>
-                </div>
-              ))}
-            </div>
           </section>
 
           <section className="border-b border-border px-6 py-14 md:px-14">
@@ -692,53 +719,56 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 </div>
 
                 <div>
-                  <div className="h-56">
+                  <div>
                     <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                       GASTO DO PARTIDO POR ANO
                     </p>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={annualSnapshots} margin={{ top: 4, right: 8, bottom: 4, left: 8 }}>
-                        <XAxis dataKey="year" tick={{ fill: "#888880", fontSize: 11, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                        <YAxis
-                          tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }}
-                          axisLine={false}
-                          tickLine={false}
-                          tickFormatter={(value: number) => `R$${Math.round(value / 1000000)}M`}
-                        />
-                        <Tooltip
-                          contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
-                          formatter={(value: TooltipValue) => [formatCurrency(Number(value)), "Gasto"]}
-                        />
-                        <Bar dataKey="spending" radius={[2, 2, 0, 0]} maxBarSize={42} fill={selected.color} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <div className="flex flex-col gap-2">
+                      {(() => {
+                        const maxVal = Math.max(...annualSnapshots.map((s) => s.spending), 1);
+                        return annualSnapshots.map((snap) => (
+                          <div key={snap.year} className="flex items-center gap-3">
+                            <span className="w-12 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: 600, color: "#c8c4bc" }}>
+                              {snap.year}
+                            </span>
+                            <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
+                              <div style={{ width: `${(snap.spending / maxVal) * 100}%`, height: "100%", background: selected.color }} />
+                            </div>
+                            <span className="w-28 shrink-0 text-xs" style={{ fontFamily: MONO, color: "#888880" }}>
+                              {formatCurrency(snap.spending)}
+                            </span>
+                          </div>
+                        ));
+                      })()}
+                    </div>
                   </div>
 
-                  <div className="mt-8 h-56">
+                  <div className="mt-8">
                     <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                       COMPARATIVO DE GASTO TOTAL - PARTIDOS
                     </p>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={spendingRankParties} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 16 }}>
-                        <XAxis
-                          type="number"
-                          tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }}
-                          axisLine={false}
-                          tickLine={false}
-                          tickFormatter={(value: number) => `R$${Math.round(value / 1000000)}M`}
-                        />
-                        <YAxis dataKey="name" type="category" width={92} tick={{ fill: "#888880", fontSize: 11, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                        <Tooltip
-                          contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
-                          formatter={(value: TooltipValue) => [formatCurrency(Number(value)), "Gasto total"]}
-                        />
-                        <Bar dataKey="spending" radius={[0, 2, 2, 0]} maxBarSize={16}>
-                          {spendingRankParties.map((party) => (
-                            <Cell key={party.id} fill={party.id === selected.id ? selected.color : "rgba(240,236,228,0.16)"} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <div className="flex flex-col gap-2">
+                      {(() => {
+                        const maxVal = Math.max(...spendingRankParties.map((p) => p.spending), 1);
+                        return spendingRankParties.map((party) => {
+                          const pct = (party.spending / maxVal) * 100;
+                          const isSel = party.id === selected.id;
+                          return (
+                            <div key={party.id} className="flex items-center gap-3">
+                              <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "#c8c4bc" }}>
+                                {party.name}
+                              </span>
+                              <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
+                                <div style={{ width: `${pct}%`, height: "100%", background: isSel ? selected.color : "rgba(240,236,228,0.22)" }} />
+                              </div>
+                              <span className="w-28 shrink-0 text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "#888880" }}>
+                                {formatCurrency(party.spending)}
+                              </span>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -752,38 +782,140 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               4. NUVEM
             </p>
             <h3 className="mb-4 text-3xl font-black" style={sectionTitleStyle}>
-              Nuvem de palavras e score composto
+              Temas mais atuantes do partido
             </h3>
-            <p className="mb-6 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-              A Q11.d calcula uma nuvem em que cada termo e um partido, ponderado por frequencia nas votacoes, proposicoes e gastos. Ela ainda nao traz palavras tematicas especificas de cada partido.
+            <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Temas legislativos com mais proposicoes de autoria deste partido. Cada proposicao e contada uma unica vez (COUNT DISTINCT). Tamanho proporcional ao numero de proposicoes registradas.
             </p>
-            <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.07)" }}>
-              {[
-                { label: "SCORE TOTAL", value: formatNumber(selected.scoreTotal || selected.influence), note: "Q11.d" },
-                { label: "NORM. VOTACOES", value: `${formatNumber(selected.normVotes)}%`, note: "peso da frequencia" },
-                { label: "NORM. PROPOSICOES", value: `${formatNumber(selected.normProposals)}%`, note: "peso da producao" },
-                { label: "NORM. GASTOS", value: `${formatNumber(selected.normSpending)}%`, note: "peso dos gastos" },
-              ].map((item) => (
-                <div key={item.label} className="bg-background px-6 py-6">
-                  <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
-                    {item.label}
+
+            {partyThemes.length > 0 ? (
+              <>
+                {/* Filtro de tema */}
+                <div className="mb-6">
+                  <p className="mb-3 text-xs tracking-[0.3em] text-muted-foreground" style={{ fontFamily: MONO }}>
+                    FILTRAR TEMA
                   </p>
-                  <p className="text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
-                    {item.value}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                    {item.note}
-                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setSelectedTema(null)}
+                      className="rounded-full border px-3 py-1 text-xs transition-colors"
+                      style={{
+                        fontFamily: MONO,
+                        borderColor: selectedTema === null ? selected.color : "rgba(240,236,228,0.15)",
+                        background: selectedTema === null ? selected.color : "transparent",
+                        color: selectedTema === null ? "#111" : "#c8c4bc",
+                      }}
+                    >
+                      TODOS
+                    </button>
+                    {partyThemes.map((item, idx) => {
+                      const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
+                      const color = PALETTE[idx % PALETTE.length];
+                      const isActive = selectedTema === item.tema;
+                      return (
+                        <button
+                          key={item.tema}
+                          onClick={() => setSelectedTema(isActive ? null : item.tema)}
+                          className="rounded-full border px-3 py-1 text-xs transition-all"
+                          style={{
+                            fontFamily: MONO,
+                            borderColor: isActive ? color : "rgba(240,236,228,0.15)",
+                            background: isActive ? color : "transparent",
+                            color: isActive ? "#111" : "#c8c4bc",
+                          }}
+                        >
+                          {item.tema}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
-            </div>
-            <div className="flex min-h-[220px] flex-wrap items-center justify-center gap-x-6 gap-y-4 border border-border p-10" style={{ background: "#111111" }}>
-              {words.map((word) => (
-                <span key={word.word} className="select-none transition-opacity hover:opacity-100" style={{ fontFamily: SERIF, fontWeight: word.weight, fontSize: `${word.size}rem`, color: selected.color, opacity: 0.3 + word.size * 0.25 }}>
-                  {word.word}
-                </span>
-              ))}
-            </div>
+
+                {/* Nuvem de palavras */}
+                <div
+                  className="flex min-h-[280px] flex-wrap items-center justify-center gap-x-8 gap-y-5 border border-border p-10"
+                  style={{ background: "#0e0e0e" }}
+                >
+                  {(() => {
+                    const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
+                    const maxFreq = partyThemes[0]?.frequencia ?? 1;
+                    const minFreq = partyThemes[partyThemes.length - 1]?.frequencia ?? 1;
+                    const range = Math.max(maxFreq - minFreq, 1);
+                    const visibleThemes = selectedTema ? partyThemes.filter((t) => t.tema === selectedTema) : partyThemes;
+                    return visibleThemes.map((item, idx) => {
+                      const norm = (item.frequencia - minFreq) / range;
+                      const size = selectedTema ? 3.2 : 0.85 + norm * 1.8;
+                      const weight = norm > 0.6 ? 800 : norm > 0.3 ? 600 : 500;
+                      const color = PALETTE[partyThemes.indexOf(item) % PALETTE.length];
+                      return (
+                        <span
+                          key={item.tema}
+                          title={`${item.frequencia} proposicoes`}
+                          onClick={() => setSelectedTema(selectedTema === item.tema ? null : item.tema)}
+                          className="cursor-pointer select-none transition-all hover:scale-110"
+                          style={{
+                            fontFamily: SERIF,
+                            fontWeight: weight,
+                            fontSize: `${size}rem`,
+                            color,
+                            opacity: selectedTema && selectedTema !== item.tema ? 0.15 : 1,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {item.tema}
+                        </span>
+                      );
+                    });
+                  })()}
+                </div>
+
+                {/* Ranking de barras */}
+                <div className="mt-8 flex flex-col gap-2">
+                  <p className="mb-3 text-xs tracking-[0.3em] text-muted-foreground" style={{ fontFamily: MONO }}>
+                    {selectedTema ? `TEMA SELECIONADO — ${selectedTema.toUpperCase()}` : "TOP TEMAS — PROPOSICOES DISTINTAS"}
+                  </p>
+                  {(() => {
+                    const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
+                    const list = selectedTema ? partyThemes : partyThemes.slice(0, 12);
+                    const maxFreq = list[0]?.frequencia ?? 1;
+                    return list.map((item, idx) => {
+                      const globalIdx = partyThemes.indexOf(item);
+                      const color = PALETTE[globalIdx % PALETTE.length];
+                      const isActive = !selectedTema || selectedTema === item.tema;
+                      return (
+                        <div
+                          key={item.tema}
+                          className="flex cursor-pointer items-center gap-3"
+                          onClick={() => setSelectedTema(selectedTema === item.tema ? null : item.tema)}
+                        >
+                          <span
+                            className="w-64 shrink-0 text-right text-xs"
+                            style={{ fontFamily: MONO, color: isActive ? "#e8e4dc" : "#555", fontWeight: isActive ? 600 : 400 }}
+                          >
+                            {item.tema}
+                          </span>
+                          <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.05)", height: "10px" }}>
+                            <div
+                              style={{
+                                width: `${(item.frequencia / maxFreq) * 100}%`,
+                                height: "100%",
+                                background: isActive ? color : "rgba(240,236,228,0.08)",
+                                transition: "width 0.4s ease",
+                              }}
+                            />
+                          </div>
+                          <span className="w-12 shrink-0 text-xs" style={{ fontFamily: MONO, color: isActive ? color : "#444" }}>
+                            {formatNumber(item.frequencia)}
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </>
+            ) : (
+              <EmptyPanel message="Carregando temas do partido..." />
+            )}
           </section>
 
         </>

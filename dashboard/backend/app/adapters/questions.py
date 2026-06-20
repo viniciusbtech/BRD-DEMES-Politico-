@@ -1621,6 +1621,38 @@ class Q3NormalizedAdapter(QuestionAdapter):
         }.get(field, field)
 
 
+class Q11ExtraAdapter(QuestionAdapter):
+    """Temas das proposicoes por partido — alimenta a nuvem de palavras real.
+
+    A tabela principal contem (sigla_partido, tema, frequencia) para todos os anos.
+    O FilterEngine aplica o filtro de 'partidos' sobre a coluna sigla_partido
+    automaticamente, retornando apenas os temas do partido selecionado.
+    """
+
+    def build_chart_spec(self, rows: list[dict[str, Any]]) -> ChartSpec:
+        if not rows:
+            return ChartSpec(
+                type="wordcloud_party",
+                title="Sem dados",
+                description="Sem temas encontrados para este partido.",
+            )
+
+        sorted_rows = sorted(rows, key=lambda r: r.get("frequencia", 0), reverse=True)
+        words = [
+            {"name": str(r["tema"]), "value": int(r["frequencia"])}
+            for r in sorted_rows[:60]
+            if r.get("tema") and r.get("frequencia")
+        ]
+
+        return ChartSpec(
+            type="wordcloud_party",
+            title="Temas das proposicoes do partido",
+            description="Frequencia dos temas legislativos nas proposicoes apresentadas pelo partido selecionado.",
+            series=[{"name": "temas", "data": words}],
+            options={"top_n": 60},
+        )
+
+
 ADAPTERS_BY_ID = {
     "q1": Q1Adapter,
     "q2": Q2Adapter,
@@ -1633,6 +1665,7 @@ ADAPTERS_BY_ID = {
     "q9": Q9Adapter,
     "q10": Q10Adapter,
     "q11": Q11Adapter,
+    "q11_extra": Q11ExtraAdapter,
     "q12": Q12Adapter,
     "q13": Q13Adapter,
 }
