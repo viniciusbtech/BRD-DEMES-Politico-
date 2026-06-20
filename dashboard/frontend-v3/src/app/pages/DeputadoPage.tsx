@@ -14,10 +14,15 @@ import {
 import { fetchMeta, fetchQuestion } from "../api";
 import type { FilterCatalog, FilterChoice, MetaResponse, QuestionPayload } from "../types";
 
-type DeputadoPageProps = { onNavigateHome: () => void };
+type DeputadoPageProps = { onNavigateHome: () => void; onNavigateRecortes: () => void };
 type DeputySelection = FilterChoice;
 type QuestionId = "q1" | "q13" | "q2" | "q3" | "q7";
 type ProfilePayloads = Partial<Record<QuestionId, QuestionPayload>>;
+type SpendingRow = {
+  categoria: string;
+  gasto: number;
+  lancamentos: number;
+};
 
 const emptyFilters: FilterCatalog = {
   anos: [],
@@ -39,7 +44,21 @@ const photo = (deputy: string | Pick<FilterChoice, "value" | "photo_url">) => {
   return apiPhoto || (/^\d+$/.test(id) ? `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg` : "/intro/deputados/107283.jpg");
 };
 
-function Header({ onNavigateHome }: DeputadoPageProps) {
+const aggregateSpendingByCategory = (rows: Array<Record<string, unknown>>): SpendingRow[] => {
+  const grouped = new Map<string, SpendingRow>();
+
+  rows.forEach((row) => {
+    const categoria = String(row.descricao_despesa || "Categoria");
+    const current = grouped.get(categoria) ?? { categoria, gasto: 0, lancamentos: 0 };
+    current.gasto += raw(row, "gasto_total");
+    current.lancamentos += raw(row, "qtd_lancamentos");
+    grouped.set(categoria, current);
+  });
+
+  return Array.from(grouped.values()).sort((a, b) => b.gasto - a.gasto);
+};
+
+function Header({ onNavigateHome, onNavigateRecortes }: DeputadoPageProps) {
   return (
     <header
       className="sticky top-0 z-50 flex h-14 items-center justify-between border-b px-6 sm:px-10"
@@ -59,12 +78,30 @@ function Header({ onNavigateHome }: DeputadoPageProps) {
           QUEM<span className="text-[#e00836]">GOVERNA</span>
         </span>
       </button>
-      <span
-        className="hidden text-[10px] uppercase sm:block"
-        style={{ color: "rgba(243,239,232,0.48)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em" }}
-      >
-        Recorte 02
-      </span>
+      <div className="hidden items-center gap-2 sm:flex">
+        <button
+          type="button"
+          onClick={onNavigateHome}
+          className="border px-3 py-1.5 text-[10px] uppercase transition-colors hover:border-[#e00836] hover:text-[#e00836]"
+          style={{ borderColor: "rgba(243,239,232,0.14)", color: "rgba(243,239,232,0.56)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.14em" }}
+        >
+          Home
+        </button>
+        <button
+          type="button"
+          onClick={onNavigateRecortes}
+          className="border px-3 py-1.5 text-[10px] uppercase transition-colors hover:border-[#e00836] hover:text-[#e00836]"
+          style={{ borderColor: "rgba(243,239,232,0.14)", color: "rgba(243,239,232,0.56)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.14em" }}
+        >
+          Recortes
+        </button>
+        <span
+          className="text-[10px] uppercase"
+          style={{ color: "rgba(243,239,232,0.48)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em" }}
+        >
+          Recorte 02
+        </span>
+      </div>
     </header>
   );
 }
@@ -239,11 +276,7 @@ function SpendingSection({
   onYearChange: (value: string) => void;
 }) {
   const q1 = payloads.q1?.table_spec.rows[0];
-  const rows = (payloads.q13?.table_spec.rows ?? []).slice(0, 10).map((row) => ({
-    categoria: String(row.descricao_despesa || "Categoria"),
-    gasto: raw(row, "gasto_total"),
-    lancamentos: raw(row, "qtd_lancamentos"),
-  }));
+  const rows = aggregateSpendingByCategory(payloads.q13?.table_spec.rows ?? []).slice(0, 10);
   const colors = ["#d20f3a", "#e39115", "#4a7c59", "#2f66ad", "#8745aa", "#777777", "#b8b2a8", "#7c1022"];
   const annualRows = years.map((year) => {
     const yearRows = annualPayloads[year.value]?.table_spec.rows ?? [];
@@ -378,10 +411,7 @@ function SpendingSection({
 
 function LegacySpendingSection({ payloads }: { payloads: ProfilePayloads }) {
   const q1 = payloads.q1?.table_spec.rows[0];
-  const rows = (payloads.q13?.table_spec.rows ?? []).slice(0, 10).map((row) => ({
-    categoria: String(row.descricao_despesa || "Categoria"),
-    gasto: raw(row, "gasto_total"),
-  }));
+  const rows = aggregateSpendingByCategory(payloads.q13?.table_spec.rows ?? []).slice(0, 10);
   const colors = ["#e00836", "#f3efe8", "#8c1d31", "#b8b2a8", "#7c1022", "#6f6a62"];
 
   return (
@@ -439,10 +469,11 @@ function LegacySpendingSection({ payloads }: { payloads: ProfilePayloads }) {
 }
 
 function AxesSection({ payloads }: { payloads: ProfilePayloads }) {
+  const [viewMode, setViewMode] = useState<"ranking" | "cloud">("ranking");
   const rows = useMemo(() => {
     const totals = new Map<string, { tema: string; proposicoes: number; aprovadas: number }>();
     (payloads.q2?.table_spec.rows ?? []).forEach((row) => {
-      const tema = String(row.tema || "Sem tema");
+      const tema = String(row.tema || row.eixo_maior || row.eixo_mais_atuante || row.eixo_principal || "Sem tema");
       const current = totals.get(tema) ?? { tema, proposicoes: 0, aprovadas: 0 };
       current.proposicoes += raw(row, "qtd_proposicoes");
       current.aprovadas += raw(row, "proposicoes_aprovadas");
@@ -455,39 +486,71 @@ function AxesSection({ payloads }: { payloads: ProfilePayloads }) {
   return (
     <section className="border-t px-6 py-16 sm:px-10" style={{ borderColor: "rgba(243,239,232,0.12)" }}>
       <div className="mx-auto max-w-[1434px]">
-        <p className="mb-4 text-[11px] uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.42em" }}>
-          Temas legislativos
-        </p>
-        <h2 className="mb-10 text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>
-          Principais eixos de atuacao
-        </h2>
-
-        {rows.length ? (
-          <div className="max-w-[840px] space-y-7">
-            {rows.slice(0, 6).map((row, index) => {
-              const pct = total ? (row.proposicoes / total) * 100 : 0;
+        <div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="mb-4 text-[11px] uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.42em" }}>
+              Temas legislativos
+            </p>
+            <h2 className="text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>
+              Principais eixos de atuacao
+            </h2>
+          </div>
+          <div className="flex w-full border lg:w-auto" style={{ borderColor: "rgba(243,239,232,0.14)" }}>
+            {[
+              ["ranking", "Ranking"],
+              ["cloud", "Nuvem"],
+            ].map(([mode, label]) => {
+              const active = viewMode === mode;
               return (
-                <div key={row.tema} className="grid grid-cols-[34px_minmax(0,1fr)] gap-4">
-                  <span className="pt-1 text-[13px]" style={{ color: "rgba(243,239,232,0.58)", fontFamily: "'JetBrains Mono', monospace" }}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <div className="mb-3 flex items-end justify-between gap-4">
-                      <strong className="text-[22px] leading-none" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>
-                        {row.tema}
-                      </strong>
-                      <strong className="text-[28px] leading-none" style={{ color: "#e00836", fontFamily: "'Playfair Display', serif" }}>
-                        {Math.round(pct)}%
-                      </strong>
-                    </div>
-                    <div className="h-[10px] bg-white/5">
-                      <div className="h-full" style={{ width: `${Math.min(100, pct)}%`, background: "#b90f2f" }} />
-                    </div>
-                  </div>
-                </div>
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setViewMode(mode as "ranking" | "cloud")}
+                  className="h-10 flex-1 px-4 text-[10px] font-bold uppercase transition-colors lg:min-w-[104px]"
+                  style={{
+                    background: active ? "#e00836" : "transparent",
+                    color: active ? "#fff" : "rgba(243,239,232,0.68)",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    letterSpacing: "0.12em",
+                  }}
+                >
+                  {label}
+                </button>
               );
             })}
           </div>
+        </div>
+
+        {rows.length ? (
+          viewMode === "ranking" ? (
+            <div className="max-w-[840px] space-y-7">
+              {rows.slice(0, 6).map((row, index) => {
+                const pct = total ? (row.proposicoes / total) * 100 : 0;
+                return (
+                  <div key={row.tema} className="grid grid-cols-[34px_minmax(0,1fr)] gap-4">
+                    <span className="pt-1 text-[13px]" style={{ color: "rgba(243,239,232,0.58)", fontFamily: "'JetBrains Mono', monospace" }}>
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <div className="mb-3 flex items-end justify-between gap-4">
+                        <strong className="text-[22px] leading-none" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>
+                          {row.tema}
+                        </strong>
+                        <strong className="text-[28px] leading-none" style={{ color: "#e00836", fontFamily: "'Playfair Display', serif" }}>
+                          {Math.round(pct)}%
+                        </strong>
+                      </div>
+                      <div className="h-[10px] bg-white/5">
+                        <div className="h-full" style={{ width: `${Math.min(100, pct)}%`, background: "#b90f2f" }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <TopicWordCloud rows={rows} total={total} />
+          )
         ) : (
           <EmptyPanel message="Sem eixos de atuacao para este deputado." />
         )}
@@ -496,9 +559,65 @@ function AxesSection({ payloads }: { payloads: ProfilePayloads }) {
   );
 }
 
+function TopicWordCloud({
+  rows,
+  total,
+}: {
+  rows: Array<{ tema: string; proposicoes: number; aprovadas: number }>;
+  total: number;
+}) {
+  const palette = ["#e00836", "#f3efe8", "#e39115", "#4a7c59", "#2f66ad", "#b8b2a8", "#8745aa"];
+  const max = Math.max(...rows.map((row) => row.proposicoes), 1);
+
+  return (
+    <div className="min-h-[320px] border p-5 sm:p-8" style={{ borderColor: "rgba(243,239,232,0.14)", background: "#090909" }}>
+      <div className="flex min-h-[260px] flex-wrap items-center justify-center gap-x-6 gap-y-5">
+        {rows.map((row, index) => {
+          const weight = row.proposicoes / max;
+          const pct = total ? Math.round((row.proposicoes / total) * 100) : 0;
+          const size = Math.round(18 + weight * 34);
+          return (
+            <span
+              key={row.tema}
+              title={`${number(row.proposicoes)} proposicoes; ${number(row.aprovadas)} aprovadas`}
+              className="inline-flex items-baseline gap-2 whitespace-nowrap leading-none"
+              style={{
+                color: palette[index % palette.length],
+                fontFamily: index % 2 === 0 ? "'Playfair Display', serif" : "'JetBrains Mono', monospace",
+                fontSize: `${size}px`,
+                fontWeight: index % 2 === 0 ? 900 : 700,
+                opacity: 0.58 + weight * 0.42,
+              }}
+            >
+              {row.tema}
+              <small className="text-[11px]" style={{ color: "rgba(243,239,232,0.48)", fontFamily: "'JetBrains Mono', monospace" }}>
+                {pct}%
+              </small>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
   const [themeQuery, setThemeQuery] = useState("");
+  const [selectedTheme, setSelectedTheme] = useState("");
+  const [voteTableMode, setVoteTableMode] = useState<"percentual" | "contagem">("percentual");
   const rows = useMemo(() => {
+    const allYearTable = payloads.q3?.complement_tables.find((table) => table.title === "Votos por eixo - todos os anos");
+    if (allYearTable?.rows.length) {
+      return allYearTable.rows.map((row) => ({
+        eixo: String(row.eixo_principal || row.eixo_maior || "Tema"),
+        sim: raw(row, "voto_sim") || raw(row, "votos_sim"),
+        nao: raw(row, "voto_nao") || raw(row, "votos_nao"),
+        abstencao: raw(row, "voto_abstencao") || raw(row, "abstencoes"),
+        outros: raw(row, "voto_outro"),
+        total: raw(row, "votos_total"),
+      }));
+    }
+
     const byTheme = payloads.q3?.chart_spec.options?.by_theme as Array<Record<string, unknown>> | undefined;
     if (byTheme?.length) {
       return byTheme.map((row) => ({
@@ -507,10 +626,11 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
         nao: raw(row, "voto_nao") || raw(row, "votos_nao"),
         abstencao: raw(row, "voto_abstencao") || raw(row, "abstencoes"),
         outros: raw(row, "voto_outro"),
+        total: raw(row, "votos_total"),
       }));
     }
 
-    const data = new Map<string, { eixo: string; sim: number; nao: number; abstencao: number; outros: number }>();
+    const data = new Map<string, { eixo: string; sim: number; nao: number; abstencao: number; outros: number; total: number }>();
     (payloads.q3?.chart_spec.series?.[0]?.data as Array<Record<string, unknown>> | undefined)?.forEach((row) => {
       const eixo = String(row.eixo_principal || row.name || row.eixo || "Tema");
       data.set(eixo, {
@@ -519,23 +639,46 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
         nao: raw(row, "voto_nao"),
         abstencao: raw(row, "voto_abstencao"),
         outros: raw(row, "voto_outro"),
+        total: raw(row, "votos_total"),
       });
     });
     if (data.size === 0) {
       (payloads.q3?.table_spec.rows ?? []).forEach((row) => {
         const eixo = String(row.eixo_principal || "Tema");
-        const current = data.get(eixo) ?? { eixo, sim: 0, nao: 0, abstencao: 0, outros: 0 };
+        const current = data.get(eixo) ?? { eixo, sim: 0, nao: 0, abstencao: 0, outros: 0, total: 0 };
+        const sim = raw(row, "voto_sim") || raw(row, "votos_sim");
+        const nao = raw(row, "voto_nao") || raw(row, "votos_nao");
+        const abstencao = raw(row, "voto_abstencao") || raw(row, "abstencoes");
+        const outros = raw(row, "voto_outro");
+        const total = raw(row, "votos_total");
+        if (sim || nao || abstencao || outros || total) {
+          current.sim += sim;
+          current.nao += nao;
+          current.abstencao += abstencao;
+          current.outros += outros;
+          current.total += total || sim + nao + abstencao + outros;
+          data.set(eixo, current);
+          return;
+        }
         const voto = String(row.voto || "").toLowerCase();
         if (voto.includes("sim")) current.sim += 1;
         else if (voto.includes("nao") || voto.includes("não")) current.nao += 1;
         else if (voto.includes("abst")) current.abstencao += 1;
         else current.outros += 1;
+        current.total += 1;
         data.set(eixo, current);
       });
     }
-    return Array.from(data.values()).slice(0, 10);
+    return Array.from(data.values())
+      .map((row) => ({ ...row, total: row.total || row.sim + row.nao + row.abstencao + row.outros }))
+      .slice(0, 10);
   }, [payloads.q3]);
-  const filteredRows = rows.filter((row) => row.eixo.toLowerCase().includes(themeQuery.trim().toLowerCase()));
+  const themeOptions = rows.map((row) => row.eixo);
+  const filteredRows = rows.filter((row) => {
+    const matchesSelected = selectedTheme ? row.eixo === selectedTheme : true;
+    const matchesSearch = row.eixo.toLowerCase().includes(themeQuery.trim().toLowerCase());
+    return matchesSelected && matchesSearch;
+  });
 
   return (
     <section className="border-t px-6 py-16 sm:px-10" style={{ borderColor: "rgba(243,239,232,0.12)" }}>
@@ -549,13 +692,42 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
               Como ele vota por tema
             </h2>
           </div>
-          <input
-            value={themeQuery}
-            onChange={(event) => setThemeQuery(event.target.value)}
-            placeholder="Filtrar por tema..."
-            className="h-11 w-full border bg-[#111] px-4 text-[12px] outline-none lg:w-[240px]"
-            style={{ borderColor: "rgba(243,239,232,0.14)", color: "#f3efe8", fontFamily: "'JetBrains Mono', monospace" }}
-          />
+          <div className="flex w-full flex-col gap-3 lg:w-[360px]">
+            <button
+              type="button"
+              onClick={() => setVoteTableMode((mode) => (mode === "percentual" ? "contagem" : "percentual"))}
+              className="h-11 border px-4 text-left text-[10px] font-bold uppercase transition-colors hover:border-[#e00836]"
+              style={{
+                borderColor: voteTableMode === "contagem" ? "#e00836" : "rgba(243,239,232,0.14)",
+                background: voteTableMode === "contagem" ? "rgba(224,8,54,0.14)" : "#111",
+                color: voteTableMode === "contagem" ? "#f3efe8" : "rgba(243,239,232,0.72)",
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.12em",
+              }}
+            >
+              {voteTableMode === "percentual" ? "Ver contagem de votos" : "Ver tabela percentual"}
+            </button>
+            <select
+              value={selectedTheme}
+              onChange={(event) => setSelectedTheme(event.target.value)}
+              className="h-11 w-full border bg-[#111] px-4 text-[12px] outline-none"
+              style={{ borderColor: "rgba(243,239,232,0.14)", color: "#f3efe8", fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              <option value="">Todos os eixos</option>
+              {themeOptions.map((theme) => (
+                <option key={theme} value={theme}>
+                  {theme}
+                </option>
+              ))}
+            </select>
+            <input
+              value={themeQuery}
+              onChange={(event) => setThemeQuery(event.target.value)}
+              placeholder="Filtrar por texto..."
+              className="h-11 w-full border bg-[#111] px-4 text-[12px] outline-none"
+              style={{ borderColor: "rgba(243,239,232,0.14)", color: "#f3efe8", fontFamily: "'JetBrains Mono', monospace" }}
+            />
+          </div>
         </div>
 
         {filteredRows.length ? (
@@ -563,7 +735,7 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
             <table className="w-full min-w-[860px] border-collapse">
               <thead style={{ background: "#101010" }}>
                 <tr>
-                  {["Tema", "A favor", "Contra", "Ausente"].map((column) => (
+                  {(voteTableMode === "percentual" ? ["Tema", "A favor", "Contra", "Ausente"] : ["Eixo", "Votou sim", "Votou nao", "Abstencao", "Voto total"]).map((column) => (
                     <th key={column} className="border-b px-6 py-4 text-left text-[10px] uppercase" style={{ borderColor: "rgba(243,239,232,0.12)", color: "rgba(243,239,232,0.58)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.12em" }}>
                       {column}
                     </th>
@@ -579,13 +751,24 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
                   return (
                     <tr key={row.eixo} className="border-b" style={{ borderColor: "rgba(243,239,232,0.08)" }}>
                       <td className="px-6 py-5 text-[15px] font-bold" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>{row.eixo}</td>
-                      <td className="px-6 py-5">
-                        <VoteMeter value={favor} color="#4a7c59" />
-                      </td>
-                      <td className="px-6 py-5">
-                        <VoteMeter value={contra} color="#e00836" />
-                      </td>
-                      <td className="px-6 py-5 text-[13px]" style={{ color: "rgba(243,239,232,0.62)", fontFamily: "'JetBrains Mono', monospace" }}>{ausente}%</td>
+                      {voteTableMode === "percentual" ? (
+                        <>
+                          <td className="px-6 py-5">
+                            <VoteMeter value={favor} color="#4a7c59" />
+                          </td>
+                          <td className="px-6 py-5">
+                            <VoteMeter value={contra} color="#e00836" />
+                          </td>
+                          <td className="px-6 py-5 text-[13px]" style={{ color: "rgba(243,239,232,0.62)", fontFamily: "'JetBrains Mono', monospace" }}>{ausente}%</td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-6 py-5 text-[13px] font-bold" style={{ color: "#4a7c59", fontFamily: "'JetBrains Mono', monospace" }}>{number(row.sim)}</td>
+                          <td className="px-6 py-5 text-[13px] font-bold" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace" }}>{number(row.nao)}</td>
+                          <td className="px-6 py-5 text-[13px]" style={{ color: "rgba(243,239,232,0.7)", fontFamily: "'JetBrains Mono', monospace" }}>{number(row.abstencao)}</td>
+                          <td className="px-6 py-5 text-[13px] font-bold" style={{ color: "#f3efe8", fontFamily: "'JetBrains Mono', monospace" }}>{number(row.total || total)}</td>
+                        </>
+                      )}
                     </tr>
                   );
                 })}
@@ -677,13 +860,11 @@ function VoteMeter({ value, color }: { value: number; color: string }) {
 }
 
 function DetailTable({ payloads }: { payloads: ProfilePayloads }) {
-  const rows = [
-    ...(payloads.q13?.table_spec.rows ?? []).slice(0, 12).map((row) => ({
-      categoria: row.descricao_despesa,
-      lancamentos: number(row.qtd_lancamentos),
-      valor: money(row.gasto_total),
-    })),
-  ];
+  const rows = aggregateSpendingByCategory(payloads.q13?.table_spec.rows ?? []).slice(0, 12).map((row) => ({
+    categoria: row.categoria,
+    lancamentos: number(row.lancamentos),
+    valor: money(row.gasto),
+  }));
 
   return (
     <section className="px-6 pb-16 sm:px-10">
@@ -781,7 +962,7 @@ function ChartBox({
   );
 }
 
-export default function DeputadoPage({ onNavigateHome }: DeputadoPageProps) {
+export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: DeputadoPageProps) {
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [selectedDeputy, setSelectedDeputy] = useState<DeputySelection | null>(null);
   const [query, setQuery] = useState("");
@@ -833,7 +1014,7 @@ export default function DeputadoPage({ onNavigateHome }: DeputadoPageProps) {
       fetchQuestion("q1", filtersForBackend, { page: 1, pageSize: 20, sortBy: "gasto_total", sortDir: "desc" }),
       fetchQuestion("q13", filtersForBackend, { page: 1, pageSize: 100, sortBy: "gasto_total", sortDir: "desc" }),
       fetchQuestion("q2", filtersForBackend, { page: 1, pageSize: 100, sortBy: "qtd_proposicoes", sortDir: "desc" }),
-      fetchQuestion("q3", filtersForBackend, { page: 1, pageSize: 100, sortDir: "desc" }),
+      fetchQuestion("q3", { deputados: [selectedDeputy.value], anos: [] }, { page: 1, pageSize: 100, sortDir: "desc" }),
       fetchQuestion("q7", filtersForBackend, { page: 1, pageSize: 20, sortBy: "custo_beneficio", sortDir: "desc" }),
       ...years.map((year) =>
         fetchQuestion(
@@ -872,7 +1053,7 @@ export default function DeputadoPage({ onNavigateHome }: DeputadoPageProps) {
 
   return (
     <main className="min-h-screen" style={{ background: "#050505", color: "#f3efe8", fontFamily: "Inter, sans-serif" }}>
-      <Header onNavigateHome={onNavigateHome} />
+      <Header onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} />
       <SearchHero query={query} selected={selectedDeputy} options={filters.deputados} onQueryChange={handleQueryChange} onSelect={handleSelectDeputy} />
 
       {loadingMeta ? (

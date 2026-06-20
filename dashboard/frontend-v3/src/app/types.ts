@@ -85,6 +85,7 @@ export type QuestionPayload = {
 export type QuestionFilters = {
   anos?: string[];
   eixos?: string[];
+  partidos?: string[];
   deputados?: string[];
   search?: string;
 };

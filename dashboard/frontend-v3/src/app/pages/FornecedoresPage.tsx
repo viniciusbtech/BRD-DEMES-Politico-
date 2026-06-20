@@ -14,6 +14,7 @@ import {
 
 type FornecedoresPageProps = {
   onNavigateHome: () => void;
+  onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
 
@@ -152,7 +153,7 @@ function SupplierDropdown({ value, onChange, onSelect }: SupplierDropdownProps) 
   );
 }
 
-export default function FornecedoresPage({ onNavigateHome, onNavigateDeputado }: FornecedoresPageProps) {
+export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: FornecedoresPageProps) {
   const [supplierQuery, setSupplierQuery] = useState("");
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [deputyQuery, setDeputyQuery] = useState("");
@@ -187,7 +188,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateDeputado }:
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <SectionBg imgId={backgroundImages[4].id} alt={backgroundImages[4].alt}>
         <div className="border-b border-border px-6 pb-12 pt-16 md:px-14">

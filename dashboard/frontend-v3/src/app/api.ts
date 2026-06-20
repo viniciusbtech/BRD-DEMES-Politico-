@@ -37,6 +37,7 @@ export function fetchQuestion(
   const query = buildQuery({
     anos: filters.anos,
     eixos: filters.eixos,
+    partidos: filters.partidos,
     deputados: filters.deputados,
     search: filters.search,
     page: table.page ?? 1,
@@ -47,4 +48,3 @@ export function fetchQuestion(
 
   return fetchJson<QuestionPayload>(`${API_BASE}/api/questions/${questionId}?${query}`);
 }
-

@@ -16,6 +16,7 @@ import {
 
 type IdeologiaPageProps = {
   onNavigateHome: () => void;
+  onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
 
@@ -115,7 +116,7 @@ function PartyCard({ party }: { party: ComportamentoParty }) {
   );
 }
 
-export default function IdeologiaPage({ onNavigateHome, onNavigateDeputado }: IdeologiaPageProps) {
+export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: IdeologiaPageProps) {
   const [depQuery, setDepQuery] = useState("");
   const [selectedDeputy, setSelectedDeputy] = useState<ComportamentoDeputy | null>(null);
   const [depDropOpen, setDepDropOpen] = useState(false);
@@ -164,7 +165,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateDeputado }: Id
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
         n="7"

@@ -807,6 +807,7 @@ function ReferenceHome({
       </section>
 
       <section
+        id="recortes"
         className="relative z-10 px-6 py-16 sm:px-10 sm:py-20"
         style={{
           background:
@@ -990,6 +991,15 @@ export default function App() {
     navigateTo("/");
   }, [navigateTo]);
 
+  const navigateRecortes = useCallback(() => {
+    setPhase("home");
+    window.history.pushState({}, "", "/");
+    setCurrentPath("/");
+    window.setTimeout(() => {
+      document.getElementById("recortes")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, []);
+
   useEffect(() => {
     const t = setInterval(() => setCursorVisible((v) => !v), 600);
     return () => clearInterval(t);
@@ -1094,35 +1104,35 @@ export default function App() {
   const strip3 = [...consequences, ...consequences, ...consequences];
 
   if (["/q/q1", "/recortes/panorama", "/panorama"].includes(currentPath)) {
-    return <PanoramaPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <PanoramaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q2", "/recortes/deputado", "/deputado"].includes(currentPath)) {
-    return <DeputadoPage onNavigateHome={navigateHome} />;
+    return <DeputadoPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} />;
   }
 
   if (["/q/q3", "/recortes/partidos", "/partidos"].includes(currentPath)) {
-    return <PartidosPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <PartidosPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q4", "/recortes/gastos-sociais", "/gastos-sociais"].includes(currentPath)) {
-    return <GastosSociaisPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <GastosSociaisPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q5", "/recortes/fornecedores", "/fornecedores"].includes(currentPath)) {
-    return <FornecedoresPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <FornecedoresPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q6", "/recortes/influencia", "/influencia"].includes(currentPath)) {
-    return <InfluenciaPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <InfluenciaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q7", "/recortes/ideologia", "/ideologia", "/comportamento"].includes(currentPath)) {
-    return <IdeologiaPage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <IdeologiaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (["/q/q8", "/recortes/escolaridade", "/escolaridade"].includes(currentPath)) {
-    return <EscolaridadePage onNavigateHome={navigateHome} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <EscolaridadePage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
   }
 
   if (phase === "home") {

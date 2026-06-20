@@ -1173,6 +1173,13 @@ class Q11Adapter(QuestionAdapter):
     # -- chart spec (nuvens de palavras) ---------------------------------
 
     def build_chart_spec(self, rows: list[dict[str, Any]]) -> ChartSpec:
+        score_table = None
+        for table in self.complement_tables:
+            columns = set(table.columns)
+            if {"termo", "score_total", "frequencia"}.issubset(columns):
+                score_table = table
+                break
+
         images = [
             {
                 "year": "Frequencia nas votacoes",
@@ -1199,7 +1206,7 @@ class Q11Adapter(QuestionAdapter):
                 "Cores: verde = esquerda, amarelo = centro, laranja = direita."
             ),
             series=[],
-            options={"images": images},
+            options={"images": images, "scores": score_table.rows if score_table else []},
         )
 
 
@@ -1299,6 +1306,7 @@ class Q3NormalizedAdapter(QuestionAdapter):
             total=len(sorted_votos),
             state=state,
         )
+        complement_tables = self._build_all_year_theme_tables(state)
         has_data = table_spec.total > 0
         empty = EmptyState(
             is_empty=not has_data,
@@ -1325,7 +1333,7 @@ class Q3NormalizedAdapter(QuestionAdapter):
             summary_cards=self._build_vote_summary_cards(filtered_resumo),
             chart_spec=chart_spec,
             table_spec=table_spec,
-            complement_tables=[],
+            complement_tables=complement_tables,
             query_panel=QueryPanel(
                 sql_path=self.context.sql_path,
                 sql_text=self.context.sql_text,
@@ -1340,6 +1348,69 @@ class Q3NormalizedAdapter(QuestionAdapter):
     def _resumo_rows(self) -> list[dict[str, Any]]:
         table = self._find_table_with_columns({"votos_total", "eixo_principal"})
         return table.rows if table else []
+
+    def _legacy_resumo_rows(self) -> list[dict[str, Any]]:
+        table = self._find_table_with_columns({"votos_total", "eixo_maior", "votos_sim"})
+        return table.rows if table else []
+
+    def _build_all_year_theme_tables(self, state: FilterState) -> list[TableSpec]:
+        rows = self._legacy_resumo_rows()
+        if not rows:
+            return []
+
+        all_years_state = FilterState(
+            anos=[],
+            eixos=state.eixos,
+            partidos=state.partidos,
+            ufs=state.ufs,
+            deputados=state.deputados,
+            escolaridade=state.escolaridade,
+            search=state.search,
+            sort_by=state.sort_by,
+            sort_dir=state.sort_dir,
+            page=1,
+            page_size=200,
+        )
+        filtered = FilterEngine.apply_filters(rows, all_years_state, self.context.question.supported_filters)
+        grouped: dict[tuple[str, str, str], dict[str, Any]] = {}
+        for row in filtered:
+            dep_id = str(row.get("id_deputado") or "")
+            name = str(row.get("nome") or "")
+            eixo = str(row.get("eixo_maior") or row.get("eixo_principal") or "Sem classificacao")
+            current = grouped.setdefault(
+                (dep_id, name, eixo),
+                {
+                    "id_deputado": dep_id,
+                    "nome": name,
+                    "eixo_principal": eixo,
+                    "voto_sim": 0,
+                    "voto_nao": 0,
+                    "voto_abstencao": 0,
+                    "votos_total": 0,
+                },
+            )
+            current["voto_sim"] += self._to_int(row.get("votos_sim") or row.get("voto_sim"))
+            current["voto_nao"] += self._to_int(row.get("votos_nao") or row.get("voto_nao"))
+            current["voto_abstencao"] += self._to_int(row.get("abstencoes") or row.get("voto_abstencao"))
+            current["votos_total"] += self._to_int(row.get("votos_total"))
+
+        sorted_rows = sorted(
+            grouped.values(),
+            key=lambda item: self._to_int(item.get("votos_total")),
+            reverse=True,
+        )
+        if not sorted_rows:
+            return []
+
+        return [
+            self._build_table_spec(
+                title="Votos por eixo - todos os anos",
+                columns=["id_deputado", "nome", "eixo_principal", "voto_sim", "voto_nao", "voto_abstencao", "votos_total"],
+                rows=sorted_rows,
+                total=len(sorted_rows),
+                state=all_years_state,
+            )
+        ]
 
     def _build_empty_selection_payload(self, state: FilterState) -> QuestionPayload:
         empty_chart = ChartSpec(

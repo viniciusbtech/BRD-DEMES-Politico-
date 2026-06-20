@@ -16,6 +16,7 @@ import {
 
 type EscolaridadePageProps = {
   onNavigateHome: () => void;
+  onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
 
@@ -26,7 +27,7 @@ const SERIF = "'Playfair Display', serif";
 
 const educationColors = educationLevels.map((item) => item.color);
 
-export default function EscolaridadePage({ onNavigateHome, onNavigateDeputado }: EscolaridadePageProps) {
+export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: EscolaridadePageProps) {
   const [depQuery, setDepQuery] = useState("");
   const [selectedDep, setSelectedDep] = useState<DeputyEducation | null>(null);
   const [depDropOpen, setDepDropOpen] = useState(false);
@@ -68,7 +69,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateDeputado }:
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
         n="8"

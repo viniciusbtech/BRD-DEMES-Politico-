@@ -12,6 +12,7 @@ import {
 
 type PanoramaPageProps = {
   onNavigateHome: () => void;
+  onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
 
@@ -55,10 +56,10 @@ function Section({ n, tag, title, sub, children }: SectionProps) {
   );
 }
 
-export default function PanoramaPage({ onNavigateHome, onNavigateDeputado }: PanoramaPageProps) {
+export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PanoramaPageProps) {
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
         n="1"

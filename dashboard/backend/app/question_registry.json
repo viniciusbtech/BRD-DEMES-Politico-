@@ -81,7 +81,8 @@
       "response_files": [
         "questoes/q3/artifacts/q3_resumos_agregados.csv",
         "questoes/q3/artifacts/q3_votos_min.csv",
-        "questoes/q3/artifacts/q3_classificacao_votacoes.csv"
+        "questoes/q3/artifacts/q3_classificacao_votacoes.csv",
+        "questoes/q3/respostas/q3_voto_deputado_tema.txt"
       ],
       "sql_file": "questoes/q3/consultas/q3.sql",
       "chart_type": "stacked_bar",

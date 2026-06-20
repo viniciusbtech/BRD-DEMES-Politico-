@@ -12,6 +12,7 @@ import {
 
 type GastosSociaisPageProps = {
   onNavigateHome: () => void;
+  onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
 
@@ -23,7 +24,7 @@ const initialSliderValues = spendingSliders.reduce<Record<string, number>>((valu
   return values;
 }, {});
 
-export default function GastosSociaisPage({ onNavigateHome, onNavigateDeputado }: GastosSociaisPageProps) {
+export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: GastosSociaisPageProps) {
   const [savings, setSavings] = useState(50);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>(initialSliderValues);
   const [glitch, setGlitch] = useState(false);
@@ -118,7 +119,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateDeputado }
       `}</style>
 
       <div className="gastos-scanline" />
-      <NavBar onNavigateHome={onNavigateHome} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <div className="relative overflow-hidden border-b border-border px-6 pb-16 pt-20 md:px-14">
         <div className="absolute inset-0 grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>

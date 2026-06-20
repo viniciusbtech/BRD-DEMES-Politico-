@@ -5,6 +5,7 @@ import { groups, partyInfluence, radarData } from "../data/influenciaMock";
 
 type InfluenciaPageProps = {
   onNavigateHome: () => void;
+  onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
 };
 
@@ -31,14 +32,14 @@ function ConnectionLine({ from, to, type }: ConnectionLineProps) {
   );
 }
 
-export default function InfluenciaPage({ onNavigateHome, onNavigateDeputado }: InfluenciaPageProps) {
+export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: InfluenciaPageProps) {
   const totalMembers = groups.reduce((sum, group) => sum + group.members, 0);
   const totalConnections = groups.reduce((sum, group) => sum + group.connects.length, 0);
   const totalOppositions = groups.reduce((sum, group) => sum + group.opposes.length, 0);
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
         n="6"

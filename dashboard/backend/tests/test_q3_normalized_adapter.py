@@ -42,6 +42,7 @@ def _build_q3_service(root: Path) -> DashboardService:
                     "questoes/q3/artifacts/q3_resumos_agregados.csv",
                     "questoes/q3/artifacts/q3_votos_min.csv",
                     "questoes/q3/artifacts/q3_classificacao_votacoes.csv",
+                    "questoes/q3/respostas/q3_voto_deputado_tema.txt",
                 ],
                 "sql_file": "q3.sql",
                 "chart_type": "bar_vertical",
@@ -94,6 +95,20 @@ def _build_q3_service(root: Path) -> DashboardService:
                 "2024;v2;Social;;alta;e2;PL 2;Ementa 2;1;1",
                 "2024;v3;Social;;alta;e3;PL 3;Ementa 3;1;1",
                 "2024;v4;Seguranca;Social;alta;e4;PL 4;Ementa 4;1;1",
+            ]
+        )
+        + "\n",
+    )
+    _write(
+        root / "questoes" / "q3" / "respostas" / "q3_voto_deputado_tema.txt",
+        "\n".join(
+            [
+                " ano_dados | id_deputado | nome | eixo_maior | votos_sim | votos_nao | abstencoes | votos_total ",
+                "-----------+-------------+------+------------+-----------+-----------+------------+-------------",
+                "      2023 |           1 | Ana  | Social     |         5 |         2 |          0 |           7",
+                "      2024 |           1 | Ana  | Social     |         7 |         3 |          1 |          11",
+                "      2024 |           1 | Ana  | Seguranca  |         1 |         4 |          0 |           5",
+                "(3 rows)",
             ]
         )
         + "\n",
@@ -165,6 +180,19 @@ def test_q3_enriches_only_paged_rows_without_duplication(tmp_path: Path) -> None
     assert len(payload.table_spec.rows) == 1
     assert payload.table_spec.rows[0]["proposicao_votacao"] == "PL 1"
     assert payload.table_spec.rows[0]["ementa_descricao"] == "Ementa 1"
+
+
+def test_q3_adds_all_year_theme_totals_from_legacy_table(tmp_path: Path) -> None:
+    service = _build_q3_service(tmp_path)
+
+    payload = service.get_question_payload("q3", _state(deputados=["Ana"], anos=["2024"]))
+
+    table = next(table for table in payload.complement_tables if table.title == "Votos por eixo - todos os anos")
+    social = next(row for row in table.rows if row["eixo_principal"] == "Social")
+    assert social["voto_sim"] == 12
+    assert social["voto_nao"] == 5
+    assert social["voto_abstencao"] == 1
+    assert social["votos_total"] == 18
 
 
 def test_q3_bundle_cache_avoids_reparsing_csvs(tmp_path: Path, monkeypatch) -> None:
