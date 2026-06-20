@@ -276,15 +276,15 @@ const questionCards: QuestionCard[] = [
   {
     id: 1,
     title: "Panorama Geral",
-    image: "/perguntas/q01/cover.jpg",
-    fallbackImage: "/intro/deputados/107283.jpg",
+    image: "/perguntas/q01/TH1.jpg",
+    fallbackImage: "/intro/deputados/images (7).jpg",
     description:
       "Visão inicial dos principais indicadores da Câmara: deputados, gastos, votações, proposições e sinais gerais de comportamento parlamentar.",
   },
   {
     id: 2,
     title: "Quem é seu deputado?",
-    image: "/perguntas/q02/cover.jpg",
+    image: "/perguntas/q02/images.jpg",
     fallbackImage: "/wordclouds/q2_nuvem_palavras_consolidado.png",
     description:
       "Consulta centrada no parlamentar: perfil, atuação, gastos, presença, proposições e dados públicos que ajudam a entender quem representa cada eleitor.",
@@ -904,13 +904,13 @@ function ReferenceHome({
                         src={item.image}
                         alt={`Análise ${item.id}`}
                         className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
-                          item.fallbackImage.includes("/wordclouds/") ? "object-contain p-5" : "object-cover"
+                          item.id !== 2 && item.fallbackImage.includes("/wordclouds/") ? "object-contain p-5" : "object-cover"
                         }`}
                         style={{
-                          filter: item.fallbackImage.includes("/wordclouds/")
+                          filter: item.id !== 2 && item.fallbackImage.includes("/wordclouds/")
                             ? "grayscale(35%) contrast(1.08) brightness(0.9)"
                             : "grayscale(72%) contrast(1.08) brightness(0.86)",
-                          background: item.fallbackImage.includes("/wordclouds/") ? "#101010" : "transparent",
+                          background: item.id !== 2 && item.fallbackImage.includes("/wordclouds/") ? "#101010" : "transparent",
                         }}
                         onError={(event) => {
                           if (event.currentTarget.src.endsWith(item.fallbackImage)) return;
