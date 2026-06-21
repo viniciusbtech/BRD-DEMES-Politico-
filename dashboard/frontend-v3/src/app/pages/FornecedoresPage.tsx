@@ -17,6 +17,9 @@ const MONO  = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
 const RED   = "#c41230";
 
+// quantas tuplas a tabela oculta avança por vez
+const ANNUAL_PAGE_SIZE = 20;
+
 // ─── helpers ─────────────────────────────────────────────────────────────────
 const raw = (r: Row, k: string) => Number(r?.[k] ?? 0);
 const str = (r: Row, k: string) => String(r?.[k] ?? "");
@@ -174,6 +177,10 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
   const [q5Search, setQ5Search]       = useState("");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
+  // ── tabela oculta: top 30 fornecedores por ano ──
+  const [annualTableOpen, setAnnualTableOpen] = useState(false);
+  const [annualPage, setAnnualPage]           = useState(0);
+
   // ── Q12 overview (para top 10 + stats por deputado) ──
   const [q12Overview, setQ12Overview] = useState<Row[]>([]);
   const [depStats, setDepStats] = useState<Map<string, DepStats>>(new Map());
@@ -312,6 +319,24 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
       .filter((r) => str(r, "fornecedor") === expandedRow)
       .sort((a, b) => raw(a, "ano_dados") - raw(b, "ano_dados"));
   }, [q5AnnualRows, expandedRow]);
+
+  // ── linhas anuais (top 30 por ano) ordenadas: ano asc, posicao asc ──
+  const q5AnnualSorted = useMemo(() => (
+    q5AnnualRows
+      .filter((r) => /^\d{4}$/.test(str(r, "ano_dados")))
+      .sort((a, b) => {
+        const byYear = raw(a, "ano_dados") - raw(b, "ano_dados");
+        return byYear !== 0 ? byYear : raw(a, "posicao") - raw(b, "posicao");
+      })
+  ), [q5AnnualRows]);
+
+  const annualTotalPages = Math.max(1, Math.ceil(q5AnnualSorted.length / ANNUAL_PAGE_SIZE));
+  const q5AnnualPageRows = useMemo(
+    () => q5AnnualSorted.slice(annualPage * ANNUAL_PAGE_SIZE, annualPage * ANNUAL_PAGE_SIZE + ANNUAL_PAGE_SIZE),
+    [q5AnnualSorted, annualPage],
+  );
+  const annualRangeStart = q5AnnualSorted.length === 0 ? 0 : annualPage * ANNUAL_PAGE_SIZE + 1;
+  const annualRangeEnd   = Math.min(q5AnnualSorted.length, (annualPage + 1) * ANNUAL_PAGE_SIZE);
 
   // ── Top 10 deputados (de Q12 overview) ──
   const top10Deputies = useMemo(() => {
@@ -528,6 +553,119 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
             })}
           </div>
         )}
+
+        {/* ── Tabela oculta: top 30 fornecedores por ano ── */}
+        <div className="mt-10 border border-border">
+          <button
+            type="button"
+            onClick={() => { setAnnualTableOpen((v) => !v); setAnnualPage(0); }}
+            className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
+            style={{ background: "#111" }}
+          >
+            <div>
+              <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+                TOP 30 FORNECEDORES POR ANO
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                Quanto cada fornecedor recebeu, ano a ano (maior total pago)
+              </p>
+            </div>
+            <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              {annualTableOpen ? "▲ OCULTAR" : "▼ MOSTRAR TABELA"}
+            </span>
+          </button>
+
+          {annualTableOpen ? (
+            <div className="border-t border-border" style={{ background: "#0d0d0d" }}>
+              {q5AnnualSorted.length === 0 ? (
+                <EmptyMsg text="SEM DADOS ANUAIS DISPONÍVEIS." />
+              ) : (
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-left text-sm">
+                      <thead style={{ background: "#0a0a0a" }}>
+                        <tr>
+                          {["ANO", "POS", "FORNECEDOR", "LANÇ.", "TOTAL", "% ANO"].map((h) => (
+                            <th
+                              key={h}
+                              className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground"
+                              style={{ fontFamily: MONO }}
+                            >
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {q5AnnualPageRows.map((row, idx) => {
+                          const pos = raw(row, "posicao");
+                          return (
+                            <tr key={`${str(row, "ano_dados")}-${pos}-${idx}`} className="border-t border-border">
+                              <td className="whitespace-nowrap px-4 py-3 text-muted-foreground" style={{ fontFamily: MONO }}>
+                                {str(row, "ano_dados")}
+                              </td>
+                              <td
+                                className="whitespace-nowrap px-4 py-3 font-black"
+                                style={{ fontFamily: MONO, color: pos <= 3 ? RED : "rgba(240,236,228,0.4)" }}
+                              >
+                                {String(pos).padStart(2, "0")}
+                              </td>
+                              <td className="px-4 py-3 text-foreground" style={{ fontFamily: SERIF }}>
+                                {str(row, "fornecedor")}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-3 text-right text-muted-foreground" style={{ fontFamily: MONO }}>
+                                {fmtNum(raw(row, "qtd_lancamentos"))}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-3 text-right font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+                                {fmtCurrency(raw(row, "total_pago"))}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-3 text-right text-muted-foreground" style={{ fontFamily: MONO }}>
+                                {raw(row, "pct_total").toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* paginação — passa de 20 em 20 */}
+                  <div
+                    className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3"
+                    style={{ background: "#0a0a0a" }}
+                  >
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      {annualRangeStart}–{annualRangeEnd} de {fmtNum(q5AnnualSorted.length)}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={annualPage === 0}
+                        onClick={() => setAnnualPage((p) => Math.max(0, p - 1))}
+                        className="border border-border px-3 py-1.5 text-xs transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted-foreground"
+                        style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}
+                      >
+                        ← ANTERIORES
+                      </button>
+                      <span className="px-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                        {annualPage + 1}/{annualTotalPages}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={annualPage >= annualTotalPages - 1}
+                        onClick={() => setAnnualPage((p) => Math.min(annualTotalPages - 1, p + 1))}
+                        className="border border-border px-3 py-1.5 text-xs transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-border disabled:hover:text-muted-foreground"
+                        style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}
+                      >
+                        PRÓXIMAS →
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : null}
+        </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════

@@ -8,6 +8,7 @@ import {
   socialPrograms,
   spendingSliders,
   totalCeap,
+  workInsights,
 } from "../data/gastosSociaisMock";
 
 type GastosSociaisPageProps = {
@@ -28,12 +29,20 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
   const [savings, setSavings] = useState(50);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>(initialSliderValues);
   const [glitch, setGlitch] = useState(false);
+  const [heroTarget, setHeroTarget] = useState<"deputado" | "povo">("povo");
 
   useEffect(() => {
     const interval = window.setInterval(() => {
       setGlitch(true);
       window.setTimeout(() => setGlitch(false), 400);
     }, 4000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setHeroTarget((current) => (current === "povo" ? "deputado" : "povo"));
+    }, 2500);
     return () => window.clearInterval(interval);
   }, []);
 
@@ -92,6 +101,47 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           z-index: 999;
         }
         .gastos-flicker { animation: gastos-flicker 8s ease-in-out infinite; }
+        .gastos-word-swap {
+          position: relative;
+          display: inline-block;
+          animation: gastos-word-in 0.55s cubic-bezier(0.2, 0.9, 0.1, 1) both;
+        }
+        .gastos-word-swap::before,
+        .gastos-word-swap::after {
+          content: attr(data-text);
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          pointer-events: none;
+          user-select: none;
+          mix-blend-mode: screen;
+        }
+        .gastos-word-swap::before { color: #0ff; animation: gastos-word-cyan 0.55s steps(2) both; }
+        .gastos-word-swap::after  { color: #f0f; animation: gastos-word-magenta 0.55s steps(2) both; }
+        @keyframes gastos-word-in {
+          0%   { opacity: 0; transform: translateY(0.14em) scale(1.08) skewX(10deg); filter: blur(3px); clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); }
+          14%  { opacity: 1; filter: blur(0); clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%); transform: translateX(-8px) skewX(-7deg); }
+          30%  { clip-path: polygon(0 52%, 100% 52%, 100% 100%, 0 100%); transform: translateX(8px) skewX(7deg); }
+          46%  { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: translateX(-4px) skewX(0deg); }
+          64%  { transform: translateX(4px); }
+          82%  { transform: translateX(-2px); }
+          100% { opacity: 1; transform: translateX(0) scale(1) skewX(0); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        }
+        @keyframes gastos-word-cyan {
+          0%   { opacity: 0; transform: translate(0, 0); }
+          18%  { opacity: 0.85; transform: translate(-5px, 2px); }
+          50%  { opacity: 0.55; transform: translate(4px, -2px); }
+          78%  { opacity: 0.3; transform: translate(-2px, 1px); }
+          100% { opacity: 0; transform: translate(0, 0); }
+        }
+        @keyframes gastos-word-magenta {
+          0%   { opacity: 0; transform: translate(0, 0); }
+          18%  { opacity: 0.85; transform: translate(5px, -2px); }
+          50%  { opacity: 0.55; transform: translate(-4px, 2px); }
+          78%  { opacity: 0.3; transform: translate(2px, -1px); }
+          100% { opacity: 0; transform: translate(0, 0); }
+        }
         .gastos-range {
           -webkit-appearance: none;
           appearance: none;
@@ -162,7 +212,13 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
               <br />
               fosse para o
               <br />
-              <span className="text-primary">povo?</span>
+              <span
+                key={heroTarget}
+                data-text={`${heroTarget}?`}
+                className="gastos-word-swap text-primary"
+              >
+                {heroTarget}?
+              </span>
             </h1>
             {glitch ? (
               <h1
@@ -173,7 +229,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
                 <br />
                 fosse para o
                 <br />
-                povo?
+                {heroTarget}?
               </h1>
             ) : null}
           </div>
@@ -281,13 +337,58 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
 
       <section className="border-b border-border px-6 py-16 md:px-14">
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+          ACHADOS DOS RECORTES
+        </p>
+        <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+          Curiosidades que viram custo social
+        </h2>
+        <p className="mb-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Esta leitura junta pontos levantados em outros recortes do trabalho: gasto total, fornecedores,
+          categorias sensiveis e custo-beneficio. Os valores abaixo sao fixos no frontend para contar a historia
+          sem alterar consultas, respostas ou banco.
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {workInsights.map((item, index) => (
+            <article
+              key={item.title}
+              className="border border-border p-5"
+              style={{ background: index === 0 ? "rgba(196,18,48,0.12)" : "#111111" }}
+            >
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <span className="border px-2 py-1 text-[10px] font-bold tracking-widest text-primary" style={{ borderColor: "rgba(196,18,48,0.5)", fontFamily: MONO }}>
+                  {item.source}
+                </span>
+                <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <p className="mb-2 text-sm font-bold leading-snug" style={{ color: "#f0ece4" }}>
+                {item.title}
+              </p>
+              <p className="mb-4 text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
+                {item.value}
+              </p>
+              <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+                {item.description}
+              </p>
+              <p className="border-t pt-3 text-[11px] leading-relaxed" style={{ borderColor: "rgba(240,236,228,0.12)", color: "rgba(240,236,228,0.72)", fontFamily: MONO }}>
+                {item.conversion}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-b border-border px-6 py-16 md:px-14">
+        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           CATEGORIAS DE GASTO
         </p>
         <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
           Onde está o dinheiro?
         </h2>
         <p className="mb-12 max-w-lg text-sm text-muted-foreground">
-          Cada slider representa uma categoria mockada de gasto parlamentar. Conforme o valor aumenta, o painel social perde força.
+          Cada slider representa um achado consolidado do trabalho. Conforme o valor aumenta, o painel social perde força.
         </p>
 
         <div className="grid gap-10 md:grid-cols-2">

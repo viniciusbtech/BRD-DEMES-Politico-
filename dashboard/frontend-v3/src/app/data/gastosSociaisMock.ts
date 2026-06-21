@@ -31,7 +31,16 @@ export type ManifestLine = {
   sub: string;
 };
 
+export type WorkInsight = {
+  source: string;
+  title: string;
+  value: string;
+  description: string;
+  conversion: string;
+};
+
 export const totalCeap = 1_480_000_000;
+export const observedCeap = 838_508_798;
 
 export const socialItems: SocialItem[] = [
   { id: "casas", label: "Casas populares", marker: "CASA", unit: "casas", cost: 150_000, color: "#c41230" },
@@ -43,10 +52,10 @@ export const socialItems: SocialItem[] = [
 ];
 
 export const spendingSliders: SpendingSlider[] = [
-  { id: "ceap", label: "Cota Parlamentar (CEAP)", max: 1_480_000_000, description: "Gasto total com reembolso de atividades parlamentares." },
-  { id: "gabinete", label: "Salários de Assessores", max: 890_000_000, description: "Custo anual estimado com equipes de gabinete." },
-  { id: "divulgacao", label: "Divulgação de Atividade Parlamentar", max: 370_000_000, description: "Verba para publicidade e propaganda de mandatos." },
-  { id: "viagens", label: "Viagens e Missões Internacionais", max: 230_000_000, description: "Passagens e diárias em agendas oficiais." },
+  { id: "ceap", label: "CEAP observada nos dados", max: observedCeap, description: "Soma dos reembolsos parlamentares encontrados entre 2023 e 2026." },
+  { id: "aereas", label: "Companhias aereas no topo", max: 142_487_845, description: "TAM, GOL e AZUL concentram R$ 142,49 mi entre os maiores fornecedores globais." },
+  { id: "divulgacao", label: "Divulgacao parlamentar extrema", max: 1_589_000, description: "Maior registro global por deputado e categoria: divulgacao da atividade parlamentar." },
+  { id: "locadoras", label: "Locacao e veiculos", max: 25_000_000, description: "Locadoras e fornecedores automotivos aparecem repetidamente entre os maiores pagamentos." },
 ];
 
 export const opportunityCosts: OpportunityCost[] = [
@@ -81,10 +90,48 @@ export const socialPrograms: SocialProgram[] = [
 ];
 
 export const manifestLines: ManifestLine[] = [
-  { text: "R$ 1.480.000.000 gastos.", sub: "9.867 casas que não foram construídas." },
-  { text: "R$ 890.000.000 em assessores.", sub: "37.083 bolsas universitárias extintas." },
-  { text: "R$ 370.000.000 em divulgação.", sub: "246.666 crianças sem merenda." },
-  { text: "R$ 230.000.000 em viagens.", sub: "46.000 famílias sem saneamento." },
+  { text: "R$ 838.508.798 em CEAP observada.", sub: "5.590 casas populares ou 167.701 familias com saneamento basico." },
+  { text: "R$ 142.487.845 nos tres maiores fornecedores aereos.", sub: "1.424 leitos de UTI ou 94.991 criancas com merenda por um ano." },
+  { text: "R$ 1.589.000 em um unico recorte de divulgacao parlamentar.", sub: "10 casas populares ou 1.059 criancas com merenda anual." },
+  { text: "R$ 2.163.012 no deputado com maior gasto global.", sub: "14 casas populares ou 432 familias com saneamento." },
+];
+
+export const workInsights: WorkInsight[] = [
+  {
+    source: "Q13",
+    title: "A CEAP medida no projeto passa de R$ 838 mi",
+    value: "R$ 838,5 mi",
+    description: "Somando os totais anuais de 2023, 2024, 2025 e 2026, o recorte de despesas parlamentares chega a R$ 838.508.798,47.",
+    conversion: "Equivale a 5.590 casas populares de R$ 150 mil ou saneamento para 167.701 familias.",
+  },
+  {
+    source: "Q5",
+    title: "Tres companhias aereas dominam fornecedores",
+    value: "R$ 142,5 mi",
+    description: "TAM, GOL e AZUL aparecem como os tres maiores fornecedores globais da legislatura no ranking de pagamentos.",
+    conversion: "So esse trio compraria 1.424 leitos de UTI de R$ 100 mil.",
+  },
+  {
+    source: "Q13",
+    title: "Divulgacao parlamentar aparece como gasto sensivel",
+    value: "R$ 1,59 mi",
+    description: "O maior registro global por deputado e categoria e de divulgacao da atividade parlamentar, com R$ 1.589.000,00.",
+    conversion: "Um unico caso desse porte pagaria 1.059 merendas anuais no parametro usado no painel.",
+  },
+  {
+    source: "Q1",
+    title: "O maior gasto individual passa de R$ 2 mi",
+    value: "R$ 2,16 mi",
+    description: "No ranking global de gastos por deputado, Darci Pompeo de Mattos aparece no topo com R$ 2.163.012,40.",
+    conversion: "Isso equivale a 14 casas populares ou 432 familias com saneamento basico.",
+  },
+  {
+    source: "Q7",
+    title: "Custo-beneficio muda a leitura do gasto",
+    value: "10,18 pts / R$ 1 mil",
+    description: "No ranking global de custo-beneficio, Gilson Marques aparece no topo da leitura consolidada usada no recorte 01D.",
+    conversion: "A comparacao mostra que gastar menos pode entregar mais pontos de atividade por real reembolsado.",
+  },
 ];
 
 export const formatCurrency = (value: number) =>
