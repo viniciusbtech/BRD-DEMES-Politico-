@@ -388,13 +388,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         tag="AGREMIACOES"
         title="Partidos"
         desc="Selecione um partido para ver presenca, gastos, proposicoes, nuvem de palavras e ranking de influencia."
-        imgId="recorte3/hero.png"
-        bgImages={[
-          "recorte3/hero.png",
-          "recorte3/faixa1.png",
-          "recorte3/faixa2.png",
-          "recorte3/faixa3.png",
-        ]}
+        imgId="/fundorecortes/recorte3/fundo-recorte3.jpg"
       />
 
       <div className="border-b border-border px-6 py-8 md:px-14">

@@ -137,8 +137,19 @@ function SearchHero({
   }, [options, query]);
 
   return (
-    <section className="border-b px-6 py-10 sm:px-10 sm:py-12" style={{ borderColor: "rgba(243,239,232,0.1)" }}>
-      <div className="mx-auto max-w-[1434px]">
+    <section className="relative z-20 overflow-visible border-b px-6 py-10 sm:px-10 sm:py-12" style={{ borderColor: "rgba(243,239,232,0.1)" }}>
+      <img
+        src="/fundorecortes/recorte2/fundo-recorte2.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "grayscale(20%) contrast(1.05) brightness(0.42)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(to right, rgba(5,5,5,0.93) 0%, rgba(5,5,5,0.78) 48%, rgba(5,5,5,0.45) 100%)" }}
+      />
+      <div className="relative z-10 mx-auto max-w-[1434px]">
         <p className="mb-4 text-[11px] uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.42em" }}>
           Pesquise um deputado federal
         </p>
@@ -158,7 +169,7 @@ function SearchHero({
             style={{ borderColor: "rgba(243,239,232,0.18)", color: "#f3efe8", fontFamily: "'JetBrains Mono', monospace" }}
           />
           {!selected && (query || filtered.length > 0) ? (
-            <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 border" style={{ borderColor: "rgba(243,239,232,0.14)", background: "#141414" }}>
+            <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-[360px] overflow-y-auto border shadow-2xl" style={{ borderColor: "rgba(243,239,232,0.14)", background: "#141414" }}>
               {filtered.length === 0 ? (
                 <p className="px-4 py-4 text-[12px] uppercase" style={{ color: "rgba(243,239,232,0.52)", fontFamily: "'JetBrains Mono', monospace" }}>
                   Nenhum resultado
@@ -1061,7 +1072,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: Dep
       ) : error ? (
         <div className="px-6 py-16 sm:px-10"><div className="mx-auto max-w-[1434px]"><EmptyPanel message={error} /></div></div>
       ) : !selectedDeputy ? (
-        <Suggestions deputies={filters.deputados} onSelect={handleSelectDeputy} />
+        null
       ) : loadingData ? (
         <div className="px-6 py-16 sm:px-10"><div className="mx-auto max-w-[1434px]"><EmptyPanel message="Carregando dados do deputado..." /></div></div>
       ) : (
@@ -1083,32 +1094,3 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: Dep
   );
 }
 
-function Suggestions({ deputies, onSelect }: { deputies: FilterChoice[]; onSelect: (deputy: FilterChoice) => void }) {
-  return (
-    <section className="px-6 py-14 sm:px-10">
-      <div className="mx-auto max-w-[1434px]">
-        <p className="mb-6 text-[10px] uppercase" style={{ color: "rgba(243,239,232,0.5)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em" }}>
-          Sugestoes do catalogo
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {deputies.slice(0, 8).map((deputy) => (
-            <button
-              key={deputy.value}
-              type="button"
-              onClick={() => onSelect(deputy)}
-              className="group relative min-h-[170px] overflow-hidden border p-4 text-left transition-colors hover:border-[#e00836]"
-              style={{ borderColor: "rgba(243,239,232,0.14)", background: "#111" }}
-            >
-              <img src={photo(deputy)} alt="" className="absolute inset-0 h-full w-full object-cover object-top opacity-40 transition-transform duration-500 group-hover:scale-105" style={{ filter: "grayscale(70%) brightness(0.55)" }} />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(5,5,5,0.95) 22%, rgba(5,5,5,0.18))" }} />
-              <span className="absolute bottom-4 left-4 right-4">
-                <strong className="block text-[18px] leading-tight" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>{deputy.label}</strong>
-                <small className="mt-2 block text-[10px] uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.14em" }}>analisar deputado</small>
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
