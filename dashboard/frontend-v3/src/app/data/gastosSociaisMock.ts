@@ -134,5 +134,48 @@ export const workInsights: WorkInsight[] = [
   },
 ];
 
+export type LuxuryComparison = {
+  id: string;
+  label: string;
+  icon: string;
+  value: number;
+  illustrative?: boolean;
+  socialEquivalent: string;
+};
+
+// Valores fixos no frontend (ilustrativos) — nao alteram consultas, respostas nem banco.
+export const luxuryComparisons: LuxuryComparison[] = [
+  {
+    id: "autopromocao",
+    label: "Autopromoção excessiva",
+    icon: "📣",
+    value: 1_589_000,
+    socialEquivalent: "1.059 crianças com merenda escolar por um ano inteiro.",
+  },
+  {
+    id: "veiculos",
+    label: "Veículos de luxo",
+    icon: "🚗",
+    value: 25_000_000,
+    socialEquivalent: "250 leitos de UTI equipados ou 166 casas populares.",
+  },
+  {
+    id: "combustivel",
+    label: 'A "Farra do Combustível"',
+    icon: "⛽",
+    value: 8_400_000,
+    illustrative: true,
+    socialEquivalent: "56 casas populares ou 1.680 famílias com saneamento básico.",
+  },
+  {
+    id: "refeicoes",
+    label: "Refeições de alto padrão",
+    icon: "🍽️",
+    value: 3_200_000,
+    illustrative: true,
+    socialEquivalent: "2.133 crianças com merenda anual ou 640 famílias com saneamento.",
+  },
+];
+
 export const formatCurrency = (value: number) =>
   `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`;

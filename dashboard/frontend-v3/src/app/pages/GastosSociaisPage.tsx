@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import NavBar from "../components/NavBar";
 import {
   formatCurrency,
+  luxuryComparisons,
   manifestLines,
   opportunityCosts,
   socialItems,
@@ -24,6 +25,24 @@ const initialSliderValues = spendingSliders.reduce<Record<string, number>>((valu
   values[slider.id] = slider.max;
   return values;
 }, {});
+
+// Fundo P&B de problema social, atrás do conteúdo de cada seção (legível por cima via -z-10).
+function SectionProblemBg({ img }: { img: string }) {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      <img
+        src={img}
+        alt=""
+        className="h-full w-full object-cover"
+        style={{ filter: "grayscale(100%) contrast(1.12) brightness(0.4)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(180deg, rgba(10,10,10,0.84) 0%, rgba(10,10,10,0.92) 100%)" }}
+      />
+    </div>
+  );
+}
 
 export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: GastosSociaisPageProps) {
   const [savings, setSavings] = useState(50);
@@ -256,7 +275,8 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         </div>
       </div>
 
-      <section className="border-b border-border px-6 py-16 md:px-14">
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
+        <SectionProblemBg img="/intro/problemas/principais-problemas-sociais.jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           PAINEL ECONÔMICO
         </p>
@@ -335,7 +355,8 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         </div>
       </section>
 
-      <section className="border-b border-border px-6 py-16 md:px-14">
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
+        <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           ACHADOS DOS RECORTES
         </p>
@@ -380,7 +401,8 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         </div>
       </section>
 
-      <section className="border-b border-border px-6 py-16 md:px-14">
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
+        <SectionProblemBg img="/intro/problemas/images (3).jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           CATEGORIAS DE GASTO
         </p>
@@ -472,6 +494,57 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
               </div>
             ) : null}
           </div>
+        </div>
+      </section>
+
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
+        <SectionProblemBg img="/intro/problemas/images (1).jpg" />
+        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+          O LUXO × O POVO
+        </p>
+        <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+          Quando o gasto vira privilégio
+        </h2>
+        <p className="mb-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Quatro categorias sensíveis de gasto parlamentar, comparadas ao que o mesmo dinheiro
+          entregaria à população. Valores ilustrativos fixos no frontend, sem alterar consultas,
+          respostas ou banco.
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {luxuryComparisons.map((item, index) => (
+            <article
+              key={item.id}
+              className="flex flex-col border border-border p-5"
+              style={{ background: "rgba(17,17,17,0.86)" }}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-2xl">{item.icon}</span>
+                <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <p className="mb-2 text-sm font-bold leading-snug" style={{ color: "#f0ece4" }}>
+                {item.label}
+              </p>
+              <p className="mb-1 text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
+                {formatCurrency(item.value)}
+              </p>
+              {item.illustrative ? (
+                <p className="mb-3 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                  VALOR ILUSTRATIVO
+                </p>
+              ) : null}
+              <div className="mt-auto border-t pt-3" style={{ borderColor: "rgba(240,236,228,0.12)" }}>
+                <p className="text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                  EQUIVALE A
+                </p>
+                <p className="mt-1 text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.82)" }}>
+                  {item.socialEquivalent}
+                </p>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
