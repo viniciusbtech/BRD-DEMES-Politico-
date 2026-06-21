@@ -918,6 +918,11 @@ class Q9Adapter(QuestionAdapter):
         FULL_TABLE_SIZE = 2000
         full_tables = {id(q93), id(q95), id(q93voto)}
 
+        # Com um partido filtrado, o granular partido x proposta (Q9.2b) vem completo
+        # para permitir paginar/pesquisar no frontend; sem filtro fica so a amostra (200).
+        if state.partidos and q92b is not None:
+            full_tables = full_tables | {id(q92b)}
+
         # O voto-a-voto (Q9.3) so e exposto quando ha um deputado filtrado — evita
         # carregar 86k+ linhas no payload inicial da pagina.
         exposed = [q92, q92_resumo, q92b, q93, q94, q95]

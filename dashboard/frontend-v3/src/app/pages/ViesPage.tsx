@@ -26,6 +26,7 @@ type Row = Record<string, unknown>;
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
 const RED = "#c41230";
+const ANOS_LEGISLATURA = ["2023", "2024", "2025", "2026"];
 
 const IDEOLOGY_COLORS: Record<string, string> = {
   esquerda: "#c41230",
@@ -209,6 +210,11 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   const [q95Shown, setQ95Shown] = useState(40);
   const [search, setSearch] = useState("");
   const [selectedPartido, setSelectedPartido] = useState("");
+  const [partidoVotos, setPartidoVotos] = useState<Row[]>([]);
+  const [partidoVotosLoading, setPartidoVotosLoading] = useState(false);
+  const [detShown, setDetShown] = useState(60);
+  const [detSearch, setDetSearch] = useState("");
+  const [detYear, setDetYear] = useState("");
   const [vies1Query, setVies1Query] = useState("");
   const [bancadaCampo, setBancadaCampo] = useState<"todos" | "esquerda" | "direita">("todos");
   const [depVotos, setDepVotos] = useState<Row[]>([]);
@@ -285,21 +291,39 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
     const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("correlacao partido x proposta"));
     return (t?.rows ?? []) as Row[];
   }, [q9]);
-  const q92DetalheTotal = useMemo(() => {
-    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("correlacao partido x proposta"));
-    return t?.total ?? 0;
-  }, [q9]);
-
   const partidoOptions = useMemo(
     () => q92PartidoResumo.map((r) => text(r, "sigla_partido")).filter(Boolean),
     [q92PartidoResumo]
   );
-  const q92DetalheFiltrado = useMemo(() => {
-    const base = selectedPartido
-      ? q92PartidoDetalhe.filter((r) => text(r, "sigla_partido") === selectedPartido)
-      : q92PartidoDetalhe;
-    return base.slice(0, 60);
-  }, [q92PartidoDetalhe, selectedPartido]);
+  // Ao escolher um partido, busca o granular COMPLETO daquele partido (server-side).
+  // Sem partido selecionado, usa a amostra ja carregada (q92PartidoDetalhe).
+  useEffect(() => {
+    if (!selectedPartido) { setPartidoVotos([]); return; }
+    let mounted = true;
+    setPartidoVotosLoading(true);
+    fetchQuestion("q9", { partidos: [selectedPartido] }, { page: 1, pageSize: 1000 })
+      .then((p) => {
+        if (!mounted) return;
+        const t = p.complement_tables.find((t) => t.title.toLowerCase().includes("correlacao partido x proposta"));
+        setPartidoVotos((t?.rows ?? []) as Row[]);
+      })
+      .catch(() => { if (mounted) setPartidoVotos([]); })
+      .finally(() => { if (mounted) setPartidoVotosLoading(false); });
+    return () => { mounted = false; };
+  }, [selectedPartido]);
+
+  // Reinicia a paginacao quando muda o partido, a busca ou o ano
+  useEffect(() => { setDetShown(60); }, [selectedPartido, detSearch, detYear]);
+
+  const detalheSearched = useMemo(() => {
+    const base = selectedPartido ? partidoVotos : q92PartidoDetalhe;
+    const q = detSearch.trim().toLowerCase();
+    return base.filter((r) => {
+      if (detYear && text(r, "ano_dados") !== detYear) return false;
+      if (q && !(text(r, "titulo_proposicao").toLowerCase().includes(q) || text(r, "id_votacao").toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [selectedPartido, partidoVotos, q92PartidoDetalhe, detSearch, detYear]);
 
   // Q9.5 — score viés individual (definido antes da Secao 1, que o consome)
   const q95Rows = useMemo(() => {
@@ -683,15 +707,70 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                     <option value="">TODOS (amostra)</option>
                     {partidoOptions.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
+                  <div className="relative">
+                    <input
+                      value={detSearch}
+                      onChange={(e) => setDetSearch(e.target.value)}
+                      placeholder="Pesquisar proposta ou id..."
+                      className="w-60 border border-border bg-background px-3 py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+                      style={{ fontFamily: MONO }}
+                    />
+                    {detSearch ? (
+                      <button type="button" onClick={() => setDetSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground" style={{ fontFamily: MONO }}>✕</button>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>ANO:</span>
+                    <button
+                      type="button"
+                      onClick={() => setDetYear("")}
+                      className="border px-2.5 py-1 text-xs font-bold"
+                      style={{ fontFamily: MONO, borderColor: !detYear ? RED : "rgba(240,236,228,0.12)", color: !detYear ? RED : "var(--muted-foreground)" }}
+                    >
+                      TODOS
+                    </button>
+                    {ANOS_LEGISLATURA.map((y) => (
+                      <button
+                        key={y}
+                        type="button"
+                        onClick={() => setDetYear(y)}
+                        className="border px-2.5 py-1 text-xs font-bold"
+                        style={{ fontFamily: MONO, borderColor: detYear === y ? RED : "rgba(240,236,228,0.12)", color: detYear === y ? RED : "var(--muted-foreground)" }}
+                      >
+                        {y}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <SimpleTable
-                  rows={q92DetalheFiltrado}
-                  columns={["ano_dados", "id_votacao", "titulo_proposicao", "sigla_partido", "votos_sim", "votos_nao", "pct_sim", "orientacao_partido"]}
-                  empty="Sem detalhe para o partido selecionado."
-                />
-                <p className="mt-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  Amostra de ate 60 linhas{selectedPartido ? ` do ${selectedPartido}` : ""} · base completa: {fmtNum(q92DetalheTotal)} registros partido x votacao.
-                </p>
+
+                {partidoVotosLoading ? (
+                  <EmptyPanel text="CARREGANDO PROPOSTAS DO PARTIDO..." />
+                ) : (
+                  <>
+                    <SimpleTable
+                      rows={detalheSearched.slice(0, detShown)}
+                      columns={["ano_dados", "id_votacao", "titulo_proposicao", "sigla_partido", "votos_sim", "votos_nao", "pct_sim", "orientacao_partido"]}
+                      empty={selectedPartido ? "Nenhuma proposta encontrada para este partido." : "Nenhuma proposta encontrada."}
+                    />
+                    <div className="mt-3 flex flex-wrap items-center gap-4">
+                      {detShown < detalheSearched.length ? (
+                        <button
+                          type="button"
+                          onClick={() => setDetShown((v) => v + 60)}
+                          className="border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                          style={{ fontFamily: MONO }}
+                        >
+                          MOSTRAR MAIS 60
+                        </button>
+                      ) : null}
+                      <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                        Exibindo {fmtNum(Math.min(detShown, detalheSearched.length))} de {fmtNum(detalheSearched.length)}
+                        {selectedPartido ? ` (${selectedPartido})` : " (amostra de 200)"}
+                        {detSearch ? " · filtrado" : ""}.
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             ) : null}
           </div>
