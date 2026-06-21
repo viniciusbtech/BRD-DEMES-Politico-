@@ -71,6 +71,98 @@ LEFT JOIN objetos ob
 ORDER BY vc.ano_dados, vc.id_votacao, vc.ideologia;
 
 -- =======================================================================
+-- Q9.2 - Resumo partido x proposta (agregado por partido)
+-- Para cada partido: quantas votacoes, media de % Sim, e quanto o voto
+-- da maioria do partido bateu com a orientacao oficial da bancada.
+-- =======================================================================
+\qecho
+\qecho Q9.2 - Resumo partido x proposta (agregado por partido)
+
+WITH partido_votacao AS (
+    SELECT
+        vv.ano_dados,
+        vv.id_votacao,
+        vv.sigla_partido,
+        pi.ideologia,
+        COUNT(*) FILTER (WHERE vv.voto = 'Sim')                    AS votos_sim,
+        COUNT(*) FILTER (WHERE vv.voto = 'Nao')                    AS votos_nao,
+        vo.orientacao                                              AS orientacao_partido
+    FROM votacoes_votos vv
+    JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+    LEFT JOIN votacoes_orientacoes vo
+        ON vo.ano_dados    = vv.ano_dados
+       AND vo.id_votacao   = vv.id_votacao
+       AND vo.sigla_bancada = vv.sigla_partido
+    GROUP BY vv.ano_dados, vv.id_votacao, vv.sigla_partido, pi.ideologia, vo.orientacao
+)
+SELECT
+    sigla_partido,
+    MAX(ideologia)                                                 AS ideologia,
+    COUNT(*)                                                       AS votacoes,
+    ROUND(AVG(votos_sim * 100.0 / NULLIF(votos_sim + votos_nao, 0)), 1) AS media_pct_sim,
+    COUNT(*) FILTER (WHERE orientacao_partido IN ('Sim', 'Nao'))   AS orientacoes,
+    ROUND(
+        COUNT(*) FILTER (
+            WHERE orientacao_partido IN ('Sim', 'Nao')
+              AND (CASE WHEN votos_sim >= votos_nao THEN 'Sim' ELSE 'Nao' END) = orientacao_partido
+        ) * 100.0
+        / NULLIF(COUNT(*) FILTER (WHERE orientacao_partido IN ('Sim', 'Nao')), 0), 1
+    )                                                              AS pct_orientacao_seguida,
+    CASE WHEN SUM(votos_sim) >= SUM(votos_nao) THEN 'Sim' ELSE 'Nao' END AS votou_mais
+FROM partido_votacao
+GROUP BY sigla_partido
+ORDER BY media_pct_sim DESC, sigla_partido;
+
+-- =======================================================================
+-- Q9.2b - Correlacao partido x proposta (voto e orientacao, granular)
+-- Uma linha por (votacao, partido): como aquele partido votou naquela
+-- proposta e qual era a orientacao oficial da bancada.
+-- =======================================================================
+\qecho
+\qecho Q9.2b - Correlacao partido x proposta (voto e orientacao)
+
+WITH partido_votacao AS (
+    SELECT
+        vv.ano_dados,
+        vv.id_votacao,
+        vv.sigla_partido,
+        pi.ideologia,
+        COUNT(*) FILTER (WHERE vv.voto = 'Sim')                    AS votos_sim,
+        COUNT(*) FILTER (WHERE vv.voto = 'Nao')                    AS votos_nao,
+        COUNT(*)                                                   AS total_votos,
+        vo.orientacao                                              AS orientacao_partido
+    FROM votacoes_votos vv
+    JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+    LEFT JOIN votacoes_orientacoes vo
+        ON vo.ano_dados    = vv.ano_dados
+       AND vo.id_votacao   = vv.id_votacao
+       AND vo.sigla_bancada = vv.sigla_partido
+    GROUP BY vv.ano_dados, vv.id_votacao, vv.sigla_partido, pi.ideologia, vo.orientacao
+),
+objetos AS (
+    SELECT DISTINCT ON (ano_dados, id_votacao)
+        ano_dados, id_votacao, titulo_proposicao
+    FROM votacoes_objetos
+    ORDER BY ano_dados, id_votacao, id_votacao_objeto
+)
+SELECT
+    pv.ano_dados,
+    pv.id_votacao,
+    COALESCE(ob.titulo_proposicao, '(sem proposicao vinculada)') AS titulo_proposicao,
+    pv.sigla_partido,
+    pv.ideologia,
+    pv.votos_sim,
+    pv.votos_nao,
+    pv.total_votos,
+    ROUND(pv.votos_sim * 100.0 / NULLIF(pv.votos_sim + pv.votos_nao, 0), 1) AS pct_sim,
+    COALESCE(pv.orientacao_partido, '-')                        AS orientacao_partido
+FROM partido_votacao pv
+LEFT JOIN objetos ob
+    ON ob.ano_dados  = pv.ano_dados
+   AND ob.id_votacao = pv.id_votacao
+ORDER BY pv.ano_dados, pv.id_votacao, pv.sigla_partido;
+
+-- =======================================================================
 -- Q9.3 - Resumo consolidado de votos e aderencia por deputado
 -- =======================================================================
 \qecho
@@ -266,7 +358,77 @@ HAVING COUNT(*) FILTER (WHERE votou_com IS NOT NULL) >= 10
 ORDER BY score_vies ASC, nome_deputado;
 
 -- =======================================================================
--- Q9.3 - Voto de cada deputado por proposicao (Detalhe para Auditoria)
+-- Q9.3 - Voto do deputado por proposta polarizada (auditoria, filtravel)
+--        Uma linha por (deputado, votacao polarizada) com o voto real e o
+--        campo (esquerda/direita) que favoreceu a proposta. Limitado as
+--        votacoes mais polarizadas de cada deputado na geracao do arquivo.
+-- =======================================================================
+\qecho
+\qecho Q9.3 - Voto do deputado por proposta polarizada
+
+WITH votos_por_campo AS (
+    SELECT
+        vv.ano_dados,
+        vv.id_votacao,
+        pi.ideologia,
+        ROUND(
+            COUNT(*) FILTER (WHERE vv.voto = 'Sim') * 100.0
+            / NULLIF(COUNT(*) FILTER (WHERE vv.voto IN ('Sim', 'Nao')), 0), 1
+        ) AS pct_sim
+    FROM votacoes_votos vv
+    JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+    WHERE vv.voto IN ('Sim', 'Nao')
+    GROUP BY vv.ano_dados, vv.id_votacao, pi.ideologia
+),
+votacoes_polarizadas AS (
+    SELECT
+        ano_dados,
+        id_votacao,
+        MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda') AS pct_esq,
+        MAX(pct_sim) FILTER (WHERE ideologia = 'direita')  AS pct_dir
+    FROM votos_por_campo
+    GROUP BY ano_dados, id_votacao
+    HAVING MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda') IS NOT NULL
+       AND MAX(pct_sim) FILTER (WHERE ideologia = 'direita')  IS NOT NULL
+       AND ABS(MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda')
+             - MAX(pct_sim) FILTER (WHERE ideologia = 'direita')) >= 30
+),
+objetos AS (
+    SELECT DISTINCT ON (ano_dados, id_votacao)
+        ano_dados, id_votacao, titulo_proposicao
+    FROM votacoes_objetos
+    ORDER BY ano_dados, id_votacao, id_votacao_objeto
+)
+SELECT
+    vv.id_deputado,
+    vv.nome_deputado,
+    vv.sigla_partido,
+    pi.ideologia                                                AS ideologia_partido,
+    vv.ano_dados,
+    vv.id_votacao,
+    COALESCE(ob.titulo_proposicao, '(sem proposicao vinculada)') AS titulo_proposicao,
+    vv.voto,
+    CASE WHEN vp.pct_esq > vp.pct_dir THEN 'esquerda favoravel'
+         ELSE 'direita favoravel' END                          AS campo_favoravel,
+    CASE
+        WHEN vp.pct_esq > vp.pct_dir AND vv.voto = 'Sim' THEN 'esquerda'
+        WHEN vp.pct_esq > vp.pct_dir AND vv.voto = 'Nao' THEN 'direita'
+        WHEN vp.pct_dir > vp.pct_esq AND vv.voto = 'Sim' THEN 'direita'
+        WHEN vp.pct_dir > vp.pct_esq AND vv.voto = 'Nao' THEN 'esquerda'
+    END                                                        AS votou_com
+FROM votacoes_votos vv
+JOIN votacoes_polarizadas vp
+    ON vp.ano_dados  = vv.ano_dados
+   AND vp.id_votacao = vv.id_votacao
+JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+LEFT JOIN objetos ob
+    ON ob.ano_dados  = vv.ano_dados
+   AND ob.id_votacao = vv.id_votacao
+WHERE vv.voto IN ('Sim', 'Nao')
+ORDER BY vv.id_deputado, vv.ano_dados, vv.id_votacao;
+
+-- =======================================================================
+-- Q9.3 - Voto de cada deputado por proposicao (Detalhe completo para Auditoria)
 -- =======================================================================
 \o /respostas/q9_vies_deputado_detalhe.csv
 \pset format csv

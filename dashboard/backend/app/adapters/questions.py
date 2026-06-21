@@ -900,17 +900,31 @@ class Q9Adapter(QuestionAdapter):
         )
 
     def _build_complements(self, state: FilterState) -> list[TableSpec]:
-        """Expoe Q9.2 (correlacao), Q9.3 (voto individual), Q9.4 (polarizadas) e Q9.5 (score vies)."""
+        """Expoe Q9.2 (correlacao ideologia + partido x proposta), Q9.3 (voto individual),
+        Q9.4 (polarizadas) e Q9.5 (score vies)."""
         specs: list[TableSpec] = []
-        q92 = _find_table_by_hint(self.complement_tables, "correlacao")
+        q92 = _find_table_by_hint(self.complement_tables, "correlacao ideologia")
+        q92_resumo = _find_table_by_hint(self.complement_tables, "resumo partido x proposta")
+        q92b = _find_table_by_hint(self.complement_tables, "correlacao partido x proposta")
         q93 = _find_table_by_hint(self.complement_tables, "resumo consolidado")
+        q93voto = _find_table_by_hint(self.complement_tables, "voto do deputado por proposta")
         q94 = _find_table_by_hint(self.complement_tables, "polarizadas")
         q95 = _find_table_by_hint(self.complement_tables, "score vies")
 
-        # Q9.3 e Q9.5 precisam de mais linhas (busca de deputados no frontend)
-        large_page_tables = {id(q93), id(q95)}
+        # Tabelas que o frontend consome inteiras (busca por nome / ranking completo).
+        # O endpoint HTTP capa page_size em 200; aqui forcamos um tamanho fixo maior
+        # para essas tabelas, ignorando esse limite, senao a busca de deputado so
+        # enxergaria os 200 primeiros (e nomes de score alto, como Kim, ficam de fora).
+        FULL_TABLE_SIZE = 2000
+        full_tables = {id(q93), id(q95), id(q93voto)}
 
-        for table in [q92, q93, q94, q95]:
+        # O voto-a-voto (Q9.3) so e exposto quando ha um deputado filtrado — evita
+        # carregar 86k+ linhas no payload inicial da pagina.
+        exposed = [q92, q92_resumo, q92b, q93, q94, q95]
+        if state.deputados and q93voto is not None:
+            exposed.append(q93voto)
+
+        for table in exposed:
             if table is None:
                 continue
             filtered = FilterEngine.apply_filters(
@@ -919,7 +933,7 @@ class Q9Adapter(QuestionAdapter):
                 self.context.question.supported_filters,
             )
             sorted_rows = FilterEngine.apply_sort(filtered, state.sort_by, state.sort_dir)
-            page_size = min(state.page_size, 1000) if id(table) in large_page_tables else min(state.page_size, 200)
+            page_size = FULL_TABLE_SIZE if id(table) in full_tables else min(state.page_size, 200)
             paged = FilterEngine.apply_pagination(sorted_rows, 1, page_size)
             specs.append(
                 self._build_table_spec(

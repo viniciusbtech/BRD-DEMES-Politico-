@@ -206,7 +206,13 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   const [error, setError] = useState("");
   const [q93RowsShown, setQ93RowsShown] = useState(20);
   const [q94RowsShown, setQ94RowsShown] = useState(20);
+  const [q95Shown, setQ95Shown] = useState(40);
   const [search, setSearch] = useState("");
+  const [selectedPartido, setSelectedPartido] = useState("");
+  const [vies1Query, setVies1Query] = useState("");
+  const [bancadaCampo, setBancadaCampo] = useState<"todos" | "esquerda" | "direita">("todos");
+  const [depVotos, setDepVotos] = useState<Row[]>([]);
+  const [depVotosLoading, setDepVotosLoading] = useState(false);
   const [methQ91Open, setMethQ91Open] = useState(false);
   const [methQ92Open, setMethQ92Open] = useState(false);
   const [methQ93Open, setMethQ93Open] = useState(false);
@@ -268,6 +274,84 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       .sort((a, b) => b.media_pct_sim - a.media_pct_sim);
   }, [q92Rows]);
 
+  // Q9.2 — partido x proposta (agregado por partido)
+  const q92PartidoResumo = useMemo(() => {
+    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("resumo partido x proposta"));
+    return ((t?.rows ?? []) as Row[]).slice().sort((a, b) => raw(b, "media_pct_sim") - raw(a, "media_pct_sim"));
+  }, [q9]);
+
+  // Q9.2b — partido x proposta (granular, amostra)
+  const q92PartidoDetalhe = useMemo(() => {
+    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("correlacao partido x proposta"));
+    return (t?.rows ?? []) as Row[];
+  }, [q9]);
+  const q92DetalheTotal = useMemo(() => {
+    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("correlacao partido x proposta"));
+    return t?.total ?? 0;
+  }, [q9]);
+
+  const partidoOptions = useMemo(
+    () => q92PartidoResumo.map((r) => text(r, "sigla_partido")).filter(Boolean),
+    [q92PartidoResumo]
+  );
+  const q92DetalheFiltrado = useMemo(() => {
+    const base = selectedPartido
+      ? q92PartidoDetalhe.filter((r) => text(r, "sigla_partido") === selectedPartido)
+      : q92PartidoDetalhe;
+    return base.slice(0, 60);
+  }, [q92PartidoDetalhe, selectedPartido]);
+
+  // Q9.5 — score viés individual (definido antes da Secao 1, que o consome)
+  const q95Rows = useMemo(() => {
+    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("score vies"));
+    return (t?.rows ?? []) as Row[];
+  }, [q9]);
+
+  // ── Secao 1: vies do deputado por nome ──
+  const classifyVies = (score: number) => (score < 35 ? "esquerda" : score <= 65 ? "centro" : "direita");
+
+  const vies1Term = vies1Query.trim().toLowerCase();
+  const vies1Matches = useMemo(() => {
+    if (!vies1Term) return [];
+    return q95Rows
+      .filter((r) =>
+        text(r, "nome_deputado").toLowerCase().includes(vies1Term) ||
+        text(r, "sigla_partido").toLowerCase().includes(vies1Term))
+      .sort((a, b) => raw(b, "votos_em_polarizadas") - raw(a, "votos_em_polarizadas"));
+  }, [q95Rows, vies1Term]);
+  const found1 = vies1Matches[0] ?? null;
+
+  // voto REAL do deputado por proposta polarizada (Q9.3 voto-a-voto), buscado sob demanda
+  const found1Id = found1 ? text(found1, "id_deputado") : "";
+  useEffect(() => {
+    if (!found1Id) { setDepVotos([]); return; }
+    let mounted = true;
+    setDepVotosLoading(true);
+    fetchQuestion("q9", { deputados: [found1Id] }, { page: 1, pageSize: 1000 })
+      .then((p) => {
+        if (!mounted) return;
+        const t = p.complement_tables.find((t) => t.title.toLowerCase().includes("voto do deputado por proposta"));
+        setDepVotos((t?.rows ?? []) as Row[]);
+      })
+      .catch(() => { if (mounted) setDepVotos([]); })
+      .finally(() => { if (mounted) setDepVotosLoading(false); });
+    return () => { mounted = false; };
+  }, [found1Id]);
+
+  const depVotosRows = useMemo(() => depVotos.map((r) => ({
+    ano: text(r, "ano_dados"),
+    id_votacao: text(r, "id_votacao"),
+    titulo: text(r, "titulo_proposicao"),
+    campo: text(r, "campo_favoravel").startsWith("esquerda") ? "esquerda" : "direita",
+    voto: text(r, "voto"),
+    votou_com: text(r, "votou_com"),
+  })), [depVotos]);
+
+  const depVotosFiltered = useMemo(
+    () => (bancadaCampo === "todos" ? depVotosRows : depVotosRows.filter((p) => p.campo === bancadaCampo)),
+    [depVotosRows, bancadaCampo]
+  );
+
   // Q9.3
   const q93Rows = useMemo(() => {
     const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("resumo consolidado") || t.title.toLowerCase().includes("aderencia"));
@@ -278,12 +362,6 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   const q94Rows = useMemo(() => {
     const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("polarizadas"));
     return ((t?.rows ?? []) as Row[]).sort((a, b) => raw(b, "divergencia_esq_dir") - raw(a, "divergencia_esq_dir"));
-  }, [q9]);
-
-  // Q9.5 — score viés individual
-  const q95Rows = useMemo(() => {
-    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("score vies"));
-    return (t?.rows ?? []) as Row[];
   }, [q9]);
 
   // Pool de busca: Q9.5 quando disponível, senão Q9.3 (ambos têm nome_deputado e sigla_partido)
@@ -343,6 +421,143 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       />
 
       {error ? <section className="px-6 py-10 md:px-14"><EmptyPanel text={error} /></section> : null}
+
+      {/* ── SEÇÃO 1: VIÉS DO DEPUTADO (pergunta principal) ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14">
+        <SectionHeader
+          n="9"
+          tag="VIES DO DEPUTADO"
+          title="Qual o vies do deputado?"
+          desc="Pesquise um deputado pelo nome e veja onde ele se posiciona de verdade — esquerda, centro ou direita — a partir do voto real em votacoes polarizadas (score 0 = esquerda, 100 = direita)."
+        />
+
+        <div className="mb-8">
+          <div className="relative max-w-md">
+            <input
+              value={vies1Query}
+              onChange={(e) => setVies1Query(e.target.value)}
+              placeholder="Ex.: Kim Kataguiri, Erika Hilton..."
+              className="w-full border border-border bg-background px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+              style={{ fontFamily: MONO }}
+            />
+            {vies1Query ? (
+              <button type="button" onClick={() => setVies1Query("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground" style={{ fontFamily: MONO }}>✕</button>
+            ) : null}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>EXEMPLOS:</span>
+            {["Kim Kataguiri", "Erika Hilton"].map((n) => (
+              <button key={n} type="button" onClick={() => setVies1Query(n)} className="border border-border px-3 py-1 text-xs hover:border-primary hover:text-primary" style={{ fontFamily: MONO }}>{n}</button>
+            ))}
+          </div>
+        </div>
+
+        {!q95Rows.length ? (
+          <EmptyPanel text="Score de vies ainda nao disponivel." />
+        ) : !vies1Term ? (
+          <EmptyPanel text="Digite o nome de um deputado (ou clique em um exemplo) para ver o vies." />
+        ) : !found1 ? (
+          <EmptyPanel text={`Nenhum deputado encontrado para "${vies1Query}".`} />
+        ) : (() => {
+          const score = raw(found1, "score_vies");
+          const vies = classifyVies(score);
+          const color = scoreColor(score);
+          return (
+            <>
+              <div className="border border-border p-6" style={{ background: "#111", borderLeft: `4px solid ${color}` }}>
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{text(found1, "nome_deputado")}</h3>
+                    <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      <span>{text(found1, "sigla_partido")}</span>
+                      <span>· partido rotulado:</span>
+                      <IdeologyBadge ideology={text(found1, "ideologia_partido")} />
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>VIES PELO VOTO REAL</p>
+                    <p className="text-3xl font-black" style={{ fontFamily: SERIF, color }}>{IDEOLOGY_LABELS[vies]}</p>
+                    <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>SCORE {score.toFixed(1)} / 100</p>
+                  </div>
+                </div>
+                <ScoreBar score={score} />
+                <div className="mb-4 mt-1 flex justify-between text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <span style={{ color: RED }}>← ESQUERDA (0)</span>
+                  <span>CENTRO (50)</span>
+                  <span style={{ color: "#2b5490" }}>DIREITA (100) →</span>
+                </div>
+                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+                  <StatCard label="VOTOS EM POLARIZADAS" value={fmtNum(raw(found1, "votos_em_polarizadas"))} />
+                  <StatCard label="COM ESQUERDA" value={fmtNum(raw(found1, "votos_com_esquerda"))} color={RED} />
+                  <StatCard label="COM DIREITA" value={fmtNum(raw(found1, "votos_com_direita"))} color="#2b5490" />
+                  <StatCard label="% COM DIREITA" value={fmtPct(raw(found1, "pct_com_direita"))} color={color} />
+                </div>
+                {vies1Matches.length > 1 ? (
+                  <p className="mt-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                    + {vies1Matches.length - 1} outro(s) registro(s) para esta busca (ex.: troca de partido). Exibindo o de maior base de votos.
+                  </p>
+                ) : null}
+              </div>
+
+              {/* ── 9.3 OBSERVAR O VOTO DE PROPOSTA (voto real do deputado) ── */}
+              <div className="mt-10">
+                <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>9.3 — OBSERVAR O VOTO DE PROPOSTA</p>
+                <h3 className="mb-2 text-2xl font-black md:text-3xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>Como {text(found1, "nome_deputado")} votou em cada proposta</h3>
+                <p className="mb-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                  Voto real do deputado nas propostas que dividem esquerda e direita. A coluna "votou com" indica de qual campo o voto se aproximou em cada proposta. Use o filtro para separar as propostas do campo da esquerda e da direita.
+                </p>
+                <p className="mb-5 max-w-3xl text-xs leading-relaxed text-muted-foreground" style={{ fontFamily: MONO }}>
+                  Exibe ate as 50 votacoes mais polarizadas do deputado (maior divergencia esquerda x direita).
+                </p>
+
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {(["todos", "esquerda", "direita"] as const).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setBancadaCampo(c)}
+                      className="border px-3 py-1.5 text-xs font-bold"
+                      style={{ fontFamily: MONO, borderColor: bancadaCampo === c ? RED : "rgba(240,236,228,0.12)", color: bancadaCampo === c ? RED : "var(--muted-foreground)" }}
+                    >
+                      {c === "todos" ? `TODAS (${depVotosRows.length})` : c === "esquerda" ? "CAMPO ESQUERDA" : "CAMPO DIREITA"}
+                    </button>
+                  ))}
+                </div>
+
+                {depVotosLoading ? (
+                  <EmptyPanel text="CARREGANDO VOTOS DO DEPUTADO..." />
+                ) : depVotosFiltered.length ? (
+                  <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+                    <table className="min-w-full text-left text-sm">
+                      <thead style={{ background: "#0a0a0a" }}>
+                        <tr>
+                          {["ano", "votacao", "proposta", "campo", "voto", "votou com"].map((h) => (
+                            <th key={h} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {depVotosFiltered.slice(0, 80).map((p, i) => (
+                          <tr key={`${p.id_votacao}-${i}`} className="border-t border-border">
+                            <td className="whitespace-nowrap px-4 py-3 text-muted-foreground" style={{ fontFamily: MONO }}>{p.ano}</td>
+                            <td className="whitespace-nowrap px-4 py-3 text-muted-foreground" style={{ fontFamily: MONO }}>{p.id_votacao}</td>
+                            <td className="px-4 py-3 text-foreground">{p.titulo}</td>
+                            <td className="px-4 py-3"><IdeologyBadge ideology={p.campo} /></td>
+                            <td className="whitespace-nowrap px-4 py-3 font-bold" style={{ fontFamily: MONO, color: p.voto === "Sim" ? "#4a7c59" : RED }}>{p.voto}</td>
+                            <td className="px-4 py-3"><IdeologyBadge ideology={p.votou_com} /></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyPanel text="Sem votos em propostas polarizadas para este deputado." />
+                )}
+              </div>
+            </>
+          );
+        })()}
+      </section>
 
       {/* ── Q9.1 CLASSIFICAÇÃO ── */}
       <section className="border-b border-border px-6 py-14 md:px-14">
@@ -422,8 +637,65 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           </>
         ) : null}
 
-        <p className="mb-3 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>DETALHE — PRIMEIRAS VOTACOES</p>
+        <p className="mb-3 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>DETALHE IDEOLOGIA — PRIMEIRAS VOTACOES</p>
         <SimpleTable rows={q92Rows.slice(0, 50)} columns={["ano_dados", "id_votacao", "titulo_proposicao", "ideologia", "votos_sim", "votos_nao", "pct_sim"]} empty="Sem dados de correlacao." />
+
+        {/* ── Q9.2 visão por partido (partido x proposta) ── */}
+        {q92PartidoResumo.length ? (
+          <div className="mt-12 border-t border-border pt-10">
+            <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>VISAO POR PARTIDO</p>
+            <h3 className="mb-3 text-2xl font-black md:text-3xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>Cada partido votou mais Sim ou Nao?</h3>
+            <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Agora descendo do campo ideologico para o partido: a media de % Sim de cada legenda, se a maioria votou Sim ou Nao no periodo, e o quanto o voto da bancada bateu com a orientacao oficial do partido.
+            </p>
+
+            <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>MEDIA DE % SIM POR PARTIDO</p>
+            <div className="mb-8" style={{ height: Math.max(360, q92PartidoResumo.length * 26) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={q92PartidoResumo} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <YAxis type="category" dataKey="sigla_partido" width={90} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+                  <Tooltip {...tooltipStyle} formatter={(value, _n, props) => [`${value}% Sim`, `${props.payload.sigla_partido} · ${IDEOLOGY_LABELS[props.payload.ideologia] ?? props.payload.ideologia} · ${fmtNum(props.payload.votacoes)} votacoes`]} />
+                  <Bar dataKey="media_pct_sim" maxBarSize={20} label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
+                    {q92PartidoResumo.map((row) => <Cell key={text(row, "sigla_partido")} fill={IDEOLOGY_COLORS[text(row, "ideologia")] ?? "#555"} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <p className="mb-3 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>RESUMO POR PARTIDO</p>
+            <SimpleTable
+              rows={q92PartidoResumo}
+              columns={["sigla_partido", "ideologia", "votacoes", "media_pct_sim", "orientacoes", "pct_orientacao_seguida", "votou_mais"]}
+              empty="Sem dados por partido."
+            />
+
+            {q92PartidoDetalhe.length ? (
+              <div className="mt-10">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                  <p className="text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>DETALHE — VOTO DO PARTIDO POR PROPOSTA</p>
+                  <select
+                    value={selectedPartido}
+                    onChange={(e) => setSelectedPartido(e.target.value)}
+                    className="border border-border bg-background px-3 py-1.5 text-xs text-foreground outline-none focus:border-primary"
+                    style={{ fontFamily: MONO }}
+                  >
+                    <option value="">TODOS (amostra)</option>
+                    {partidoOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <SimpleTable
+                  rows={q92DetalheFiltrado}
+                  columns={["ano_dados", "id_votacao", "titulo_proposicao", "sigla_partido", "votos_sim", "votos_nao", "pct_sim", "orientacao_partido"]}
+                  empty="Sem detalhe para o partido selecionado."
+                />
+                <p className="mt-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  Amostra de ate 60 linhas{selectedPartido ? ` do ${selectedPartido}` : ""} · base completa: {fmtNum(q92DetalheTotal)} registros partido x votacao.
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </section>
 
       {/* ── Q9.4 VOTAÇÕES POLARIZADAS ── */}
@@ -637,7 +909,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
 
             <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>RANKING COMPLETO (DO MAIS A ESQUERDA AO MAIS A DIREITA)</p>
             <div className="space-y-2">
-              {q95Sorted.map((row) => {
+              {q95Sorted.slice(0, q95Shown).map((row) => {
                 const score = raw(row, "score_vies");
                 const color = scoreColor(score);
                 return (
@@ -660,6 +932,16 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                 );
               })}
             </div>
+            {q95Shown < q95Sorted.length ? (
+              <button
+                type="button"
+                onClick={() => setQ95Shown((v) => v + 60)}
+                className="mt-4 border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                style={{ fontFamily: MONO }}
+              >
+                CARREGAR MAIS ({fmtNum(q95Sorted.length - q95Shown)} restantes)
+              </button>
+            ) : null}
           </>
         ) : !searchTerm ? (
           <EmptyPanel text="Score de vies ainda nao disponivel. Execute o SQL atualizado da Q9." />
@@ -735,13 +1017,15 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           ]} />
         </CollapsibleMethod>
 
-        <CollapsibleMethod n="9.5" title="SCORE DE VIES INDIVIDUAL (0–100)" sub="Como calculamos onde cada deputado se posiciona de verdade, independente do partido" open={methQ95Open} onToggle={() => setMethQ95Open((v) => !v)}>
+        <CollapsibleMethod n="9.5" title="VIES DO DEPUTADO — SCORE 0 A 100" sub="Como descobrimos a esquerda/centro/direita de cada deputado pelo voto real, nao pelo rotulo do partido" open={methQ95Open} onToggle={() => setMethQ95Open((v) => !v)}>
           <MethodSteps steps={[
-            { n: "01", title: "Usar somente votacoes polarizadas", body: "O score e calculado apenas nas votacoes com divergencia >= 30pp entre esquerda e direita. Votacoes consensuais nao revelam posicionamento." },
-            { n: "02", title: "Classificar cada voto como 'com esquerda' ou 'com direita'", body: "Se a esquerda favoreceu a proposicao (pct_esq > pct_dir) e o deputado votou Sim, ele votou 'com esquerda'. Se votou Nao, votou 'com direita'. O contrario vale quando a direita favorece." },
-            { n: "03", title: "Agregar por deputado", body: "Somamos quantas vezes o deputado votou com esquerda e com direita ao longo de todas as votacoes polarizadas do periodo." },
-            { n: "04", title: "Calcular o score", body: "score = (votos_com_direita / total_classificados) x 100. Zero = o deputado sempre acompanhou a esquerda nas polarizadas. Cem = sempre acompanhou a direita. Cinquenta = equidistante." },
-            { n: "05", title: "Minimo de 10 votos", body: "Deputados com menos de 10 votos em votacoes polarizadas sao excluidos do ranking — base insuficiente para calcular um score confiavel." },
+            { n: "01", title: "O partido e so o ponto de partida", body: "A ideologia do partido (Q9.1) entra como referencia inicial, mas nao define o vies — o que vale e o voto real do deputado. Por isso um deputado de um partido de 'centro' pode terminar classificado como direita ou esquerda." },
+            { n: "02", title: "Usar so as votacoes polarizadas", body: "Consideramos apenas as votacoes em que esquerda e direita divergiram >= 30 pontos percentuais (Q9.4). Em votacoes consensuais quase todos votam igual, entao elas nao revelam posicionamento ideologico." },
+            { n: "03", title: "Achar o campo favoravel de cada votacao", body: "Em cada votacao polarizada comparamos o % de Sim da esquerda e da direita. O campo com maior apoio e o 'campo favoravel' daquela proposta — esquerda ou direita." },
+            { n: "04", title: "Classificar o voto do deputado", body: "Se a esquerda favoreceu e o deputado votou Sim, ele votou 'com a esquerda'; se votou Nao, 'com a direita'. Quando a direita favorece, vale o inverso. Votos que nao sao Sim/Nao sao ignorados." },
+            { n: "05", title: "Calcular o score (0 a 100)", body: "score = votos_com_direita / (votos_com_esquerda + votos_com_direita) x 100. Zero = sempre acompanhou a esquerda; cem = sempre a direita; cinquenta = equidistante." },
+            { n: "06", title: "Classificar o vies final pelo comportamento", body: "0 a 35 = esquerda · 35 a 65 = centro · 65 a 100 = direita. A classificacao final vem do comportamento de voto, nao do rotulo do partido." },
+            { n: "07", title: "Base minima e auditoria voto a voto", body: "Deputados com menos de 10 votos em polarizadas ficam de fora (base insuficiente). Em 'Observar o voto de proposta' da-se para auditar, voto a voto, as ate 50 votacoes mais polarizadas de cada deputado — com o campo (esquerda/direita) e como ele votou." },
           ]} />
         </CollapsibleMethod>
 

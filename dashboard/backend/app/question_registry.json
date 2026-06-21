@@ -186,7 +186,7 @@
       "title": "Vies ideologico e partidario",
       "group_id": "partidos",
       "tags": ["ideologia", "partidos", "viés"],
-      "description": "Classifica os partidos por ideologia, correlaciona partido x proposta (% de votos Sim por campo ideologico) e exibe o voto individual de cada deputado por proposicao.",
+      "description": "Classifica os partidos por ideologia, correlaciona ideologia e partido x proposta (% de votos Sim e aderencia a orientacao), detecta votacoes polarizadas (esquerda x direita) e calcula o score de vies individual de cada deputado a partir do voto real.",
       "response_files": ["questoes/q9/respostas/q9_vies_deputado.txt"],
       "sql_file": "questoes/q9/consultas/q9.sql",
       "chart_type": "sankey",
@@ -194,7 +194,7 @@
       "expected_columns": ["sigla_partido", "ideologia"],
       "main_table_contains": "Q9.1 - Lista completa",
       "summary_table_contains": "",
-      "explanation": "Q9.1 classifica os partidos por ideologia. Q9.2 calcula o percentual de votos Sim por campo ideologico em cada votacao. Q9.3 mostra o voto individual de cada deputado e se ele seguiu ou contrariou a orientacao de sua bancada.",
+      "explanation": "Q9.1 classifica os partidos por ideologia. Q9.2 calcula o percentual de votos Sim por campo ideologico e por partido em cada votacao (com a orientacao oficial da bancada). Q9.3 mostra o voto individual de cada deputado e se ele seguiu ou contrariou a orientacao. Q9.4 isola as votacoes polarizadas (divergencia esquerda x direita >= 30pp). Q9.5 calcula o score de vies (0 = esquerda, 100 = direita) de cada deputado a partir do voto real nas polarizadas.",
       "chart": { "x_field": "ideologia", "y_fields": ["sigla_partido"] }
     },
     {

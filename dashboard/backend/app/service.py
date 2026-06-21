@@ -234,6 +234,10 @@ class DashboardService:
                 continue
             for doc in docs:
                 for table in doc.tables:
+                    # Tabelas de auditoria voto-a-voto (dezenas de milhares de linhas) nao
+                    # acrescentam valores de filtro novos; pular evita varrer tudo no /api/meta.
+                    if "voto do deputado por proposta" in table.title.lower():
+                        continue
                     for row in table.rows:
                         _maybe_add(anos, row.get("ano_dados"), excluded={"GLOBAL"})
                         _maybe_add(anos, row.get("ano"), excluded={"GLOBAL"})
