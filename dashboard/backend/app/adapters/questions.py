@@ -137,6 +137,33 @@ class Q2Adapter(QuestionAdapter):
         summary_cards = self._build_summary_cards()
         complement_specs = self._build_complements(state)
 
+        # Complemento: ranking de eixos temáticos agregados (todos os deputados)
+        tema_agg: dict[str, dict] = {}
+        for r in filtered_by_year if not state.anos else FilterEngine.apply_filters(filtered_by_year, state, supported_other):
+            tema = r.get("tema") or "Outros"
+            if tema not in tema_agg:
+                tema_agg[tema] = {"tema": tema, "qtd_proposicoes": 0, "proposicoes_aprovadas": 0}
+            tema_agg[tema]["qtd_proposicoes"] += r.get("qtd_proposicoes") or 0
+            tema_agg[tema]["proposicoes_aprovadas"] += r.get("proposicoes_aprovadas") or 0
+        tema_rows = sorted(tema_agg.values(), key=lambda x: x["qtd_proposicoes"], reverse=True)
+        total_props = sum(x["qtd_proposicoes"] for x in tema_rows) or 1
+        for row in tema_rows:
+            row["pct_total"] = round(row["qtd_proposicoes"] * 100.0 / total_props, 2)
+        tema_state = FilterState(
+            anos=[], eixos=[], partidos=[], ufs=[], deputados=[],
+            escolaridade=[], search=None, sort_by="qtd_proposicoes", sort_dir="desc",
+            page=1, page_size=len(tema_rows),
+        )
+        complement_specs = complement_specs + [
+            self._build_table_spec(
+                title="Eixos temáticos consolidados - todos os deputados",
+                columns=["tema", "qtd_proposicoes", "proposicoes_aprovadas", "pct_total"],
+                rows=tema_rows,
+                total=len(tema_rows),
+                state=tema_state,
+            )
+        ]
+
         has_data = table_spec.total > 0
         empty = EmptyState(
             is_empty=not has_data,
@@ -1344,10 +1371,9 @@ class Q13Adapter(QuestionAdapter):
         # Garante que o card "ano_dados" nunca seja exibido (inclusive no estado inicial sem filtros)
         payload.summary_cards = [card for card in payload.summary_cards if card.id != "ano_dados"]
         
-        # Remove as duas últimas tabelas de categorias de gastos consolidados,
-        # já que essa informação já é apresentada dinamicamente no gráfico de treemap.
+        # Mantém até a tabela global de categorias consolidadas para o Panorama
         if payload.complement_tables:
-            payload.complement_tables = payload.complement_tables[:1]
+            payload.complement_tables = payload.complement_tables[:3]
                 
         return payload
 
