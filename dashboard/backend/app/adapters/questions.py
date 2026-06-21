@@ -910,13 +910,15 @@ class Q9Adapter(QuestionAdapter):
         q93voto = _find_table_by_hint(self.complement_tables, "voto do deputado por proposta")
         q94 = _find_table_by_hint(self.complement_tables, "polarizadas")
         q95 = _find_table_by_hint(self.complement_tables, "score vies")
+        q96_lista = _find_table_by_hint(self.complement_tables, "lista de votacoes")
+        q96_votos = _find_table_by_hint(self.complement_tables, "votos por votacao")
 
         # Tabelas que o frontend consome inteiras (busca por nome / ranking completo).
         # O endpoint HTTP capa page_size em 200; aqui forcamos um tamanho fixo maior
         # para essas tabelas, ignorando esse limite, senao a busca de deputado so
         # enxergaria os 200 primeiros (e nomes de score alto, como Kim, ficam de fora).
         FULL_TABLE_SIZE = 2000
-        full_tables = {id(q93), id(q95), id(q93voto)}
+        full_tables = {id(q93), id(q95), id(q93voto), id(q96_lista)}
 
         # Com um partido filtrado, o granular partido x proposta (Q9.2b) vem completo
         # para permitir paginar/pesquisar no frontend; sem filtro fica so a amostra (200).
@@ -925,7 +927,7 @@ class Q9Adapter(QuestionAdapter):
 
         # O voto-a-voto (Q9.3) so e exposto quando ha um deputado filtrado — evita
         # carregar 86k+ linhas no payload inicial da pagina.
-        exposed = [q92, q92_resumo, q92b, q93, q94, q95]
+        exposed = [q92, q92_resumo, q92b, q93, q94, q95, q96_lista]
         if state.deputados and q93voto is not None:
             exposed.append(q93voto)
 
@@ -958,6 +960,26 @@ class Q9Adapter(QuestionAdapter):
                         sort_dir=state.sort_dir,
                         page=1,
                         page_size=page_size,
+                    ),
+                )
+            )
+
+        # Q9.6 votos por votacao: so quando ha uma votacao filtrada (state.search = id_votacao).
+        # Filtra pelo id exato e retorna o voto de todos os deputados daquela votacao.
+        if q96_votos is not None and state.search:
+            id_alvo = state.search.strip()
+            rows = [r for r in q96_votos.rows if str(r.get("id_votacao", "")).strip() == id_alvo]
+            specs.append(
+                self._build_table_spec(
+                    title=q96_votos.title,
+                    columns=q96_votos.columns,
+                    rows=rows[:FULL_TABLE_SIZE],
+                    total=len(rows),
+                    state=FilterState(
+                        anos=state.anos, eixos=state.eixos, partidos=state.partidos,
+                        ufs=state.ufs, deputados=state.deputados, escolaridade=state.escolaridade,
+                        search=state.search, sort_by=state.sort_by, sort_dir=state.sort_dir,
+                        page=1, page_size=FULL_TABLE_SIZE,
                     ),
                 )
             )

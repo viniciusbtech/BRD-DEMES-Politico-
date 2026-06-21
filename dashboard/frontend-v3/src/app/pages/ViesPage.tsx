@@ -215,6 +215,14 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   const [detShown, setDetShown] = useState(60);
   const [detSearch, setDetSearch] = useState("");
   const [detYear, setDetYear] = useState("");
+  // Secao 9.6 — observar uma proposta -> voto de cada deputado
+  const [votacaoQuery, setVotacaoQuery] = useState("");
+  const [selectedVotacao, setSelectedVotacao] = useState<Row | null>(null);
+  const [votacaoVotos, setVotacaoVotos] = useState<Row[]>([]);
+  const [votacaoVotosLoading, setVotacaoVotosLoading] = useState(false);
+  const [vvShown, setVvShown] = useState(60);
+  const [vvVoto, setVvVoto] = useState("todos");
+  const [vvDepSearch, setVvDepSearch] = useState("");
   const [vies1Query, setVies1Query] = useState("");
   const [bancadaCampo, setBancadaCampo] = useState<"todos" | "esquerda" | "direita">("todos");
   const [depVotos, setDepVotos] = useState<Row[]>([]);
@@ -375,6 +383,59 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
     () => (bancadaCampo === "todos" ? depVotosRows : depVotosRows.filter((p) => p.campo === bancadaCampo)),
     [depVotosRows, bancadaCampo]
   );
+
+  // ── Secao 9.6: observar uma proposta -> voto de cada deputado ──
+  const q96Lista = useMemo(() => {
+    const t = q9?.complement_tables.find((t) => t.title.toLowerCase().includes("lista de votacoes"));
+    return (t?.rows ?? []) as Row[];
+  }, [q9]);
+
+  const votacaoMatches = useMemo(() => {
+    const q = votacaoQuery.trim().toLowerCase();
+    if (!q) return q96Lista.slice(0, 15);
+    return q96Lista
+      .filter((r) => text(r, "titulo_proposicao").toLowerCase().includes(q) || text(r, "id_votacao").toLowerCase().includes(q))
+      .slice(0, 40);
+  }, [q96Lista, votacaoQuery]);
+
+  const selectedVotacaoId = selectedVotacao ? text(selectedVotacao, "id_votacao") : "";
+  useEffect(() => {
+    if (!selectedVotacaoId) { setVotacaoVotos([]); return; }
+    let mounted = true;
+    setVotacaoVotosLoading(true);
+    fetchQuestion("q9", { search: selectedVotacaoId }, { page: 1, pageSize: 1000 })
+      .then((p) => {
+        if (!mounted) return;
+        const t = p.complement_tables.find((t) => t.title.toLowerCase().includes("votos por votacao"));
+        setVotacaoVotos((t?.rows ?? []) as Row[]);
+      })
+      .catch(() => { if (mounted) setVotacaoVotos([]); })
+      .finally(() => { if (mounted) setVotacaoVotosLoading(false); });
+    return () => { mounted = false; };
+  }, [selectedVotacaoId]);
+
+  useEffect(() => { setVvShown(60); }, [selectedVotacaoId, vvVoto, vvDepSearch]);
+
+  const vvCounts = useMemo(() => {
+    let sim = 0, nao = 0, out = 0;
+    for (const r of votacaoVotos) {
+      const v = text(r, "voto");
+      if (v === "Sim") sim++; else if (v === "Nao") nao++; else out++;
+    }
+    return { sim, nao, out, total: votacaoVotos.length };
+  }, [votacaoVotos]);
+
+  const vvFiltered = useMemo(() => {
+    const q = vvDepSearch.trim().toLowerCase();
+    return votacaoVotos.filter((r) => {
+      const v = text(r, "voto");
+      if (vvVoto === "Sim" && v !== "Sim") return false;
+      if (vvVoto === "Nao" && v !== "Nao") return false;
+      if (vvVoto === "outros" && (v === "Sim" || v === "Nao")) return false;
+      if (q && !(text(r, "nome_deputado").toLowerCase().includes(q) || text(r, "sigla_partido").toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [votacaoVotos, vvVoto, vvDepSearch]);
 
   // Q9.3
   const q93Rows = useMemo(() => {
@@ -1064,6 +1125,142 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
             ) : null}
           </>
         ) : <EmptyPanel text="Sem dados de aderencia por deputado." />}
+      </section>
+
+      {/* ── 9.6 OBSERVAR UMA PROPOSTA -> VOTO DE CADA DEPUTADO ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+        <SectionHeader
+          n="9.6"
+          tag="OBSERVAR UMA PROPOSTA"
+          title="Como cada deputado votou numa proposta?"
+          desc="Escolha uma votacao de plenario e veja o voto individual de TODOS os deputados — com partido, UF e o voto (Sim, Nao, Abstencao...). Cobre todas as votacoes nominais de plenario, sem corte por deputado."
+        />
+
+        <div className="mb-4 max-w-2xl">
+          <p className="mb-2 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>1. ESCOLHA A PROPOSTA / VOTACAO</p>
+          <div className="relative">
+            <input
+              value={votacaoQuery}
+              onChange={(e) => setVotacaoQuery(e.target.value)}
+              placeholder="Pesquisar por titulo ou id da votacao..."
+              className="w-full border border-border bg-background px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+              style={{ fontFamily: MONO }}
+            />
+            {votacaoQuery ? (
+              <button type="button" onClick={() => setVotacaoQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground" style={{ fontFamily: MONO }}>✕</button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mb-8 max-h-72 overflow-y-auto border border-border" style={{ background: "#111" }}>
+          {votacaoMatches.length === 0 ? (
+            <div className="px-4 py-6 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Nenhuma votacao encontrada.</div>
+          ) : votacaoMatches.map((r) => {
+            const id = text(r, "id_votacao");
+            const isSel = selectedVotacaoId === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setSelectedVotacao(r)}
+                className="flex w-full items-center justify-between gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
+                style={{ background: isSel ? "rgba(196,18,48,0.09)" : undefined }}
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{text(r, "titulo_proposicao")}</span>
+                  <span className="block text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{text(r, "ano_dados")} · {id} · {fmtNum(raw(r, "total_votos"))} votos</span>
+                </span>
+                <span className="shrink-0 text-xs" style={{ fontFamily: MONO }}>
+                  <span style={{ color: "#4a7c59" }}>{fmtNum(raw(r, "votos_sim"))} Sim</span>{" · "}<span style={{ color: RED }}>{fmtNum(raw(r, "votos_nao"))} Nao</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {!selectedVotacao ? (
+          <EmptyPanel text="Selecione uma votacao acima para ver o voto de cada deputado." />
+        ) : votacaoVotosLoading ? (
+          <EmptyPanel text="CARREGANDO VOTOS... (a base completa de votos e carregada na primeira consulta — pode levar alguns segundos)" />
+        ) : (
+          <>
+            <div className="mb-6 border-l-4 py-4 pl-5" style={{ background: "#111", borderColor: RED }}>
+              <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{text(selectedVotacao, "titulo_proposicao")}</h3>
+              <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{text(selectedVotacao, "ano_dados")} · {selectedVotacaoId}</p>
+              <div className="mt-4 grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+                <StatCard label="DEPUTADOS" value={fmtNum(vvCounts.total)} />
+                <StatCard label="SIM" value={fmtNum(vvCounts.sim)} color="#4a7c59" />
+                <StatCard label="NAO" value={fmtNum(vvCounts.nao)} color={RED} />
+                <StatCard label="OUTROS" value={fmtNum(vvCounts.out)} color="#888" />
+              </div>
+            </div>
+
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>VOTO:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {([["todos", "TODOS"], ["Sim", "SIM"], ["Nao", "NAO"], ["outros", "OUTROS"]] as const).map(([val, lab]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setVvVoto(val)}
+                    className="border px-2.5 py-1 text-xs font-bold"
+                    style={{ fontFamily: MONO, borderColor: vvVoto === val ? RED : "rgba(240,236,228,0.12)", color: vvVoto === val ? RED : "var(--muted-foreground)" }}
+                  >
+                    {lab}
+                  </button>
+                ))}
+              </div>
+              <div className="relative">
+                <input
+                  value={vvDepSearch}
+                  onChange={(e) => setVvDepSearch(e.target.value)}
+                  placeholder="Filtrar deputado ou partido..."
+                  className="w-60 border border-border bg-background px-3 py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
+                  style={{ fontFamily: MONO }}
+                />
+                {vvDepSearch ? (
+                  <button type="button" onClick={() => setVvDepSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground" style={{ fontFamily: MONO }}>✕</button>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+              <table className="min-w-full text-left text-sm">
+                <thead style={{ background: "#0a0a0a" }}>
+                  <tr>
+                    {["deputado", "partido", "uf", "voto"].map((h) => (
+                      <th key={h} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {vvFiltered.slice(0, vvShown).map((r, i) => {
+                    const v = text(r, "voto");
+                    const vc = v === "Sim" ? "#4a7c59" : v === "Nao" ? RED : "#888";
+                    return (
+                      <tr key={`${text(r, "id_deputado")}-${i}`} className="border-t border-border">
+                        <td className="px-4 py-3 text-foreground" style={{ fontFamily: SERIF }}>{text(r, "nome_deputado")}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-muted-foreground" style={{ fontFamily: MONO }}>{text(r, "sigla_partido")}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-muted-foreground" style={{ fontFamily: MONO }}>{text(r, "sigla_uf")}</td>
+                        <td className="whitespace-nowrap px-4 py-3 font-bold" style={{ fontFamily: MONO, color: vc }}>{v}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {vvFiltered.length === 0 ? (
+              <p className="mt-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Nenhum deputado para este filtro.</p>
+            ) : (
+              <div className="mt-3 flex flex-wrap items-center gap-4">
+                {vvShown < vvFiltered.length ? (
+                  <button type="button" onClick={() => setVvShown((v) => v + 60)} className="border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary" style={{ fontFamily: MONO }}>MOSTRAR MAIS 60</button>
+                ) : null}
+                <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Exibindo {fmtNum(Math.min(vvShown, vvFiltered.length))} de {fmtNum(vvFiltered.length)}.</span>
+              </div>
+            )}
+          </>
+        )}
       </section>
 
       {/* ── METODOLOGIA ── */}

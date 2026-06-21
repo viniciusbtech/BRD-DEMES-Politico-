@@ -25,6 +25,8 @@ OUT = REPO / "questoes" / "q9" / "respostas" / "q9_vies_deputado.txt"
 
 POLARIZACAO_MIN = 30.0      # divergencia minima esquerda x direita (pp)
 MIN_VOTOS_POLARIZADAS = 10  # minimo de votos classificados para entrar no score
+MIN_VOTOS_VOTACAO = 50      # minimo de Sim/Nao para a votacao entrar na lista de plenario
+OUT_VOTOS = REPO / "questoes" / "q9" / "respostas" / "q9_votos_por_votacao.txt"
 
 
 def round1(value: float) -> float:
@@ -211,6 +213,50 @@ def main() -> None:
         q93voto_rows.extend(row for _div, row in items[:CAP_VOTOS_POR_DEPUTADO])
     q93voto_rows.sort(key=lambda r: (str(r[0]), r[4], r[5]))
 
+    # ---- Q9.6: voto de cada deputado por votacao (todos os deputados) ----
+    # Pass V1: conta votos por votacao (sem filtro de ideologia/partido)
+    vcount: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0, 0, 0])  # total, sim, nao, outros
+    with open(votos_path, encoding="utf-8") as fh:
+        reader = csv.reader(fh, delimiter=";")
+        next(reader, None)
+        for row in reader:
+            if len(row) < 4:
+                continue
+            ano, vid, voto = row[0].strip(), row[1].strip(), row[3].strip()
+            if voto == "voto":
+                continue
+            c = vcount[(ano, vid)]
+            c[0] += 1
+            if voto == "Sim":
+                c[1] += 1
+            elif voto == "Nao":
+                c[2] += 1
+            else:
+                c[3] += 1
+
+    # Votacoes de plenario: tem titulo e >= MIN_VOTOS_VOTACAO votos Sim/Nao
+    plenario = {k for k, c in vcount.items() if (c[1] + c[2]) >= MIN_VOTOS_VOTACAO and k in titulos}
+    lista_votacoes_rows = []
+    for (ano, vid) in sorted(plenario):
+        c = vcount[(ano, vid)]
+        lista_votacoes_rows.append([ano, vid, titulo(ano, vid), c[0], c[1], c[2], c[3]])
+
+    # Pass V2: coleta o voto de cada deputado nas votacoes de plenario
+    votos_votacao_rows: list[list] = []
+    with open(votos_path, encoding="utf-8") as fh:
+        reader = csv.reader(fh, delimiter=";")
+        next(reader, None)
+        for row in reader:
+            if len(row) < 6:
+                continue
+            ano, vid, id_dep, voto, nome, partido = (row[0].strip(), row[1].strip(), row[2].strip(),
+                                                     row[3].strip(), row[4].strip(), row[5].strip())
+            uf = row[6].strip() if len(row) > 6 else ""
+            if voto == "voto" or (ano, vid) not in plenario:
+                continue
+            votos_votacao_rows.append([ano, vid, id_dep, nome, partido, uf, voto])
+    votos_votacao_rows.sort(key=lambda r: (r[0], r[1], r[4], r[3]))
+
     # ---- monta blocos ----
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:
@@ -325,7 +371,22 @@ def main() -> None:
               "ano_dados", "id_votacao", "titulo_proposicao", "voto",
               "campo_favoravel", "votou_com"], q93voto_rows)
 
+        # Q9.6 lista de votacoes de plenario (seletor da secao "observar uma proposta")
+        emit(fh, "Q9.6 - Lista de votacoes em plenario",
+             ["ano_dados", "id_votacao", "titulo_proposicao", "total_votos",
+              "votos_sim", "votos_nao", "votos_outros"], lista_votacoes_rows)
+
+    # Arquivo separado (grande, carregado sob demanda quando se filtra por votacao)
+    with open(OUT_VOTOS, "w", encoding="utf-8") as fh:
+        fh.write("Q9.6 - Voto de cada deputado por votacao (plenario)\n")
+        emit(fh, "Q9.6 - Votos por votacao",
+             ["ano_dados", "id_votacao", "id_deputado", "nome_deputado",
+              "sigla_partido", "sigla_uf", "voto"], votos_votacao_rows)
+
     print(f"OK -> {OUT}")
+    print(f"OK -> {OUT_VOTOS}")
+    print(f"  Q9.6 lista votacoes      : {len(lista_votacoes_rows)} linhas")
+    print(f"  Q9.6 votos por votacao   : {len(votos_votacao_rows)} linhas")
     print(f"  Q9.3 voto-a-voto         : {len(q93voto_rows)} linhas")
     print(f"  Q9.2 ideologia x votacao : {len(q92_rows)} linhas")
     print(f"  Q9.2 resumo partido      : {len(resumo_part_rows)} linhas")

@@ -187,7 +187,7 @@
       "group_id": "partidos",
       "tags": ["ideologia", "partidos", "viés"],
       "description": "Classifica os partidos por ideologia, correlaciona ideologia e partido x proposta (% de votos Sim e aderencia a orientacao), detecta votacoes polarizadas (esquerda x direita) e calcula o score de vies individual de cada deputado a partir do voto real.",
-      "response_files": ["questoes/q9/respostas/q9_vies_deputado.txt"],
+      "response_files": ["questoes/q9/respostas/q9_vies_deputado.txt", "questoes/q9/respostas/q9_votos_por_votacao.txt"],
       "sql_file": "questoes/q9/consultas/q9.sql",
       "chart_type": "sankey",
       "supported_filters": ["anos", "partidos", "deputados"],

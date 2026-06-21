@@ -188,6 +188,15 @@ class DashboardService:
         question: QuestionDefinition,
         state: FilterState | None,
     ) -> list[str]:
+        if question.id == "q9":
+            # O arquivo grande "votos por votacao" (417k linhas) so e carregado quando
+            # ha uma votacao filtrada — state.search carrega o id_votacao. Sem isso, fica
+            # de fora para nao pesar a abertura da pagina.
+            if state is None or not state.search:
+                return [f for f in question.response_files
+                        if Path(f).name != "q9_votos_por_votacao.txt"]
+            return question.response_files
+
         if question.id != "q3" or state is None or state.deputados:
             return question.response_files
 
@@ -202,6 +211,8 @@ class DashboardService:
     def _bundle_variant(question: QuestionDefinition, state: FilterState | None) -> str:
         if question.id == "q3" and state is not None and not state.deputados:
             return "sem_deputado"
+        if question.id == "q9":
+            return "com_votos" if (state is not None and state.search) else "sem_votos"
         return "completo"
 
     def _parse_document(self, path: Path) -> ParsedDocument:
