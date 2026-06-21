@@ -1,18 +1,19 @@
-import { useMemo, useState } from "react";
-import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
-import {
-  deputiesEducation,
-  educationColor,
-  educationImageUrl,
-  educationLevels,
-  educationSummary,
-  partyEducation,
-  totalEducation,
-  type DeputyEducation,
-  type PartyEducation,
-} from "../data/escolaridadeMock";
+import type { QuestionPayload } from "../types";
 
 type EscolaridadePageProps = {
   onNavigateHome: () => void;
@@ -20,52 +21,369 @@ type EscolaridadePageProps = {
   onNavigateDeputado: () => void;
 };
 
-type TooltipValue = string | number | Array<string | number>;
+type Row = Record<string, unknown>;
 
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
+const RED = "#c41230";
 
-const educationColors = educationLevels.map((item) => item.color);
+// Ordem canônica dos níveis de instrução (do menor ao maior)
+const NIVEL_ORDER = [
+  "Primário Incompleto",
+  "Primario Incompleto",
+  "Ensino Fundamental",
+  "Ensino Médio Incompleto",
+  "Ensino Medio Incompleto",
+  "Ensino Médio",
+  "Ensino Medio",
+  "Secundário Incompleto",
+  "Secundario Incompleto",
+  "Secundário",
+  "Secundario",
+  "Superior Incompleto",
+  "Superior",
+  "Pós-Graduação",
+  "Pos-Graduacao",
+  "Mestrado Incompleto",
+  "Mestrado",
+  "Doutorado Incompleto",
+  "Doutorado",
+  "Nao informado",
+];
+
+const EDU_COLORS: Record<string, string> = {
+  "Primário Incompleto": "#8b1a1a",
+  "Primario Incompleto": "#8b1a1a",
+  "Ensino Fundamental": "#c41230",
+  "Ensino Médio Incompleto": "#c4562a",
+  "Ensino Medio Incompleto": "#c4562a",
+  "Ensino Médio": "#c4813a",
+  "Ensino Medio": "#c4813a",
+  "Secundário Incompleto": "#b8980a",
+  "Secundario Incompleto": "#b8980a",
+  "Secundário": "#a08a10",
+  "Secundario": "#a08a10",
+  "Superior Incompleto": "#6b8cba",
+  "Superior": "#4f6fad",
+  "Pós-Graduação": "#3a5a9a",
+  "Pos-Graduacao": "#3a5a9a",
+  "Mestrado Incompleto": "#2a4f90",
+  "Mestrado": "#2b5490",
+  "Doutorado Incompleto": "#1e3d7a",
+  "Doutorado": "#1a2f68",
+  "Nao informado": "#555",
+};
+
+function eduColor(nivel: string): string {
+  return EDU_COLORS[nivel] ?? "#888";
+}
+
+function sortByNivel<T extends Row>(rows: T[], key = "escolaridade"): T[] {
+  return [...rows].sort((a, b) => {
+    const ia = NIVEL_ORDER.indexOf(String(a[key] ?? ""));
+    const ib = NIVEL_ORDER.indexOf(String(b[key] ?? ""));
+    if (ia === -1 && ib === -1) return String(a[key]).localeCompare(String(b[key]));
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+}
+
+const raw = (row: Row | undefined, key: string) => Number(row?.[key] ?? 0);
+const text = (row: Row | undefined, key: string) => String(row?.[key] ?? "");
+const fmtNum = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+const fmtPct = (v: number) =>
+  `${v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+const fmtCurrency = (v: number) =>
+  `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
+const TOOLTIP = {
+  contentStyle: {
+    background: "#141414",
+    border: "1px solid rgba(240,236,228,0.12)",
+    fontFamily: MONO,
+    fontSize: 11,
+    color: "#fff",
+  },
+  itemStyle: { color: "#fff" },
+  labelStyle: { color: "#fff" },
+};
+
+function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title: string; desc: string }) {
+  return (
+    <div className="mb-8">
+      <div className="mb-2 flex items-baseline gap-4">
+        <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.22)" }}>{n}</span>
+        <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
+      </div>
+      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{title}</h2>
+      <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+  return (
+    <div className="bg-background px-6 py-6">
+      <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{label}</p>
+      <p className="text-3xl font-black" style={{ fontFamily: SERIF, color: color ?? RED }}>{value}</p>
+      {sub ? <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p> : null}
+    </div>
+  );
+}
+
+function EmptyPanel({ text: msg }: { text: string }) {
+  return (
+    <div className="border border-border px-6 py-10 text-center" style={{ background: "#111" }}>
+      <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{msg}</p>
+    </div>
+  );
+}
+
+function HBar({
+  rows,
+  dataKey,
+  labelFormatter,
+  tooltipFormatter,
+  empty,
+}: {
+  rows: Row[];
+  dataKey: string;
+  labelFormatter?: (v: number) => string;
+  tooltipFormatter?: (v: number, name: string, props: { payload: Row }) => [string, string];
+  empty: string;
+}) {
+  if (!rows.length) return <EmptyPanel text={empty} />;
+  const height = Math.max(320, rows.length * 36);
+  return (
+    <div style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={rows} layout="vertical" margin={{ left: 0, right: 80, top: 0, bottom: 0 }}>
+          <XAxis type="number" tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+          <YAxis type="category" dataKey="escolaridade" width={150} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+          <Tooltip {...TOOLTIP} formatter={tooltipFormatter} />
+          <Bar dataKey={dataKey} maxBarSize={24}
+            label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: labelFormatter ?? ((v: number) => fmtNum(v)) }}>
+            {rows.map((row) => (
+              <Cell key={text(row, "escolaridade")} fill={eduColor(text(row, "escolaridade"))} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function CollapsibleMethod({
+  n, title, sub, open, onToggle, children,
+}: { n: string; title: string; sub: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
+  return (
+    <div className="mb-3 border border-border">
+      <button type="button" onClick={onToggle}
+        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
+        style={{ background: "#111" }}>
+        <div className="flex items-baseline gap-3">
+          <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>{n}</span>
+          <div>
+            <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>{title}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p>
+          </div>
+        </div>
+        <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+          {open ? "▲ RECOLHER" : "▼ EXPANDIR"}
+        </span>
+      </button>
+      {open && (
+        <div className="border-t border-border px-5 py-7" style={{ background: "#0d0d0d" }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MethodSteps({ steps }: { steps: { n: string; title: string; body: string }[] }) {
+  return (
+    <ol className="max-w-2xl space-y-4">
+      {steps.map((s) => (
+        <li key={s.n} className="flex gap-4">
+          <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{s.n}</span>
+          <div>
+            <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>{s.title}</p>
+            <p className="text-xs leading-relaxed text-muted-foreground">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: EscolaridadePageProps) {
-  const [depQuery, setDepQuery] = useState("");
-  const [selectedDep, setSelectedDep] = useState<DeputyEducation | null>(null);
+  const [q4, setQ4] = useState<QuestionPayload | null>(null);
+  const [q6, setQ6] = useState<QuestionPayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [depSearch, setDepSearch] = useState("");
   const [depDropOpen, setDepDropOpen] = useState(false);
-  const [partyQuery, setPartyQuery] = useState("");
-  const [selectedParty, setSelectedParty] = useState<PartyEducation | null>(null);
-  const [partyDropOpen, setPartyDropOpen] = useState(false);
+  const [selectedDep, setSelectedDep] = useState<Row | null>(null);
+  const [methOpen, setMethOpen] = useState<Record<string, boolean>>({});
 
-  const filteredDeps = useMemo(
-    () =>
-      deputiesEducation.filter(
-        (deputy) =>
-          deputy.name.toLowerCase().includes(depQuery.toLowerCase()) ||
-          deputy.party.toLowerCase().includes(depQuery.toLowerCase()) ||
-          deputy.education.toLowerCase().includes(depQuery.toLowerCase()),
-      ),
-    [depQuery],
+  const toggleMeth = (k: string) => setMethOpen((v) => ({ ...v, [k]: !v[k] }));
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError("");
+    Promise.all([
+      fetchQuestion("q4", {}, { page: 1, pageSize: 100 }),
+      fetchQuestion("q6", {}, { page: 1, pageSize: 300 }),
+    ])
+      .then(([p4, p6]) => {
+        if (!mounted) return;
+        setQ4(p4);
+        setQ6(p6);
+      })
+      .catch(() => { if (mounted) setError("Nao foi possivel carregar os dados do backend."); })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
+
+  // ── Q4 distribuição ──────────────────────────────────────────────────────
+  const q4Rows = useMemo(
+    () => sortByNivel((q4?.table_spec.rows ?? []) as Row[]),
+    [q4]
   );
 
-  const filteredParties = useMemo(
-    () =>
-      partyEducation.filter(
-        (party) =>
-          party.name.toLowerCase().includes(partyQuery.toLowerCase()) ||
-          party.full.toLowerCase().includes(partyQuery.toLowerCase()),
-      ),
-    [partyQuery],
+  // Q4 complement: lista de deputados por escolaridade
+  const q4DeputyRows = useMemo(
+    () => (q4?.complement_tables[0]?.rows ?? []) as Row[],
+    [q4]
   );
 
-  const partyChartData = selectedParty
-    ? educationLevels.map((level, index) => ({
-        label: level.shortLabel,
-        fullLabel: level.label,
-        value: selectedParty.values[index] ?? 0,
-        color: level.color,
+  // Dropdown suggestions (busca por nome, mostra até 10)
+  const depSuggestions = useMemo(() => {
+    const q = depSearch.trim().toLowerCase();
+    if (!q) return [];
+    return q4DeputyRows
+      .filter((r) => text(r, "nome").toLowerCase().includes(q))
+      .slice(0, 10);
+  }, [q4DeputyRows, depSearch]);
+
+  const depPhotoUrl = (id: string) =>
+    `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
+
+  // ── Q6 correlações ───────────────────────────────────────────────────────
+  // main table: ano | escolaridade | media_gasto | media_fidelidade | media_proposicoes | media_presenca_eventos | media_presenca_plenario
+  const q6MainRows = useMemo(() => (q6?.table_spec.rows ?? []) as Row[], [q6]);
+
+  // Média global por escolaridade (média sobre todos os anos)
+  const q6ByEdu = useMemo(() => {
+    const acc = new Map<string, { gasto: number[]; fidel: number[]; prop: number[]; eventos: number[]; plenario: number[] }>();
+    for (const row of q6MainRows) {
+      const edu = text(row, "escolaridade");
+      if (!edu) continue;
+      if (!acc.has(edu)) acc.set(edu, { gasto: [], fidel: [], prop: [], eventos: [], plenario: [] });
+      const e = acc.get(edu)!;
+      const g = raw(row, "media_gasto");
+      const f = raw(row, "media_fidelidade");
+      const p = raw(row, "media_proposicoes");
+      const ev = raw(row, "media_presenca_eventos");
+      const pl = raw(row, "media_presenca_plenario");
+      if (g > 0) e.gasto.push(g);
+      if (f > 0) e.fidel.push(f);
+      if (p > 0) e.prop.push(p);
+      if (ev > 0) e.eventos.push(ev);
+      if (pl > 0) e.plenario.push(pl);
+    }
+    const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+    return sortByNivel(
+      Array.from(acc.entries()).map(([escolaridade, v]) => ({
+        escolaridade,
+        media_gasto: Math.round(avg(v.gasto)),
+        media_fidelidade: Math.round(avg(v.fidel) * 10) / 10,
+        media_proposicoes: Math.round(avg(v.prop) * 10) / 10,
+        media_presenca_eventos: Math.round(avg(v.eventos) * 10) / 10,
+        media_presenca_plenario: Math.round(avg(v.plenario) * 10) / 10,
       }))
-    : [];
-  const partyTotal = partyChartData.reduce((sum, item) => sum + item.value, 0);
-  const deputyList = depQuery ? filteredDeps : deputiesEducation;
+    ) as Row[];
+  }, [q6MainRows]);
+
+  // Complement tables específicas
+  const findComplement = (hint: string) =>
+    q6?.complement_tables.find((t) => t.title.toLowerCase().includes(hint.toLowerCase()));
+
+  const q6aRows = useMemo(
+    () => sortByNivel((findComplement("gastos")?.rows ?? []) as Row[]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q6]
+  );
+  const q6bRows = useMemo(
+    () => sortByNivel((findComplement("fidelidade")?.rows ?? []) as Row[]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q6]
+  );
+  const q6cRows = useMemo(
+    () => sortByNivel((findComplement("proposicoes")?.rows ?? []) as Row[]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q6]
+  );
+  const q6dRows = useMemo(
+    () => sortByNivel((findComplement("eventos")?.rows ?? []) as Row[]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q6]
+  );
+  const q6eRows = useMemo(
+    () => sortByNivel((findComplement("plenario")?.rows ?? []) as Row[]),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q6]
+  );
+
+  // Eta quadrado — tabela complementar Q6
+  const q6EtaRows = useMemo(
+    () => (findComplement("forca da associacao")?.rows ?? []) as Row[],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q6]
+  );
+
+  // Use complement rows if available, otherwise fall back to q6ByEdu
+  const gastoRows = q6aRows.length ? q6aRows : q6ByEdu;
+  const fidelRows = q6bRows.length ? q6bRows : q6ByEdu;
+  const propRows = q6cRows.length ? q6cRows : q6ByEdu;
+  const eventosRows = q6dRows.length ? q6dRows : q6ByEdu;
+  const plenarioRows = q6eRows.length ? q6eRows : q6ByEdu;
+
+  // Stats
+  const totalDeputados = q4Rows.reduce((s, r) => s + raw(r, "qtd_deputados"), 0);
+  const niveisCount = q4Rows.length;
+  const topNivel = q4Rows.reduce(
+    (best, r) => (raw(r, "qtd_deputados") > raw(best, "qtd_deputados") ? r : best),
+    q4Rows[0] ?? {}
+  );
+  const maisProp = [...q6ByEdu].sort((a, b) => raw(b, "media_proposicoes") - raw(a, "media_proposicoes"))[0];
+
+  // Pie data
+  const pieData = q4Rows.map((r) => ({
+    name: text(r, "escolaridade"),
+    value: raw(r, "qtd_deputados"),
+  }));
+
+  // Radar data: normaliza os 5 indicadores por nível para o ETA
+  // Evolution: anos disponíveis
+  const anos = useMemo(
+    () => [...new Set(q6MainRows.map((r) => text(r, "ano_dados")))].sort(),
+    [q6MainRows]
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+        <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+          CARREGANDO DADOS...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
@@ -73,429 +391,546 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
 
       <PageHero
         n="8"
-        tag="EDUCAÇÃO"
-        title="Deputados"
-        titleRed="e Escolaridade"
-        desc="Quem representa o Brasil tem formação? Explore o nível de escolaridade dos deputados federais por indivíduo e por partido."
-        imgId="photo-1633734973050-d6499a977c17"
-        stripImgs={[
-          { id: "photo-1590012314607-cda9d9b699ae", alt: "Capelo de formatura" },
-          { id: "photo-1523580846011-d3a5bc25702b", alt: "Formanda" },
-          { id: "photo-1551135049-8a33b5883817", alt: "Reunião profissional" },
-        ]}
+        tag="ESCOLARIDADE"
+        title="Diploma"
+        titleRed="e mandato"
+        desc="Que nível de instrução têm os deputados federais da 57ª legislatura? E como a escolaridade se correlaciona com gastos, fidelidade partidária, produção de proposições e presença parlamentar?"
+        imgId="/fundorecortes/recorte8/questao8.png"
       />
 
-      <section className="border-b border-border px-6 py-16 md:px-14">
-        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-          PANORAMA
-        </p>
-        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-          Escolaridade dos 513 deputados
-        </h2>
+      {error ? (
+        <section className="px-6 py-10 md:px-14"><EmptyPanel text={error} /></section>
+      ) : null}
 
-        <div className="grid items-center gap-10 md:grid-cols-2">
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={totalEducation} dataKey="percent" cx="50%" cy="50%" innerRadius="48%" outerRadius="76%" paddingAngle={2} labelLine={false}>
-                  {totalEducation.map((item) => (
-                    <Cell key={item.level} fill={item.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
-                  formatter={(value: TooltipValue, _name: string, item: { payload?: { count?: number } }) => [`${value}% · ${item.payload?.count ?? 0} deputados`, ""]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+      {/* ── CARDS DE RESUMO ── */}
+      <section className="border-b border-border px-6 py-8 md:px-14">
+        <div className="grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+          <StatCard label="DEPUTADOS MAPEADOS" value={fmtNum(totalDeputados)} sub="57ª legislatura" />
+          <StatCard label="NIVEIS DE INSTRUCAO" value={fmtNum(niveisCount)} sub="categorias distintas" color="#d6a84f" />
+          <StatCard label="NIVEL MAIS COMUM" value={text(topNivel, "escolaridade")} sub={`${fmtNum(raw(topNivel, "qtd_deputados"))} deputados`} color="#4f6fad" />
+          <StatCard label="MAIS PROPOSICOES" value={text(maisProp ?? {}, "escolaridade")} sub={maisProp ? `media ${fmtNum(raw(maisProp, "media_proposicoes"))}/dep` : ""} color="#4a7c59" />
+        </div>
+      </section>
+
+      {/* ── 4.1 DISTRIBUIÇÃO ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14">
+        <SectionHeader
+          n="4"
+          tag="DISTRIBUICAO POR ESCOLARIDADE"
+          title="Quantos deputados têm cada nível de instrução?"
+          desc="Distribuição dos 640 deputados únicos da 57ª legislatura por nível de escolaridade declarado."
+        />
+
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
+          {/* Donut */}
+          <div>
+            <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>DISTRIBUICAO PERCENTUAL</p>
+            {pieData.length ? (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%"
+                      innerRadius="48%" outerRadius="72%" paddingAngle={2}
+                      label={({ name, percent }) => percent > 0.03 ? `${name.split(" ").pop()} ${(percent * 100).toFixed(0)}%` : ""}
+                      labelLine={false}>
+                      {pieData.map((entry) => (
+                        <Cell key={entry.name} fill={eduColor(entry.name)} />
+                      ))}
+                    </Pie>
+                    <Tooltip {...TOOLTIP} formatter={(v, name) => [`${fmtNum(Number(v))} deputados`, name]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : <EmptyPanel text="Sem dados de escolaridade." />}
           </div>
 
-          <div className="flex flex-col gap-4">
-            {totalEducation.map((item) => (
-              <div key={item.level}>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 flex-shrink-0 rounded-full" style={{ background: item.color }} />
-                    <span className="text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                      {item.level}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-black" style={{ fontFamily: MONO, color: item.color }}>
-                      {item.percent}%
-                    </span>
-                    <span className="w-16 text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                      {item.count} dep.
-                    </span>
-                  </div>
-                </div>
-                <div className="h-2 overflow-hidden" style={{ background: "rgba(240,236,228,0.06)" }}>
-                  <div style={{ width: `${item.percent}%`, background: item.color, height: "100%" }} />
-                </div>
-              </div>
-            ))}
+          {/* Barra horizontal */}
+          <div>
+            <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>QUANTIDADE POR NIVEL</p>
+            <HBar
+              rows={q4Rows}
+              dataKey="qtd_deputados"
+              labelFormatter={(v) => fmtNum(v)}
+              tooltipFormatter={(v, _n, p) => [`${fmtNum(Number(v))} deputados`, text(p.payload, "escolaridade")]}
+              empty="Sem dados de distribuicao."
+            />
           </div>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.07)" }}>
-          {educationSummary.map((item) => (
-            <div key={item.label} className="bg-background px-6 py-7">
-              <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
-                {item.label}
-              </p>
-              <p className="mb-0.5 text-2xl font-black text-primary" style={{ fontFamily: SERIF }}>
-                {item.value}
-              </p>
-              <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                {item.note}
-              </p>
-            </div>
+        {/* Legenda de cores */}
+        <div className="mt-8 flex flex-wrap gap-2">
+          {q4Rows.map((r) => (
+            <span key={text(r, "escolaridade")}
+              className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2 py-1 text-xs"
+              style={{ background: "#111", fontFamily: MONO }}>
+              <span className="inline-block h-2 w-2 rounded-full" style={{ background: eduColor(text(r, "escolaridade")) }} />
+              {text(r, "escolaridade")}
+            </span>
           ))}
         </div>
       </section>
 
-      <section className="border-b border-border px-6 py-16 md:px-14">
-        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-          DEPUTADOS
-        </p>
-        <h2 className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-          Escolaridade por deputado
-        </h2>
-        <p className="mb-8 max-w-lg text-sm text-muted-foreground">
-          Busque um deputado pelo nome, partido ou nível de escolaridade.
-        </p>
+      {/* ── 4.1 CONSULTA INDIVIDUAL ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+        <SectionHeader
+          n="4.1"
+          tag="CONSULTA INDIVIDUAL"
+          title="Qual é a escolaridade do seu deputado?"
+          desc={`Pesquise pelo nome. Dados de ${q4DeputyRows.length} deputados da 57ª legislatura, incluindo titulares e suplentes que exerceram o mandato.`}
+        />
 
-        <div className="relative mb-8 max-w-xl">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-            ⌕
-          </span>
-          <input
-            value={depQuery}
-            onChange={(event) => {
-              setDepQuery(event.target.value);
-              setSelectedDep(null);
-              setDepDropOpen(true);
-            }}
-            onFocus={() => setDepDropOpen(true)}
-            placeholder="Nome, partido ou nível (ex: Doutorado)..."
-            className="w-full border border-border bg-card py-3.5 pl-10 pr-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-          />
-          {depQuery ? (
-            <button
-              onClick={() => {
-                setDepQuery("");
-                setSelectedDep(null);
-                setDepDropOpen(false);
-              }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-            >
-              x
-            </button>
-          ) : null}
-          {depDropOpen ? (
-            <div className="absolute left-0 right-0 top-full z-20 max-h-64 overflow-y-auto border border-border" style={{ background: "#141414" }}>
-              {deputyList.map((deputy) => (
-                <button
-                  key={deputy.id}
-                  onClick={() => {
-                    setSelectedDep(deputy);
-                    setDepQuery(deputy.name);
-                    setDepDropOpen(false);
-                  }}
-                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
-                >
-                  <div className="h-9 w-9 flex-shrink-0 overflow-hidden">
-                    <img src={educationImageUrl(deputy.img, 72, 72)} alt={deputy.name} className="h-full w-full object-cover" style={{ filter: "grayscale(40%)" }} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                      {deputy.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                      {deputy.party} · {deputy.state} · <span style={{ color: educationColor(deputy.education) }}>{deputy.education}</span>
-                    </p>
-                  </div>
-                </button>
-              ))}
-              {depQuery && filteredDeps.length === 0 ? (
-                <p className="px-4 py-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  NENHUM RESULTADO
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
+        <div className="max-w-[640px]">
+          {/* Campo de busca com dropdown */}
+          <div className="relative">
+            <input
+              type="text"
+              value={depSearch}
+              onChange={(e) => { setDepSearch(e.target.value); setDepDropOpen(true); if (!e.target.value) setSelectedDep(null); }}
+              onFocus={() => setDepDropOpen(true)}
+              onBlur={() => setTimeout(() => setDepDropOpen(false), 180)}
+              placeholder="Nome do deputado..."
+              className="h-14 w-full border bg-transparent px-5 text-[15px] outline-none"
+              style={{ borderColor: "rgba(240,236,228,0.18)", color: "#f0ece4", fontFamily: MONO }}
+            />
 
-        {selectedDep ? (
-          <div className="relative mb-8 overflow-hidden border border-border" style={{ background: "#111111" }}>
-            <div className="grid md:grid-cols-3">
-              <div className="relative min-h-60 overflow-hidden">
-                <img src={educationImageUrl(selectedDep.img, 600, 480)} alt={selectedDep.name} className="absolute inset-0 h-full w-full object-cover object-top" style={{ filter: "grayscale(30%) contrast(1.05)" }} />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(17,17,17,0) 60%, rgba(17,17,17,0.9) 100%)" }} />
+            {depDropOpen && depSearch.trim() ? (
+              <div
+                className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 border"
+                style={{ borderColor: "rgba(240,236,228,0.14)", background: "#141414" }}
+              >
+                {depSuggestions.length === 0 ? (
+                  <p className="px-4 py-4 text-xs uppercase text-muted-foreground" style={{ fontFamily: MONO }}>
+                    Nenhum resultado para "{depSearch}"
+                  </p>
+                ) : (
+                  depSuggestions.map((dep) => (
+                    <button
+                      key={text(dep, "id_deputado")}
+                      type="button"
+                      onMouseDown={() => {
+                        setSelectedDep(dep);
+                        setDepSearch(text(dep, "nome"));
+                        setDepDropOpen(false);
+                      }}
+                      className="flex w-full items-center gap-4 border-b px-4 py-3 text-left transition-colors hover:bg-white/5"
+                      style={{ borderColor: "rgba(240,236,228,0.08)" }}
+                    >
+                      <img
+                        src={depPhotoUrl(text(dep, "id_deputado"))}
+                        alt=""
+                        className="h-11 w-9 shrink-0 object-cover object-top"
+                        style={{ filter: "grayscale(55%) contrast(1.08)" }}
+                        onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <strong className="block truncate text-[15px]" style={{ color: "#f0ece4", fontFamily: SERIF }}>
+                          {text(dep, "nome")}
+                        </strong>
+                        <small className="mt-0.5 flex items-center gap-1.5 text-[10px] uppercase" style={{ fontFamily: MONO, letterSpacing: "0.12em" }}>
+                          <span className="inline-block h-1.5 w-1.5 rounded-full shrink-0" style={{ background: eduColor(text(dep, "escolaridade")) }} />
+                          <span style={{ color: eduColor(text(dep, "escolaridade")) }}>{text(dep, "escolaridade") || "Nao informado"}</span>
+                          <span className="text-muted-foreground">· ID {text(dep, "id_deputado")}</span>
+                        </small>
+                      </span>
+                      <span className="shrink-0 text-[10px] uppercase" style={{ color: RED, fontFamily: MONO, letterSpacing: "0.16em" }}>Ver</span>
+                    </button>
+                  ))
+                )}
               </div>
-              <div className="flex flex-col justify-center px-8 py-8 md:col-span-2">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="bg-primary px-2 py-0.5 text-xs text-primary-foreground" style={{ fontFamily: MONO }}>
-                    {selectedDep.party}
-                  </span>
-                  <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                    {selectedDep.state}
-                  </span>
-                </div>
-                <h3 className="mb-6 text-3xl font-black text-foreground" style={{ fontFamily: SERIF }}>
-                  {selectedDep.name}
-                </h3>
+            ) : null}
+          </div>
 
-                <div className="grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.07)" }}>
-                  {[
-                    { label: "ESCOLARIDADE", value: selectedDep.education, color: educationColor(selectedDep.education) },
-                    { label: "FORMAÇÃO", value: selectedDep.course, color: "#f0ece4" },
-                    { label: "INSTITUIÇÃO", value: selectedDep.institution, color: "#f0ece4" },
-                  ].map((item) => (
-                    <div key={item.label} className="bg-background px-4 py-5">
-                      <p className="mb-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                        {item.label}
-                      </p>
-                      <p className="text-base font-black leading-tight" style={{ fontFamily: SERIF, color: item.color }}>
-                        {item.value}
+          {/* Card do deputado selecionado */}
+          {selectedDep ? (() => {
+            const id = text(selectedDep, "id_deputado");
+            const nome = text(selectedDep, "nome");
+            const nivel = text(selectedDep, "escolaridade") || "Nao informado";
+            const color = eduColor(nivel);
+            return (
+              <div className="mt-6 border border-border" style={{ background: "#111", borderLeft: `4px solid ${color}` }}>
+                <div className="flex items-start gap-0">
+                  {/* Foto */}
+                  <div className="relative shrink-0 overflow-hidden" style={{ width: 120, minHeight: 160, background: "#1a1a1a" }}>
+                    <img
+                      src={depPhotoUrl(id)}
+                      alt={nome}
+                      className="h-full w-full object-cover object-top"
+                      style={{ minHeight: 160, filter: "grayscale(20%) contrast(1.06)" }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const sib = e.currentTarget.nextElementSibling as HTMLElement | null;
+                        if (sib) sib.style.display = "flex";
+                      }}
+                    />
+                    <div className="hidden h-full w-full items-center justify-center" style={{ minHeight: 160 }}>
+                      <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: `${color}55` }}>
+                        {nome.charAt(0)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex flex-1 flex-col justify-between gap-4 p-6">
+                    <div>
+                      <h3 className="text-xl font-black leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                        {nome}
+                      </h3>
+                      <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                        ID {id}
                       </p>
                     </div>
-                  ))}
-                </div>
 
-                <div className="mt-6 inline-flex flex-wrap items-center gap-3">
-                  <span className="h-3 w-3 rounded-full" style={{ background: educationColor(selectedDep.education) }} />
-                  <span className="text-sm font-bold" style={{ color: educationColor(selectedDep.education), fontFamily: SERIF }}>
-                    {selectedDep.education}
-                  </span>
-                  <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                    {totalEducation.find((item) => item.level === selectedDep.education)?.percent ?? "-"}% dos deputados têm este nível
-                  </span>
+                    <div>
+                      <p className="mb-1 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>ESCOLARIDADE</p>
+                      <span
+                        className="inline-flex items-center gap-2 border px-3 py-2 text-sm font-bold"
+                        style={{ borderColor: `${color}44`, background: `${color}18`, color, fontFamily: MONO }}
+                      >
+                        <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
+                        {nivel}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedDep(null); setDepSearch(""); }}
+                      className="self-start text-xs text-muted-foreground transition-colors hover:text-foreground"
+                      style={{ fontFamily: MONO }}
+                    >
+                      ✕ LIMPAR
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ) : null}
-
-        <div className="overflow-x-auto">
-          <div className="flex min-w-[860px] flex-col gap-px border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
-            <div className="grid grid-cols-5 gap-4 bg-background px-6 py-3">
-              {["DEPUTADO", "PARTIDO · UF", "ESCOLARIDADE", "FORMAÇÃO", "INSTITUIÇÃO"].map((heading) => (
-                <span key={heading} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  {heading}
-                </span>
-              ))}
-            </div>
-            {deputyList.map((deputy) => (
-              <button
-                key={deputy.id}
-                onClick={() => {
-                  setSelectedDep(deputy);
-                  setDepQuery(deputy.name);
-                  setDepDropOpen(false);
-                }}
-                className="grid grid-cols-5 items-center gap-4 bg-background px-6 py-3.5 text-left transition-colors hover:bg-card"
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="h-8 w-8 flex-shrink-0 overflow-hidden">
-                    <img src={educationImageUrl(deputy.img, 64, 64)} alt={deputy.name} className="h-full w-full object-cover" style={{ filter: "grayscale(40%)" }} />
-                  </div>
-                  <span className="truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                    {deputy.name}
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  {deputy.party} · {deputy.state}
-                </span>
-                <span className="text-xs font-bold" style={{ fontFamily: MONO, color: educationColor(deputy.education) }}>
-                  {deputy.education}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">{deputy.course}</span>
-                <span className="text-xs text-muted-foreground">{deputy.institution}</span>
-              </button>
-            ))}
-          </div>
+            );
+          })() : (
+            <p className="mt-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              Digite o nome para buscar. Ex: "Kim Kataguiri", "Erika Santos"
+            </p>
+          )}
         </div>
       </section>
 
-      <section className="px-6 py-16 md:px-14">
-        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-          PARTIDOS
+      {/* ── 6a GASTOS ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14">
+        <SectionHeader
+          n="6a"
+          tag="ESCOLARIDADE × GASTOS"
+          title="Deputados mais escolarizados gastam mais?"
+          desc="Media de gasto total com verba indenizatória (CEAP) por nivel de escolaridade, considerando todos os anos do periodo."
+        />
+
+        <HBar
+          rows={gastoRows}
+          dataKey="media_gasto"
+          labelFormatter={(v) => fmtCurrency(v)}
+          tooltipFormatter={(v, _n, p) => [fmtCurrency(Number(v)), text(p.payload, "escolaridade")]}
+          empty="Sem dados de gastos por escolaridade."
+        />
+
+        <p className="mt-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+          * Media calculada sobre todos os deputados do nivel no periodo 2023-2026.
         </p>
-        <h2 className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-          Escolaridade por partido
-        </h2>
-        <p className="mb-8 max-w-lg text-sm text-muted-foreground">
-          Selecione um partido para ver a distribuição do nível educacional dos seus deputados.
-        </p>
+      </section>
 
-        <div className="relative mb-8 max-w-xl">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-            ⌕
-          </span>
-          <input
-            value={partyQuery}
-            onChange={(event) => {
-              setPartyQuery(event.target.value);
-              setSelectedParty(null);
-              setPartyDropOpen(true);
-            }}
-            onFocus={() => setPartyDropOpen(true)}
-            placeholder="Sigla ou nome do partido..."
-            className="w-full border border-border bg-card py-3.5 pl-10 pr-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-          />
-          {partyQuery ? (
-            <button
-              onClick={() => {
-                setPartyQuery("");
-                setSelectedParty(null);
-                setPartyDropOpen(false);
-              }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-            >
-              x
-            </button>
-          ) : null}
-          {partyDropOpen ? (
-            <div className="absolute left-0 right-0 top-full z-20 border border-border" style={{ background: "#141414" }}>
-              {(partyQuery ? filteredParties : partyEducation).map((party) => (
-                <button
-                  key={party.id}
-                  onClick={() => {
-                    setSelectedParty(party);
-                    setPartyQuery(party.full);
-                    setPartyDropOpen(false);
-                  }}
-                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
-                >
-                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-xs font-black" style={{ background: party.color, fontFamily: SERIF, color: "#f0ece4" }}>
-                    {party.name}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>
-                      {party.full}
-                    </p>
-                    <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                      {party.seats} deputados
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
+      {/* ── 6b FIDELIDADE ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+        <SectionHeader
+          n="6b"
+          tag="ESCOLARIDADE × FIDELIDADE PARTIDARIA"
+          title="Formação influencia a disciplina de voto?"
+          desc="Media do percentual de votos alinhados com a orientacao do partido por nivel de instrucao. Exclui votacoes sem orientacao registrada."
+        />
 
-        {selectedParty ? (
-          <div className="mb-10">
-            <div className="mb-8 flex items-center gap-4 border-l-4 pl-5" style={{ borderColor: selectedParty.color }}>
-              <span className="flex h-16 w-16 flex-shrink-0 items-center justify-center text-2xl font-black" style={{ background: selectedParty.color, fontFamily: SERIF, color: "#f0ece4" }}>
-                {selectedParty.name}
-              </span>
-              <div>
-                <p className="text-2xl font-black text-foreground" style={{ fontFamily: SERIF }}>
-                  {selectedParty.full}
+        <HBar
+          rows={fidelRows}
+          dataKey="media_fidelidade"
+          labelFormatter={(v) => fmtPct(v)}
+          tooltipFormatter={(v, _n, p) => [fmtPct(Number(v)), text(p.payload, "escolaridade")]}
+          empty="Sem dados de fidelidade por escolaridade."
+        />
+      </section>
+
+      {/* ── 6c PROPOSIÇÕES ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14">
+        <SectionHeader
+          n="6c"
+          tag="ESCOLARIDADE × PRODUCAO LEGISLATIVA"
+          title="Quem apresenta mais proposições?"
+          desc="Media de proposicoes apresentadas por deputado por nivel de instrucao. Mede o volume de producao legislativa."
+        />
+
+        <HBar
+          rows={propRows}
+          dataKey="media_proposicoes"
+          labelFormatter={(v) => fmtNum(v)}
+          tooltipFormatter={(v, _n, p) => [`${fmtNum(Number(v))} proposicoes/dep`, text(p.payload, "escolaridade")]}
+          empty="Sem dados de proposicoes por escolaridade."
+        />
+      </section>
+
+      {/* ── 6d PRESENÇA EM EVENTOS ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+        <SectionHeader
+          n="6d"
+          tag="ESCOLARIDADE × PRESENCA EM EVENTOS"
+          title="Quem aparece mais nas comissões e eventos?"
+          desc="Media de presenças em eventos parlamentares (reunioes de comissao, audiencias, etc.) por nivel de instrucao."
+        />
+
+        <HBar
+          rows={eventosRows}
+          dataKey="media_presenca_eventos"
+          labelFormatter={(v) => fmtNum(v)}
+          tooltipFormatter={(v, _n, p) => [`${fmtNum(Number(v))} eventos/dep`, text(p.payload, "escolaridade")]}
+          empty="Sem dados de presenca em eventos."
+        />
+      </section>
+
+      {/* ── 6e PRESENÇA NO PLENÁRIO ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14">
+        <SectionHeader
+          n="6e"
+          tag="ESCOLARIDADE × PRESENCA NO PLENARIO"
+          title="Quem frequenta mais o plenário?"
+          desc="Media de presenças em votacoes no plenario por nivel de instrucao. Exclui ausencias e outros registros nao binarios."
+        />
+
+        <HBar
+          rows={plenarioRows}
+          dataKey="media_presenca_plenario"
+          labelFormatter={(v) => fmtNum(v)}
+          tooltipFormatter={(v, _n, p) => [`${fmtNum(Number(v))} sessoes/dep`, text(p.payload, "escolaridade")]}
+          empty="Sem dados de presenca no plenario."
+        />
+      </section>
+
+      {/* ── EVOLUÇÃO POR ANO ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+        <SectionHeader
+          n="6f"
+          tag="EVOLUCAO ANUAL"
+          title="Como os indicadores evoluíram ao longo dos anos?"
+          desc={`Dados para os anos ${anos.join(", ")} — comparacao interanual dos principais indicadores por nivel de instrucao.`}
+        />
+
+        {anos.length && q6MainRows.length ? (
+          <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+            <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+              <thead style={{ background: "#0a0a0a" }}>
+                <tr>
+                  {["Ano", "Escolaridade", "Qtd Dep", "Media Gasto", "Media Fidelidade", "Media Proposicoes", "Presenca Eventos", "Presenca Plenario"].map((col) => (
+                    <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {q6MainRows.map((row, i) => (
+                  <tr key={i} className="border-t border-border hover:bg-[#181818]">
+                    <td className="whitespace-nowrap px-4 py-2 text-muted-foreground">{text(row, "ano_dados")}</td>
+                    <td className="whitespace-nowrap px-4 py-2">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: eduColor(text(row, "escolaridade")) }} />
+                        {text(row, "escolaridade")}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-right">{fmtNum(raw(row, "qtd_deputados"))}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-right">{raw(row, "media_gasto") ? fmtCurrency(raw(row, "media_gasto")) : "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-right">{raw(row, "media_fidelidade") ? fmtPct(raw(row, "media_fidelidade")) : "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-right">{raw(row, "media_proposicoes") ? fmtNum(raw(row, "media_proposicoes")) : "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-right">{raw(row, "media_presenca_eventos") ? fmtNum(raw(row, "media_presenca_eventos")) : "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-right">{raw(row, "media_presenca_plenario") ? fmtNum(raw(row, "media_presenca_plenario")) : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : <EmptyPanel text="Sem dados de evolucao anual." />}
+      </section>
+
+      {/* ── ETA COMPLEMENTAR ── */}
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#070707" }}>
+        <SectionHeader
+          n="η²"
+          tag="ETA COMPLEMENTAR"
+          title="Qual a força real da associação entre escolaridade e desempenho?"
+          desc="O η² (eta quadrado) mede quanto da variação em cada indicador parlamentar é explicada pela escolaridade. Escolaridade é variável categórica; os indicadores são numéricos."
+        />
+
+        {/* Gráfico de barras horizontais com η² */}
+        {q6EtaRows.length > 0 ? (() => {
+          const ETA_INTERP_COLOR: Record<string, string> = {
+            "associacao fraca": "#c4813a",
+            "associacao muito fraca": "#555",
+          };
+          const barData = [...q6EtaRows]
+            .sort((a, b) => raw(b, "eta_quadrado") - raw(a, "eta_quadrado"))
+            .map((r) => ({
+              name: text(r, "indicador").replace(/_/g, " "),
+              eta: raw(r, "eta_quadrado"),
+              registros: raw(r, "registros_validos"),
+              interpretacao: text(r, "interpretacao").trim(),
+              fill: ETA_INTERP_COLOR[text(r, "interpretacao").trim()] ?? "#888",
+            }));
+
+          return (
+            <div className="space-y-8">
+              {/* Gráfico */}
+              <div className="border border-border p-6" style={{ background: "#0e0e0e" }}>
+                <p className="mb-4 text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
+                  η² POR INDICADOR — quanto da variação é explicada pela escolaridade
                 </p>
-                <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                  {partyTotal} deputados com dados de escolaridade
-                </p>
-              </div>
-            </div>
-
-            <div className="grid items-start gap-10 md:grid-cols-2">
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={partyChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <XAxis dataKey="label" tick={{ fill: "#888880", fontSize: 9, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }} formatter={(value: TooltipValue) => [`${value} deputados`, ""]} />
-                    <Bar dataKey="value" radius={[2, 2, 0, 0]} maxBarSize={48}>
-                      {partyChartData.map((item) => (
-                        <Cell key={item.label} fill={item.color} />
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    layout="vertical"
+                    data={barData}
+                    margin={{ top: 0, right: 80, bottom: 0, left: 160 }}
+                    barCategoryGap="30%"
+                  >
+                    <XAxis
+                      type="number"
+                      domain={[0, 0.016]}
+                      tickFormatter={(v: number) => v.toFixed(4)}
+                      tick={{ fill: "rgba(240,236,228,0.4)", fontSize: 10, fontFamily: MONO }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      width={155}
+                      tick={{ fill: "rgba(240,236,228,0.7)", fontSize: 11, fontFamily: MONO }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.12)", fontFamily: MONO, fontSize: 11 }}
+                      formatter={(v: number, _: string, entry: { payload?: { interpretacao?: string; registros?: number } }) => [
+                        `η² = ${v.toFixed(4)}  ·  ${entry.payload?.interpretacao ?? ""}  ·  ${entry.payload?.registros ?? 0} registros`,
+                        "Força",
+                      ]}
+                      labelFormatter={() => ""}
+                    />
+                    <Bar dataKey="eta" radius={[0, 2, 2, 0]}>
+                      {barData.map((d, i) => (
+                        <Cell key={i} fill={d.fill} />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+
+                {/* Linha de referência textual */}
+                <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block h-2 w-6 rounded" style={{ background: "#c4813a" }} />
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Associação fraca (η² ≈ 0.01–0.05)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block h-2 w-6 rounded" style={{ background: "#555" }} />
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Associação muito fraca (η² &lt; 0.01)</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-3">
-                {partyChartData.map((item) => {
-                  const percent = partyTotal > 0 ? Math.round((item.value / partyTotal) * 100) : 0;
-                  return (
-                    <div key={item.label}>
-                      <div className="mb-1 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 flex-shrink-0 rounded-full" style={{ background: item.color }} />
-                          <span className="text-xs text-foreground">{item.fullLabel}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold" style={{ fontFamily: MONO, color: item.color }}>
-                            {percent}%
-                          </span>
-                          <span className="w-12 text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-                            {item.value} dep.
-                          </span>
-                        </div>
-                      </div>
-                      <div className="h-1.5 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)" }}>
-                        <div style={{ width: `${percent}%`, background: item.color, height: "100%" }} />
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* Tabela de valores */}
+              <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+                <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+                  <thead style={{ background: "#0a0a0a" }}>
+                    <tr>
+                      {["Indicador", "Registros válidos", "Grupos", "η²", "Interpretação"].map((col) => (
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {barData.map((row, i) => (
+                      <tr key={i} className="border-t border-border">
+                        <td className="px-4 py-2.5 font-medium" style={{ color: "#f0ece4" }}>{row.name}</td>
+                        <td className="px-4 py-2.5 text-right text-muted-foreground">{fmtNum(row.registros)}</td>
+                        <td className="px-4 py-2.5 text-right text-muted-foreground">
+                          {fmtNum(raw(q6EtaRows.find((r) => text(r, "indicador").replace(/_/g, " ") === row.name) ?? {}, "grupos_escolaridade"))}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-bold" style={{ color: row.fill }}>{row.eta.toFixed(4)}</td>
+                        <td className="px-4 py-2.5" style={{ color: row.fill }}>{row.interpretacao}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Conclusão */}
+              <div className="border border-border p-6" style={{ background: "#0e0e0e", borderLeft: `4px solid ${RED}` }}>
+                <p className="mb-2 text-xs font-bold uppercase tracking-[0.24em]" style={{ color: RED, fontFamily: MONO }}>Conclusão estatística</p>
+                <p className="text-sm leading-relaxed text-muted-foreground" style={{ fontFamily: MONO }}>
+                  Todos os η² ficam abaixo de 0,02 — na prática, a escolaridade explica menos de 2% da variação em qualquer
+                  indicador parlamentar. A análise estatística confirma o que as médias sugerem: <strong style={{ color: "#f0ece4" }}>
+                  partido, ideologia e trajetória política importam muito mais do que o grau de instrução</strong> para
+                  prever gastos, fidelidade, produção legislativa ou presença parlamentar.
+                </p>
               </div>
             </div>
-          </div>
-        ) : null}
+          );
+        })() : <EmptyPanel text="Dados de eta quadrado nao disponíveis. Verifique o arquivo q6_eta_complementar.txt." />}
+      </section>
 
-        <p className="mb-6 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-          TABELA COMPARATIVA - TODOS OS PARTIDOS
-        </p>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[780px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="px-4 py-3 text-left text-xs text-muted-foreground" style={{ fontFamily: MONO }}>PARTIDO</th>
-                {educationLevels.map((level) => (
-                  <th key={level.key} className="whitespace-nowrap px-3 py-3 text-right text-xs" style={{ fontFamily: MONO, color: level.color }}>
-                    {level.label.split(" ")[0]}
-                  </th>
-                ))}
-                <th className="px-4 py-3 text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>TOTAL</th>
-              </tr>
-            </thead>
-            <tbody>
-              {partyEducation.map((party) => {
-                const total = party.values.reduce((sum, value) => sum + value, 0);
-                return (
-                  <tr
-                    key={party.id}
-                    className="cursor-pointer border-b border-border transition-colors hover:bg-card"
-                    onClick={() => {
-                      setSelectedParty(party);
-                      setPartyQuery(party.full);
-                      setPartyDropOpen(false);
-                    }}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full" style={{ background: party.color }} />
-                        <span className="text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{party.name}</span>
-                      </div>
-                    </td>
-                    {party.values.map((value, index) => (
-                      <td key={`${party.id}-${educationLevels[index]?.key ?? index}`} className="px-3 py-3 text-right text-sm" style={{ fontFamily: MONO, color: value > 0 ? educationColors[index] : "#333333" }}>
-                        {value > 0 ? value : "-"}
-                      </td>
-                    ))}
-                    <td className="px-4 py-3 text-right text-sm font-bold text-foreground" style={{ fontFamily: MONO }}>
-                      {total}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      {/* ── METODOLOGIA ── */}
+      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "#080808" }}>
+        <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA</p>
+
+        <CollapsibleMethod n="4" title="DISTRIBUICAO POR ESCOLARIDADE" sub="Como classificamos o nivel de instrucao de cada deputado"
+          open={!!methOpen["4"]} onToggle={() => toggleMeth("4")}>
+          <MethodSteps steps={[
+            { n: "01", title: "Fonte dos dados", body: "A escolaridade vem do cadastro oficial de deputados da Camara dos Deputados, acessado via API publica (dados abertos). O campo e declarado pelo proprio parlamentar no momento do registro." },
+            { n: "02", title: "Deputados unicos", body: "Contamos deputados unicos da 57a legislatura (2023-2026). Um mesmo deputado que mudou de partido durante o mandato e contado apenas uma vez, com a escolaridade do seu registro mais recente." },
+            { n: "03", title: "Nao informado", body: "Deputados sem escolaridade registrada no sistema foram agrupados na categoria 'Nao informado'. Isso pode indicar omissao voluntaria ou ausencia no cadastro." },
+          ]} />
+        </CollapsibleMethod>
+
+        <CollapsibleMethod n="6a" title="ESCOLARIDADE × GASTOS" sub="Como correlacionamos instrucao com despesas parlamentares"
+          open={!!methOpen["6a"]} onToggle={() => toggleMeth("6a")}>
+          <MethodSteps steps={[
+            { n: "01", title: "Base de gastos", body: "Utilizamos a tabela de Cota para Exercicio da Atividade Parlamentar (CEAP), que registra todas as despesas reembolsadas aos deputados com recursos publicos." },
+            { n: "02", title: "Agregacao por deputado-ano", body: "Somamos todos os gastos de cada deputado em cada ano. Isso cria um registro de gasto_total por (id_deputado, ano)." },
+            { n: "03", title: "Media por escolaridade", body: "Calculamos a media de gasto_total de todos os deputados dentro de cada nivel de escolaridade, ponderando igualmente todos os anos com dados." },
+          ]} />
+        </CollapsibleMethod>
+
+        <CollapsibleMethod n="6b" title="ESCOLARIDADE × FIDELIDADE PARTIDARIA" sub="Como medimos o alinhamento de voto com o partido"
+          open={!!methOpen["6b"]} onToggle={() => toggleMeth("6b")}>
+          <MethodSteps steps={[
+            { n: "01", title: "Orientacoes de bancada", body: "Para cada votacao com diretriz partidaria registrada, comparamos o voto do deputado com a orientacao oficial da bancada." },
+            { n: "02", title: "Calculo de fidelidade", body: "Fidelidade = (votos seguindo orientacao / total de votos com orientacao) x 100. Votacoes sem orientacao (Liberado, Abstencao) sao excluidas." },
+            { n: "03", title: "Media por escolaridade", body: "Calculamos a media do indice de fidelidade de todos os deputados dentro de cada nivel de escolaridade." },
+          ]} />
+        </CollapsibleMethod>
+
+        <CollapsibleMethod n="6c" title="ESCOLARIDADE × PRODUCAO LEGISLATIVA" sub="Como medimos o volume de proposicoes"
+          open={!!methOpen["6c"]} onToggle={() => toggleMeth("6c")}>
+          <MethodSteps steps={[
+            { n: "01", title: "Proposicoes registradas", body: "Contamos todas as proposicoes (PL, PEC, REQ, MPV, etc.) das quais o deputado e primeiro autor, conforme registros da base legislativa da Camara." },
+            { n: "02", title: "Normalizacao por ano", body: "O numero de proposicoes e normalizado por ano para permitir comparacao entre deputados com diferentes periodos de mandato." },
+            { n: "03", title: "Media por escolaridade", body: "A media de proposicoes por deputado e calculada dentro de cada nivel de escolaridade, agregando todos os anos disponiveis." },
+          ]} />
+        </CollapsibleMethod>
+
+        <CollapsibleMethod n="6d/6e" title="ESCOLARIDADE × PRESENCA" sub="Como medimos a frequencia parlamentar"
+          open={!!methOpen["6de"]} onToggle={() => toggleMeth("6de")}>
+          <MethodSteps steps={[
+            { n: "01", title: "Presenca em eventos", body: "Contamos os registros de presenca em reunioes de comissao, audiencias publicas, seminarios e demais eventos parlamentares registrados no sistema da Camara." },
+            { n: "02", title: "Presenca no plenario", body: "Contamos os votos efetivos (Sim ou Nao) registrados em votacoes nominais no plenario. Abstencoes e obstrucoes sao excluidas da contagem de presenca." },
+            { n: "03", title: "Media por escolaridade", body: "Para cada nivel de instrucao, calculamos a media de eventos/sessoes por deputado ao longo do periodo 2023-2026." },
+          ]} />
+        </CollapsibleMethod>
+
+        <CollapsibleMethod n="η²" title="ETA QUADRADO — FORCA DA ASSOCIACAO" sub="Por que usamos η² para medir a relacao entre escolaridade e indicadores"
+          open={!!methOpen["eta"]} onToggle={() => toggleMeth("eta")}>
+          <MethodSteps steps={[
+            { n: "01", title: "Por que η² e nao correlacao de Pearson", body: "A correlacao de Pearson exige duas variaveis numericas. Escolaridade e categorica (nominal ordenada), entao usamos o η² (eta quadrado), que compara a variancia entre grupos com a variancia total." },
+            { n: "02", title: "Formula", body: "η² = SS_between / SS_total. SS_between = variacao explicada pelas diferencas entre grupos de escolaridade. SS_total = variacao total do indicador na amostra inteira. O resultado e um numero entre 0 e 1." },
+            { n: "03", title: "Interpretacao dos valores", body: "η² < 0,01 = associacao negligenciavel. 0,01–0,06 = fraca. 0,06–0,14 = moderada. > 0,14 = forte. Todos os indicadores desta analise ficaram abaixo de 0,02, indicando que escolaridade explica menos de 2% da variacao observada." },
+            { n: "04", title: "Limitacoes", body: "η² e sensivel ao numero de grupos e ao tamanho da amostra. Grupos com poucos deputados (ex: Doutorado = 5 deputados) podem inflar ou deflacionar o valor. Os resultados devem ser interpretados com cautela para niveis de instrucao com menos de 30 representantes." },
+          ]} />
+        </CollapsibleMethod>
       </section>
     </div>
   );

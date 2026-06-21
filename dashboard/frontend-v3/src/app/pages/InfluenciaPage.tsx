@@ -3,6 +3,7 @@ import * as echarts from "echarts";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
+import PageHero from "../components/PageHero";
 import type { FilterChoice, QuestionPayload } from "../types";
 
 type InfluenciaPageProps = {
@@ -404,17 +405,14 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
     <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0d0d0d" }}>
-        <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>06 - INFLUENCIA</p>
-        <h1 className="mb-4 font-black leading-none" style={{ fontFamily: SERIF, color: "#f0ece4", fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
-          Influencia
-          <br />
-          <span style={{ color: RED }}>grupos e partidos</span>
-        </h1>
-        <p className="max-w-3xl text-base leading-relaxed text-muted-foreground">
-          Comunidades de comportamento de voto da Q8 e disciplina partidaria da Q10 em uma leitura integrada: quem vota junto, quais grupos emergem e qual partido consegue alinhar melhor sua bancada.
-        </p>
-      </section>
+      <PageHero
+        n="6"
+        tag="INFLUENCIA"
+        title="Influencia"
+        titleRed="grupos e partidos"
+        desc="Comunidades de comportamento de voto da Q8 e disciplina partidaria da Q10 em uma leitura integrada: quem vota junto, quais grupos emergem e qual partido consegue alinhar melhor sua bancada."
+        imgId="/fundorecortes/recorte6/questao6.png"
+      />
 
       {error ? (
         <section className="px-6 py-10 md:px-14">

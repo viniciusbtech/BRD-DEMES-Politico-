@@ -368,8 +368,22 @@ class Q4Adapter(QuestionAdapter):
             state=state,
         )
 
-        # Tabela complementar para compatibilidade com a API
-        complement_specs = self._build_complements(state)
+        # Tabela complementar: lista completa de deputados para busca no frontend (sem cap de 100)
+        dep_sorted = sorted(deputy_records, key=lambda r: str(r.get("nome", "")))
+        dep_state = FilterState(
+            anos=[], eixos=[], partidos=[], ufs=[], deputados=[],
+            escolaridade=[], search=None, sort_by="nome", sort_dir="asc",
+            page=1, page_size=1000,
+        )
+        complement_specs = [
+            self._build_table_spec(
+                title="Lista de deputados por escolaridade",
+                columns=["escolaridade", "id_deputado", "nome"],
+                rows=dep_sorted[:1000],
+                total=len(dep_sorted),
+                state=dep_state,
+            )
+        ]
 
         has_data = table_spec.total > 0
         empty = EmptyState(
@@ -859,14 +873,17 @@ class Q9Adapter(QuestionAdapter):
         )
 
     def _build_complements(self, state: FilterState) -> list[TableSpec]:
-        """Expoe Q9.2 (correlacao) e Q9.3 (voto individual) como tabelas complementares."""
+        """Expoe Q9.2 (correlacao), Q9.3 (voto individual), Q9.4 (polarizadas) e Q9.5 (score vies)."""
         specs: list[TableSpec] = []
-        # Q9.2 — pct de Sim por campo ideologico
         q92 = _find_table_by_hint(self.complement_tables, "correlacao")
-        # Q9.3 — voto individual
-        q93 = _find_table_by_hint(self.complement_tables, "voto individual")
+        q93 = _find_table_by_hint(self.complement_tables, "resumo consolidado")
+        q94 = _find_table_by_hint(self.complement_tables, "polarizadas")
+        q95 = _find_table_by_hint(self.complement_tables, "score vies")
 
-        for table in [q92, q93]:
+        # Q9.3 e Q9.5 precisam de mais linhas (busca de deputados no frontend)
+        large_page_tables = {id(q93), id(q95)}
+
+        for table in [q92, q93, q94, q95]:
             if table is None:
                 continue
             filtered = FilterEngine.apply_filters(
@@ -875,7 +892,7 @@ class Q9Adapter(QuestionAdapter):
                 self.context.question.supported_filters,
             )
             sorted_rows = FilterEngine.apply_sort(filtered, state.sort_by, state.sort_dir)
-            page_size = min(state.page_size, 200)
+            page_size = min(state.page_size, 1000) if id(table) in large_page_tables else min(state.page_size, 200)
             paged = FilterEngine.apply_pagination(sorted_rows, 1, page_size)
             specs.append(
                 self._build_table_spec(

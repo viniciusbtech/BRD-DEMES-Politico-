@@ -120,6 +120,152 @@ GROUP BY sigla_partido, id_deputado, nome_deputado, ideologia
 ORDER BY sigla_partido, nome_deputado;
 
 -- =======================================================================
+-- Q9.4 - Votacoes polarizadas (divergencia esquerda x direita >= 30 pp)
+-- =======================================================================
+\qecho
+\qecho Q9.4 - votacoes polarizadas (divergencia esquerda vs direita)
+
+WITH votos_por_campo AS (
+    SELECT
+        vv.ano_dados,
+        vv.id_votacao,
+        pi.ideologia,
+        COUNT(*) FILTER (WHERE vv.voto = 'Sim')                              AS votos_sim,
+        COUNT(*) FILTER (WHERE vv.voto = 'Nao')                              AS votos_nao,
+        COUNT(*) FILTER (WHERE vv.voto IN ('Sim', 'Nao'))                    AS total_binario,
+        ROUND(
+            COUNT(*) FILTER (WHERE vv.voto = 'Sim') * 100.0
+            / NULLIF(COUNT(*) FILTER (WHERE vv.voto IN ('Sim', 'Nao')), 0), 1
+        )                                                                      AS pct_sim
+    FROM votacoes_votos vv
+    JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+    WHERE vv.voto IN ('Sim', 'Nao')
+    GROUP BY vv.ano_dados, vv.id_votacao, pi.ideologia
+),
+pivotado AS (
+    SELECT
+        ano_dados,
+        id_votacao,
+        MAX(pct_sim)     FILTER (WHERE ideologia = 'esquerda') AS pct_sim_esquerda,
+        MAX(pct_sim)     FILTER (WHERE ideologia = 'centro')   AS pct_sim_centro,
+        MAX(pct_sim)     FILTER (WHERE ideologia = 'direita')  AS pct_sim_direita,
+        SUM(total_binario)                                      AS total_votos
+    FROM votos_por_campo
+    GROUP BY ano_dados, id_votacao
+    HAVING MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda') IS NOT NULL
+       AND MAX(pct_sim) FILTER (WHERE ideologia = 'direita')  IS NOT NULL
+),
+objetos AS (
+    SELECT DISTINCT ON (ano_dados, id_votacao)
+        ano_dados, id_votacao, titulo_proposicao
+    FROM votacoes_objetos
+    ORDER BY ano_dados, id_votacao, id_votacao_objeto
+)
+SELECT
+    p.ano_dados,
+    p.id_votacao,
+    COALESCE(ob.titulo_proposicao, '(sem proposicao vinculada)') AS titulo_proposicao,
+    p.pct_sim_esquerda,
+    p.pct_sim_centro,
+    p.pct_sim_direita,
+    p.total_votos,
+    ABS(p.pct_sim_esquerda - p.pct_sim_direita)                  AS divergencia_esq_dir,
+    CASE
+        WHEN p.pct_sim_esquerda > p.pct_sim_direita THEN 'esquerda favoravel'
+        ELSE 'direita favoravel'
+    END                                                           AS campo_favoravel
+FROM pivotado p
+LEFT JOIN objetos ob
+    ON ob.ano_dados  = p.ano_dados
+   AND ob.id_votacao = p.id_votacao
+WHERE ABS(p.pct_sim_esquerda - p.pct_sim_direita) >= 30
+ORDER BY divergencia_esq_dir DESC, p.ano_dados, p.id_votacao;
+
+-- =======================================================================
+-- Q9.5 - Score de vies ideologico individual dos deputados
+--         0 = puro esquerda, 100 = puro direita
+--         baseado apenas em votacoes polarizadas (divergencia >= 30 pp)
+-- =======================================================================
+\qecho
+\qecho Q9.5 - score vies ideologico individual dos deputados
+
+WITH votos_por_campo AS (
+    SELECT
+        vv.ano_dados,
+        vv.id_votacao,
+        pi.ideologia,
+        ROUND(
+            COUNT(*) FILTER (WHERE vv.voto = 'Sim') * 100.0
+            / NULLIF(COUNT(*) FILTER (WHERE vv.voto IN ('Sim', 'Nao')), 0), 1
+        ) AS pct_sim
+    FROM votacoes_votos vv
+    JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+    WHERE vv.voto IN ('Sim', 'Nao')
+    GROUP BY vv.ano_dados, vv.id_votacao, pi.ideologia
+),
+votacoes_polarizadas AS (
+    SELECT
+        ano_dados,
+        id_votacao,
+        MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda') AS pct_esq,
+        MAX(pct_sim) FILTER (WHERE ideologia = 'direita')  AS pct_dir
+    FROM votos_por_campo
+    GROUP BY ano_dados, id_votacao
+    HAVING MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda') IS NOT NULL
+       AND MAX(pct_sim) FILTER (WHERE ideologia = 'direita')  IS NOT NULL
+       AND ABS(
+               MAX(pct_sim) FILTER (WHERE ideologia = 'esquerda')
+             - MAX(pct_sim) FILTER (WHERE ideologia = 'direita')
+           ) >= 30
+),
+voto_lado AS (
+    SELECT
+        vv.id_deputado,
+        vv.nome_deputado,
+        vv.sigla_partido,
+        pi.ideologia                                       AS ideologia_partido,
+        CASE
+            -- esquerda favorece (pct_esq > pct_dir): Sim = com esquerda
+            WHEN vp.pct_esq > vp.pct_dir AND vv.voto = 'Sim' THEN 'esquerda'
+            WHEN vp.pct_esq > vp.pct_dir AND vv.voto = 'Nao' THEN 'direita'
+            -- direita favorece: Sim = com direita
+            WHEN vp.pct_dir > vp.pct_esq AND vv.voto = 'Sim' THEN 'direita'
+            WHEN vp.pct_dir > vp.pct_esq AND vv.voto = 'Nao' THEN 'esquerda'
+            ELSE NULL
+        END                                                AS votou_com
+    FROM votacoes_votos vv
+    JOIN votacoes_polarizadas vp
+        ON vp.ano_dados  = vv.ano_dados
+       AND vp.id_votacao = vv.id_votacao
+    JOIN partidos_ideologia pi ON pi.sigla_partido = vv.sigla_partido
+    WHERE vv.voto IN ('Sim', 'Nao')
+)
+SELECT
+    sigla_partido,
+    id_deputado,
+    nome_deputado,
+    ideologia_partido,
+    COUNT(*)                                                              AS votos_em_polarizadas,
+    COUNT(*) FILTER (WHERE votou_com = 'esquerda')                       AS votos_com_esquerda,
+    COUNT(*) FILTER (WHERE votou_com = 'direita')                        AS votos_com_direita,
+    ROUND(
+        COUNT(*) FILTER (WHERE votou_com = 'esquerda') * 100.0
+        / NULLIF(COUNT(*) FILTER (WHERE votou_com IS NOT NULL), 0), 1
+    )                                                                     AS pct_com_esquerda,
+    ROUND(
+        COUNT(*) FILTER (WHERE votou_com = 'direita') * 100.0
+        / NULLIF(COUNT(*) FILTER (WHERE votou_com IS NOT NULL), 0), 1
+    )                                                                     AS pct_com_direita,
+    ROUND(
+        COUNT(*) FILTER (WHERE votou_com = 'direita') * 100.0
+        / NULLIF(COUNT(*) FILTER (WHERE votou_com IS NOT NULL), 0), 1
+    )                                                                     AS score_vies
+FROM voto_lado
+GROUP BY sigla_partido, id_deputado, nome_deputado, ideologia_partido
+HAVING COUNT(*) FILTER (WHERE votou_com IS NOT NULL) >= 10
+ORDER BY score_vies ASC, nome_deputado;
+
+-- =======================================================================
 -- Q9.3 - Voto de cada deputado por proposicao (Detalhe para Auditoria)
 -- =======================================================================
 \o /respostas/q9_vies_deputado_detalhe.csv
