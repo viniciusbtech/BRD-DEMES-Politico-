@@ -1,0 +1,6 @@
+Q6E - escolaridade x presenca no plenario
+Tabela principal - media geral de presenca no plenario por escolaridade
+ escolaridade | qtd_registros_deputado_ano | qtd_deputados | media_presenca_plenario 
+--------------+----------------------------+---------------+-------------------------
+(0 rows)
+

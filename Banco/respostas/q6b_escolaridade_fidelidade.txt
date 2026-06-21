@@ -1,0 +1,7 @@
+Q6B - escolaridade x fidelidade partidaria
+Tabela principal - media geral de fidelidade partidaria por escolaridade
+ escolaridade  | qtd_registros_deputado_ano | qtd_registros_com_fidelidade | qtd_deputados | media_fidelidade 
+---------------+----------------------------+------------------------------+---------------+------------------
+ Nao informado |                       2268 |                         1074 |           640 |            91.93
+(1 row)
+

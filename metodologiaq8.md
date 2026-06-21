@@ -317,3 +317,69 @@ Crie um documento PDF sobre  Q8 - Metodologia
   18. O algoritmo Leiden detecta comunidades de deputados que votam parecido.
   19. O dashboard mostra essas comunidades em forma de grafo.
   20. Assim, a Q8 combina duas ideias: influência por proposições aprovadas e alinhamento político por comportamento de voto. 
+
+
+
+Metodologia 6
+
+  Você ainda pode ter tabelas como:
+
+  - Top maiores custo-benefício
+  - Top menores custo-benefício
+  - Ranking completo
+  - Posição do deputado selecionado
+  - Nota geral baseada no percentil
+
+  A diferença é só a escala exibida.
+
+  Hoje o índice bruto é:
+
+  custo_beneficio = beneficio / gasto_total
+  nota = custo_beneficio * 10000
+
+  Problema: se alguém gastou muito pouco, a nota explode.
+
+  Com percentil:
+
+  ranking por custo_beneficio DESC
+  posição = lugar do deputado no ranking
+  nota = posição convertida para escala 0-10
+
+  Uma fórmula possível:
+
+  nota = 10 * (1 - (posicao - 1) / (total_deputados - 1))
+
+  Exemplo com 500 deputados:
+
+  1º de 500   -> 10.0
+  50º de 500  -> 9.0
+  250º de 500 -> 5.0
+  450º de 500 -> 1.0
+  500º de 500 -> 0.0
+
+  Para tabela, você poderia ter:
+
+  posicao | deputado | beneficio | gasto_total | custo_beneficio | nota_percentil
+  1       | Fulano   | 1385.40   | 12966.50    | 0.1068          | 10.0
+  2       | Ciclano  | 4548.70   | 117305.28   | 0.0387          | 9.9
+  ...
+  250     | Deputado | 120.00    | 300000.00   | 0.0004          | 5.0
+
+  Mas eu colocaria uma regra junto:
+
+  Só entra no ranking de custo-benefício quem tem gasto_total mínimo relevante.
+
+  Por exemplo:
+
+  gasto_total >= 50000
+
+  Senão, deputados com gasto baixíssimo ficam no topo por efeito matemático, não por desempenho real.
+
+  Então o modelo mais defensável seria:
+
+  1. Calcula beneficio.
+  2. Calcula custo_beneficio = beneficio / gasto_total.
+  3. Remove ou separa casos com gasto_total muito baixo.
+  4. Ordena por custo_beneficio DESC.
+  5. Calcula posição no ranking.
+  6. Converte posição em nota 0-10.

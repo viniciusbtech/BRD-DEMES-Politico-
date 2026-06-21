@@ -1,0 +1,7 @@
+Q8 complementar - grafo ponderado para comunidades por similaridade de votos individuais
+Pipeline: votos individuais -> matriz deputado x votacao -> similaridade entre pares -> grafo ponderado -> Leiden.
+Codificacao: Sim = 1, Nao = -1, Abstencao = 0; Obstrucao e Artigo 17 foram ignorados.
+Filtros: deputado >= 100 votos validos; par >= 100 votacoes em comum; cobertura >= 0.50; votacoes informativas com proporcao majoritaria <= 0.90.
+Observacao: este SQL gera o grafo filtrado. Execute questoes/q8/scripts/gerar_comunidades_leiden.py para aplicar Leiden e gravar as comunidades finais.
+
+Resumo executivo

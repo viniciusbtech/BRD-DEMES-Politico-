@@ -1,0 +1,7 @@
+Q6A - escolaridade x gastos
+Tabela principal - media geral de gastos por escolaridade
+ escolaridade  | qtd_registros_deputado_ano | qtd_deputados | media_gasto 
+---------------+----------------------------+---------------+-------------
+ Nao informado |                       2268 |           640 |   356899.86
+(1 row)
+

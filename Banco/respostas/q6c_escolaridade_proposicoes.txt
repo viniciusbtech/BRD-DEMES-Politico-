@@ -1,0 +1,7 @@
+Q6C - escolaridade x numero de proposicoes
+Tabela principal - media geral de proposicoes por escolaridade
+ escolaridade  | qtd_registros_deputado_ano | qtd_deputados | media_proposicoes 
+---------------+----------------------------+---------------+-------------------
+ Nao informado |                       2268 |           640 |            181.47
+(1 row)
+

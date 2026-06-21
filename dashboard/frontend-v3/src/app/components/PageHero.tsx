@@ -14,6 +14,7 @@ type PageHeroProps = {
   imgId: string;
   bgImages?: string[];
   stripImgs?: StripImage[];
+  hideStrip?: boolean;
 };
 
 const UNSPLASH_BASE = "https://images.unsplash.com/";
@@ -26,7 +27,7 @@ const imageUrl = (id: string, width: number, height: number) => {
   return `${UNSPLASH_BASE}${id}?w=${width}&h=${height}&fit=crop&auto=format`;
 };
 
-export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImages, stripImgs }: PageHeroProps) {
+export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImages, stripImgs, hideStrip }: PageHeroProps) {
   const images = bgImages && bgImages.length > 0 ? bgImages : [imgId];
   const [currentSrc, setCurrentSrc] = useState(images[0]);
   const [opacity, setOpacity] = useState(1);
@@ -98,7 +99,7 @@ export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImage
         </div>
       </div>
 
-      {stripImgs && stripImgs.length > 0 ? (
+      {!hideStrip && stripImgs && stripImgs.length > 0 ? (
         <div
           className="grid border-b border-border"
           style={{ gridTemplateColumns: `repeat(${stripImgs.length}, minmax(0, 1fr))`, height: 180 }}

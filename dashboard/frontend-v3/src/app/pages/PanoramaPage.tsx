@@ -3,6 +3,7 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
 import { fetchQuestion } from "../api";
+import type { QuestionPayload, TableSpec } from "../types";
 
 type PanoramaPageProps = {
   onNavigateHome: () => void;
@@ -32,6 +33,53 @@ const fmtCurrency = (v: number) =>
 
 const raw = (row: Row, key: string) => Number(row?.[key] ?? 0);
 const str = (row: Row, key: string) => String(row?.[key] ?? "");
+const normalizedCb = (row: Row) => raw(row, "custo_beneficio") * 1000;
+
+const getGlobalCbRows = (payload: QuestionPayload) => {
+  const globalTable = getGlobalCbTable(payload);
+
+  const rows = ((globalTable?.rows ?? []) as Row[]).filter((row) => str(row, "ano_dados").toUpperCase() === "GLOBAL");
+  const sourceRows = rows.length > 0 ? rows : ((globalTable?.rows ?? []) as Row[]);
+  return [...sourceRows];
+};
+
+const isGlobalCbTable = (table: TableSpec) => {
+  const title = table.title.toLowerCase();
+  return title.includes("ranking global") && title.includes("todos os anos");
+};
+
+const getGlobalCbTable = (payload: QuestionPayload) =>
+  [payload.table_spec, ...payload.complement_tables].find(isGlobalCbTable) ?? payload.complement_tables[0];
+
+const dedupeRows = (rows: Row[]) => {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = `${str(row, "ano_dados")}:${str(row, "id_deputado")}:${str(row, "nome")}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const fetchGlobalCbRanking = async () => {
+  const pageSize = 200;
+  const firstPayload = await fetchQuestion("q7", {}, { page: 1, pageSize });
+  const firstTable = getGlobalCbTable(firstPayload);
+  const total = firstTable?.total ?? 0;
+  const effectivePageSize = firstTable?.page_size ?? pageSize;
+  const pages = Math.ceil(total / effectivePageSize);
+
+  const nextPayloads =
+    pages > 1
+      ? await Promise.all(
+          Array.from({ length: pages - 1 }, (_, index) =>
+            fetchQuestion("q7", {}, { page: index + 2, pageSize }),
+          ),
+        )
+      : [];
+
+  return dedupeRows([firstPayload, ...nextPayloads].flatMap(getGlobalCbRows));
+};
 
 function Section({ n, tag, title, sub, children }: SectionProps) {
   return (
@@ -114,6 +162,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   // Seção 01D — Custo-benefício
   const CB_PAGE_SIZE = 15;
   const [cbTop10, setCbTop10] = useState<Row[]>([]);
+  const [cbAllRows, setCbAllRows] = useState<Row[]>([]);
   const [cbTableOpen, setCbTableOpen] = useState(false);
   const [cbTableRows, setCbTableRows] = useState<Row[]>([]);
   const [cbTablePage, setCbTablePage] = useState(1);
@@ -128,12 +177,22 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   };
 
   const fetchCbTablePage = (page: number) => {
+    const applyLocalPage = (rows: Row[]) => {
+      setCbTableRows(rows.slice((page - 1) * CB_PAGE_SIZE, page * CB_PAGE_SIZE));
+      setCbTableTotal(rows.length);
+      setCbTablePage(page);
+    };
+
+    if (cbAllRows.length > 0) {
+      applyLocalPage(cbAllRows);
+      return;
+    }
+
     setCbTableLoading(true);
-    fetchQuestion("q7", {}, { page, pageSize: CB_PAGE_SIZE, sort_by: "custo_beneficio", sort_dir: "desc" })
-      .then((payload) => {
-        setCbTableRows((payload.table_spec.rows ?? []) as Row[]);
-        setCbTableTotal(payload.table_spec.total ?? 0);
-        setCbTablePage(page);
+    fetchGlobalCbRanking()
+      .then((globalRows) => {
+        setCbAllRows(globalRows);
+        applyLocalPage(globalRows);
       })
       .catch(() => {})
       .finally(() => setCbTableLoading(false));
@@ -172,11 +231,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
       .catch(() => {});
 
     // Carrega top 10 por custo-benefício global (complement_tables[0] do Q7)
-    fetchQuestion("q7", {}, { page: 1, pageSize: 15, sort_by: "custo_beneficio", sort_dir: "desc" })
-      .then((payload) => {
-        const global = (payload.complement_tables[0]?.rows ?? []) as Row[];
+    fetchGlobalCbRanking()
+      .then((global) => {
+        setCbAllRows(global);
         setCbTop10(global.slice(0, 10));
-        setCbTableTotal(payload.table_spec.total ?? 0);
+        setCbTableTotal(global.length);
       })
       .catch(() => {});
   }, []);
@@ -216,7 +275,8 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         title="Panorama"
         titleRed="Geral"
         desc="Uma visão estática e abrangente dos padrões de gasto, fornecedores dominantes e grupos de influência na 57ª Legislatura. Sem filtros, com dados mockados do período."
-        imgId="photo-1544531586-fde5298cdd40"
+        imgId="/fundorecortes/recorte1/fundo-recorte1.png"
+        hideStrip
         stripImgs={[
           { id: "photo-1561489396-888724a1543d", alt: "Reunião parlamentar" },
           { id: "photo-1567965606933-c46e07393d91", alt: "Manifestação política" },
@@ -245,18 +305,18 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                 style={{ borderLeft: isFirst ? `3px solid ${RED}` : "3px solid transparent" }}
               >
                 {/* Rank */}
-                <div className="flex w-14 shrink-0 items-center justify-center py-4">
-                  <span className="text-2xl font-black leading-none" style={{ fontFamily: SERIF, color: rankColor }}>
+                <div className="flex w-16 shrink-0 items-center justify-center py-5">
+                  <span className="text-3xl font-black leading-none" style={{ fontFamily: SERIF, color: rankColor }}>
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                 </div>
 
                 {/* Foto */}
-                <div className="relative flex w-14 shrink-0 items-center overflow-hidden py-2">
+                <div className="relative flex w-20 shrink-0 items-center overflow-hidden py-2.5">
                   <img
                     src={depPhoto(id)}
                     alt={nome}
-                    className="h-[52px] w-[42px] object-cover object-top"
+                    className="h-[72px] w-[58px] object-cover object-top"
                     style={{ filter: "grayscale(40%) contrast(1.05)" }}
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
@@ -265,18 +325,18 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                 </div>
 
                 {/* Nome + partido */}
-                <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 px-4 py-4">
-                  <p className="truncate text-sm font-bold leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-5">
+                  <p className="truncate text-xl font-bold leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
                     {nome}
                   </p>
                   <div className="flex items-center gap-2">
                     <span
-                      className="border px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                      className="border px-2 py-1 text-xs font-bold uppercase"
                       style={{ fontFamily: MONO, borderColor: `${rankColor}55`, color: rankColor, background: `${rankColor}11` }}
                     >
                       {partido}
                     </span>
-                    <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>{uf}</span>
+                    <span className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>{uf}</span>
                   </div>
                   {/* Barra de proporção */}
                   <div className="mt-2 h-0.5 overflow-hidden rounded-full" style={{ background: "rgba(240,236,228,0.08)", width: "100%" }}>
@@ -285,8 +345,8 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                 </div>
 
                 {/* Total */}
-                <div className="flex shrink-0 items-center px-6 py-4">
-                  <span className="text-sm font-black tabular-nums" style={{ fontFamily: MONO, color: isFirst ? RED : "#f0ece4" }}>
+                <div className="flex shrink-0 items-center px-6 py-5">
+                  <span className="text-base font-black tabular-nums" style={{ fontFamily: MONO, color: isFirst ? RED : "#f0ece4" }}>
                     {fmtCurrency(total)}
                   </span>
                 </div>
@@ -446,7 +506,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                   >
                     <XAxis
                       type="number"
-                      tick={{ fill: "rgba(240,236,228,0.3)", fontSize: 9, fontFamily: MONO }}
+                      tick={{ fill: "rgba(240,236,228,0.55)", fontSize: 11, fontFamily: MONO }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) =>
@@ -456,13 +516,15 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     <YAxis
                       type="category"
                       dataKey="name"
-                      width={190}
-                      tick={{ fill: "#f0ece4", fontSize: 10, fontFamily: MONO }}
+                      width={250}
+                      tick={{ fill: "#f0ece4", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
+                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", color: "#ffffff", fontFamily: MONO, fontSize: 12 }}
+                      itemStyle={{ color: "#ffffff" }}
+                      labelStyle={{ color: "#ffffff" }}
                       formatter={(v: number, _: string, e: { payload?: { pct?: number } }) => [
                         `${fmtCurrency(v)}  ·  ${(e.payload?.pct ?? 0).toFixed(1)}% do total`,
                         "Total CEAP",
@@ -481,10 +543,10 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               <div className="grid grid-cols-2 gap-px border border-border sm:grid-cols-5" style={{ background: "rgba(240,236,228,0.06)" }}>
                 {catTop10.slice(0, 5).map((r, i) => (
                   <div key={i} className="bg-background px-4 py-3">
-                    <p className="mb-0.5 text-xs font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "#f0ece4" }}>
+                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "#f0ece4" }}>
                       {raw(r, "pct_total").toFixed(1)}%
                     </p>
-                    <p className="text-[10px] leading-tight text-muted-foreground" style={{ fontFamily: MONO }}>
+                    <p className="text-xs font-semibold leading-snug text-muted-foreground" style={{ fontFamily: MONO }}>
                       {abrevCat(str(r, "descricao_despesa"))}
                     </p>
                     <div className="mt-2 h-0.5" style={{ background: `linear-gradient(to right, ${i === 0 ? RED : i < 3 ? "#d4841a" : "rgba(196,18,48,0.4)"} ${(raw(r, "pct_total") / raw(catTop10[0], "pct_total")) * 100}%, transparent 0%)` }} />
@@ -653,7 +715,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                   >
                     <XAxis
                       type="number"
-                      tick={{ fill: "rgba(240,236,228,0.3)", fontSize: 9, fontFamily: MONO }}
+                      tick={{ fill: "rgba(240,236,228,0.55)", fontSize: 11, fontFamily: MONO }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) => v.toLocaleString("pt-BR")}
@@ -661,13 +723,15 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     <YAxis
                       type="category"
                       dataKey="name"
-                      width={210}
-                      tick={{ fill: "#f0ece4", fontSize: 10, fontFamily: MONO }}
+                      width={260}
+                      tick={{ fill: "#f0ece4", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", fontFamily: MONO, fontSize: 11 }}
+                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", color: "#ffffff", fontFamily: MONO, fontSize: 12 }}
+                      itemStyle={{ color: "#ffffff" }}
+                      labelStyle={{ color: "#ffffff" }}
                       formatter={(v: number, _: string, e: { payload?: { aprovadas?: number; pct?: number } }) => [
                         `${v.toLocaleString("pt-BR")} proposições  ·  ${(e.payload?.pct ?? 0).toFixed(1)}% do total  ·  ${(e.payload?.aprovadas ?? 0).toLocaleString("pt-BR")} aprovadas`,
                         "Total",
@@ -686,10 +750,10 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               <div className="grid grid-cols-2 gap-px border border-border sm:grid-cols-5" style={{ background: "rgba(240,236,228,0.06)" }}>
                 {eixoTop10.map((r, i) => (
                   <div key={i} className="bg-background px-4 py-3">
-                    <p className="mb-0.5 text-xs font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "#f0ece4" }}>
+                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "#f0ece4" }}>
                       {raw(r, "qtd_proposicoes").toLocaleString("pt-BR")}
                     </p>
-                    <p className="text-[10px] leading-tight text-muted-foreground" style={{ fontFamily: MONO }}>
+                    <p className="text-xs font-semibold leading-snug text-muted-foreground" style={{ fontFamily: MONO }}>
                       {str(r, "tema")}
                     </p>
                     <div
@@ -846,14 +910,14 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             const uf = str(r, "sigla_uf");
             const gasto = raw(r, "gasto_total");
             const benef = raw(r, "beneficio");
-            const cb = raw(r, "custo_beneficio");
-            const maxCb = raw(cbTop10[0], "custo_beneficio") || 1;
+            const cb = normalizedCb(r);
+            const maxCb = normalizedCb(cbTop10[0]) || 1;
             const barW = Math.min((cb / maxCb) * 100, 100);
             const color = i === 0 ? RED : i < 3 ? "#d4841a" : "rgba(196,18,48,0.55)";
             return (
-              <div key={i} className="flex items-center gap-4 border border-border px-5 py-3" style={{ background: "#0a0a0a" }}>
+              <div key={i} className="flex items-center gap-5 border border-border px-6 py-4" style={{ background: "#0a0a0a" }}>
                 {/* Rank */}
-                <span className="w-6 shrink-0 text-sm font-black" style={{ fontFamily: SERIF, color }}>
+                <span className="w-9 shrink-0 text-2xl font-black" style={{ fontFamily: SERIF, color }}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {/* Foto */}
@@ -861,32 +925,32 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                   src={depPhoto(id)}
                   alt={nome}
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                  className="h-10 w-10 shrink-0 rounded-full object-cover"
-                  style={{ border: `2px solid ${color}` }}
+                  className="h-16 w-16 shrink-0 rounded-full object-cover object-top"
+                  style={{ border: `3px solid ${color}` }}
                 />
                 {/* Info */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>
+                  <p className="truncate text-lg font-black" style={{ color: "#f0ece4", fontFamily: MONO }}>
                     {nome}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold" style={{ background: "rgba(240,236,228,0.08)", color: "#f0ece4", fontFamily: MONO }}>
+                    <span className="px-2 py-1 text-xs font-bold" style={{ background: "rgba(240,236,228,0.08)", color: "#f0ece4", fontFamily: MONO }}>
                       {partido}
                     </span>
-                    <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>{uf}</span>
+                    <span className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>{uf}</span>
                   </div>
                   {/* Barra proporcional ao score CB */}
-                  <div className="mt-2 h-1" style={{ background: "rgba(240,236,228,0.07)" }}>
+                  <div className="mt-3 h-1.5" style={{ background: "rgba(240,236,228,0.07)" }}>
                     <div style={{ width: `${barW}%`, background: color, height: "100%", transition: "width 0.6s ease" }} />
                   </div>
                 </div>
                 {/* Métricas */}
                 <div className="shrink-0 text-right">
-                  <p className="text-xs font-black" style={{ fontFamily: MONO, color }}>
-                    {cb.toFixed(5)}
+                  <p className="text-base font-black" style={{ fontFamily: MONO, color }}>
+                    {cb.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
-                  <p className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>score CB</p>
-                  <p className="mt-1 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>pts / R$ 1 mil</p>
+                  <p className="mt-1 text-xs font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>
                     benef. {benef.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} · gasto {fmtCurrency(gasto)}
                   </p>
                 </div>
@@ -919,7 +983,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "#0d0d0d", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
-                      {["#", "Foto", "Deputado", "Partido", "UF", "Ano", "Score CB", "Benefício", "Gasto"].map((col) => (
+                      {["#", "Foto", "Deputado", "Partido", "UF", "Ano", "Pts / R$ 1 mil", "Benefício", "Gasto"].map((col) => (
                         <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
                       ))}
                     </tr>
@@ -946,7 +1010,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                           <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "sigla_uf")}</td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "ano_dados")}</td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "#f0ece4" }}>
-                            {raw(r, "custo_beneficio").toFixed(5)}
+                            {normalizedCb(r).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
                             {raw(r, "beneficio").toLocaleString("pt-BR", { maximumFractionDigits: 1 })}

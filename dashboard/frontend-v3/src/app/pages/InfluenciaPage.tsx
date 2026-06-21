@@ -55,6 +55,32 @@ const IDEOLOGY_COLORS: Record<string, string> = {
   "nao classificado": "#555",
 };
 
+const TRANSVERSAL_PARTIES = ["PL", "PP", "PSD", "PSDB", "MDB", "UNIÃO", "REPUBLICANOS", "PODE", "AVANTE", "CIDADANIA"];
+const LEFT_PARTIES = ["PT", "PSOL", "PCdoB", "PV", "REDE"];
+const LEIDEN_FINDINGS: { n: string; title: string; body: string; chips: string[]; chipsLabel: string }[] = [
+  {
+    n: "01",
+    title: "Mesmos partidos, blocos diferentes.",
+    body: "Dez partidos aparecem simultaneamente nos três blocos de comportamento. O voto não respeita a fronteira partidária: legendas inteiras se dividem entre grupos que votam de formas distintas.",
+    chips: TRANSVERSAL_PARTIES,
+    chipsLabel: "PRESENTES NOS 3 BLOCOS",
+  },
+  {
+    n: "02",
+    title: "A esquerda é o bloco mais coeso.",
+    body: "PT, PSOL, PCdoB, PV e REDE estão concentrados quase só no Bloco 3 — o de maior kappa (0,772). Mais coesão significa votos mais previsíveis e uniformes dentro do grupo.",
+    chips: LEFT_PARTIES,
+    chipsLabel: "CONCENTRADOS NO BLOCO 3",
+  },
+  {
+    n: "03",
+    title: "O Bloco 2 é o mais frouxo.",
+    body: "Com densidade de 86,5 — cerca da metade dos outros dois blocos —, o Bloco 2 existe como agrupamento, mas tem laços internos bem mais fracos: seus deputados votam juntos com menos regularidade.",
+    chips: [],
+    chipsLabel: "",
+  },
+];
+
 const raw = (row: Row | undefined, key: string) => Number(row?.[key] ?? 0);
 const text = (row: Row | undefined, key: string) => String(row?.[key] ?? "");
 const fmtNum = (value: number) => value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
@@ -392,6 +418,46 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
       .sort((a, b) => Number(b.value ?? b.kappa_ponderado ?? b.peso ?? 0) - Number(a.value ?? a.kappa_ponderado ?? a.peso ?? 0));
   }, [visibleLeidenNodes, voteGraph]);
 
+  const leidenSynthesis = useMemo(() => {
+    const nodes = voteGraph?.nodes ?? [];
+    const blocks = graphCommunities.map((community) => {
+      const members = nodes
+        .filter((node) => String(node.community ?? "") === community.id)
+        .sort((a, b) => Number(b.grau_ponderado ?? 0) - Number(a.grau_ponderado ?? 0));
+      const anchors = members.slice(0, 3).map((node) => ({
+        nome: String(node.nome ?? node.name ?? node.id ?? ""),
+        partido: String(node.partido ?? node.sigla_partido ?? ""),
+        uf: String(node.uf ?? node.sigla_uf ?? ""),
+      }));
+      const partyCount = community.parties
+        ? community.parties.split(",").map((part) => part.trim()).filter(Boolean).length
+        : 0;
+      return { ...community, anchors, partyCount };
+    });
+
+    const totalDeputies = blocks.reduce((sum, block) => sum + block.deputies, 0);
+    if (!blocks.length) return { blocks: [] as Array<(typeof blocks)[number] & { selo: string; pct: number }>, totalDeputies: 0 };
+
+    const maxDeputies = Math.max(...blocks.map((block) => block.deputies));
+    const maxKappa = Math.max(...blocks.map((block) => block.kappa));
+    const minDegree = Math.min(...blocks.map((block) => block.degree));
+
+    return {
+      totalDeputies,
+      blocks: blocks.map((block) => {
+        let selo = "";
+        if (block.kappa === maxKappa) selo = "O MAIS UNIDO";
+        else if (block.degree === minDegree) selo = "O MAIS SOLTO";
+        else if (block.deputies === maxDeputies) selo = "O MAIOR";
+        return {
+          ...block,
+          selo,
+          pct: totalDeputies ? Math.round((block.deputies / totalDeputies) * 100) : 0,
+        };
+      }),
+    };
+  }, [graphCommunities, voteGraph]);
+
   if (loading) {
     return (
       <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
@@ -545,7 +611,107 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             </div>
           </div>
         </div>
+      </section>
 
+      <section
+        className="border-b border-border px-6 py-16 md:px-14"
+        style={{
+          background:
+            "radial-gradient(circle at 12% 0%, rgba(196,18,48,0.12), transparent 46%), #0b0a0c",
+        }}
+      >
+        <SectionHeader
+          n="8"
+          tag="SINTESE · DESCOBERTAS"
+          title="O que o voto revelou"
+          desc="Resumo das principais descobertas do algoritmo Leiden: como os deputados se dividem em blocos de comportamento e o que esses grupos dizem sobre a relacao entre voto e partido."
+        />
+
+        {leidenSynthesis.blocks.length ? (
+          <>
+            <p
+              className="mb-10 max-w-4xl text-2xl font-black leading-tight md:text-3xl"
+              style={{ fontFamily: SERIF, color: "#f0ece4" }}
+            >
+              {fmtNum(leidenSynthesis.totalDeputies)} deputados se dividiram em{" "}
+              <span style={{ color: RED }}>{leidenSynthesis.blocks.length} blocos de comportamento</span>
+              {" "}— e eles ignoram a fronteira partidaria.
+            </p>
+
+            <div className="mb-12 grid gap-px border border-border lg:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+              {leidenSynthesis.blocks.map((block) => (
+                <div key={block.id} className="p-6" style={{ background: "#0d0d0d", borderTop: `3px solid ${block.color}` }}>
+                  <div className="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{block.name}</h3>
+                      {block.selo ? (
+                        <span className="mt-1 inline-block px-2 py-0.5 text-[10px] font-bold tracking-[0.18em]" style={{ fontFamily: MONO, color: block.color, background: `${block.color}1f` }}>
+                          {block.selo}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-black leading-none" style={{ fontFamily: SERIF, color: block.color }}>{fmtNum(block.deputies)}</p>
+                      <p className="text-[11px] text-muted-foreground" style={{ fontFamily: MONO }}>{block.pct}% DO TOTAL</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-4 grid grid-cols-2 gap-px border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
+                    <div className="bg-background px-4 py-3">
+                      <p className="text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>COESAO (κ)</p>
+                      <p className="text-lg font-black text-primary" style={{ fontFamily: SERIF }}>{block.kappa.toFixed(3)}</p>
+                    </div>
+                    <div className="bg-background px-4 py-3">
+                      <p className="text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>DENSIDADE</p>
+                      <p className="text-lg font-black text-primary" style={{ fontFamily: SERIF }}>{block.degree.toFixed(1)}</p>
+                    </div>
+                  </div>
+
+                  {block.anchors.length ? (
+                    <>
+                      <p className="mb-2 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>DEPUTADOS-ANCORA</p>
+                      <ul className="space-y-1">
+                        {block.anchors.map((anchor) => (
+                          <li key={anchor.nome} className="text-xs text-foreground">
+                            {anchor.nome}
+                            {anchor.partido ? <span className="text-muted-foreground"> · {anchor.partido}{anchor.uf ? `-${anchor.uf}` : ""}</span> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
+
+                  {block.partyCount ? (
+                    <p className="mt-4 text-[11px] text-muted-foreground" style={{ fontFamily: MONO }}>{block.partyCount} PARTIDOS PRESENTES</p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
+
+        <div className="grid gap-px border border-border lg:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+          {LEIDEN_FINDINGS.map((finding) => (
+            <div key={finding.n} className="flex flex-col bg-background p-6">
+              <span className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.3)" }}>{finding.n}</span>
+              <h4 className="mb-3 text-lg font-black leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{finding.title}</h4>
+              <p className="text-xs leading-relaxed text-muted-foreground">{finding.body}</p>
+              {finding.chips.length ? (
+                <div className="mt-4">
+                  <p className="mb-2 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{finding.chipsLabel}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {finding.chips.map((chip) => (
+                      <span key={chip} className="border px-2 py-0.5 text-[10px] font-bold" style={{ fontFamily: MONO, borderColor: "rgba(196,18,48,0.35)", color: "#f0ece4" }}>{chip}</span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
           n="8"
           tag="RANKING ORIGINAL"
