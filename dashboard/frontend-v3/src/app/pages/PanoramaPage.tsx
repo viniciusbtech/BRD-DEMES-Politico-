@@ -274,7 +274,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         tag="VISÃO GERAL"
         title="Panorama"
         titleRed="Geral"
-        desc="Uma visão estática e abrangente dos padrões de gasto, fornecedores dominantes e grupos de influência na 57ª Legislatura. Sem filtros, com dados mockados do período."
+        desc="Uma visão estática e abrangente dos padrões de gasto, fornecedores dominantes e grupos de influência na 57ª Legislatura."
         imgId="/fundorecortes/recorte1/fundo-recorte1.png"
         hideStrip
         stripImgs={[
@@ -1061,56 +1061,56 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
       <Section n="MET" tag="METODOLOGIA" title="Como os indicadores foram calculados?" sub="TRANSPARÊNCIA ANALÍTICA · CLIQUE EM CADA MÉTODO PARA EXPANDIR">
         {([
           {
-            id: "cb",
-            titulo: "Score de Custo-Benefício",
-            origem: "Q7 — Índice de Custo-Benefício",
-            formula: "Score = Benefício ÷ Gasto Total",
+            id: "gastos_dep",
+            titulo: "Ranking de Gastos por Deputado",
+            origem: "Q1 — Gastos por Deputado",
+            formula: "Gasto total do deputado = soma de todas as despesas reembolsadas pela cota (CEAP)",
             passos: [
-              "1. Benefício é calculado como: (qtd_proposicoes × 0,4) + (proposicoes_aprovadas × 5) + (presenca_total × 1,0)",
-              "2. O score é a razão entre esse benefício estimado e o gasto total do deputado no CEAP.",
-              "3. Quanto maior o score, mais o deputado 'entregou' por real gasto. Um score de 0,01 significa que cada R$ 100 de gasto gerou 1 ponto de benefício.",
-              "4. Deputados com gasto zero ou quase zero podem ter scores distorcidos — analise com cautela os primeiros colocados.",
+              "1. O CEAP é a 'cota parlamentar': uma verba pública que cada deputado pode usar para despesas do mandato, como passagens, combustível e divulgação.",
+              "2. Para cada deputado, juntamos todas as notas fiscais que ele pediu para serem reembolsadas e somamos os valores.",
+              "3. Consideramos o período de 2023 a 2026, que é a atual legislatura (a 57ª).",
+              "4. Por fim, ordenamos do maior para o menor: quem mais usou a cota aparece no topo da lista.",
             ],
-            interpretacao: "O score não mede qualidade legislativa, mas eficiência de custo. Um deputado pode ter score alto por gastar pouco (mesmo com baixo volume de produção).",
+            interpretacao: "Gastar mais não é sinal de corrupção: o CEAP é uma verba legal. Além disso, deputados de estados grandes (como SP e RJ) têm cota maior. Para uma comparação mais justa, vale olhar deputados do mesmo estado.",
           },
           {
             id: "eixos",
             titulo: "Eixos Temáticos de Atuação",
             origem: "Q2 — Eixos e Nuvem de Palavras",
-            formula: "Soma de proposições por tema, agregada sobre todos os deputados (2023-2026)",
+            formula: "Quantas propostas existem em cada tema, somando todos os deputados (2023-2026)",
             passos: [
-              "1. Cada proposição de autoria de um deputado é classificada em um de 32 eixos temáticos (ex.: Saúde, Educação, Defesa e Segurança).",
-              "2. A classificação é feita por análise de texto dos títulos e ementas das proposições.",
-              "3. As proposições de todos os deputados são somadas por eixo, resultando no volume total de cada tema na legislatura.",
-              "4. O ranking mostra quais áreas concentram maior atividade legislativa coletiva.",
+              "1. Cada projeto de lei (proposição) trata de algum assunto — por exemplo, Saúde, Educação ou Segurança.",
+              "2. Lendo o título e o resumo de cada projeto, o sistema o encaixa em um de 32 grandes temas.",
+              "3. Depois, contamos quantos projetos caíram em cada tema, juntando o trabalho de todos os deputados.",
+              "4. O resultado mostra quais assuntos receberam mais atenção do Congresso como um todo.",
             ],
-            interpretacao: "Eixos com maior volume não são necessariamente mais importantes — podem refletir maior facilidade de protocolar projetos naquela área.",
+            interpretacao: "Um tema aparecer no topo significa que há muitos projetos sobre ele — não necessariamente que ele é o mais importante. Alguns assuntos simplesmente geram mais propostas porque são mais fáceis de apresentar.",
+          },
+          {
+            id: "cb",
+            titulo: "Score de Custo-Benefício",
+            origem: "Q7 — Índice de Custo-Benefício",
+            formula: "Score = o quanto o deputado 'entregou' ÷ o quanto ele gastou",
+            passos: [
+              "1. Primeiro estimamos o quanto cada deputado produziu, combinando três coisas: número de projetos apresentados, projetos que foram aprovados (que pesam mais) e presença nas sessões.",
+              "2. Depois dividimos essa 'entrega' pelo total que ele gastou da cota.",
+              "3. Quanto maior o resultado, mais o deputado entregou para cada real gasto.",
+              "4. Atenção: quem gastou quase nada pode aparecer com um score altíssimo e enganoso, então olhe os primeiros colocados com cuidado.",
+            ],
+            interpretacao: "Esse índice mede eficiência de custo, e não a qualidade do trabalho. Um deputado pode ter score alto só por gastar pouco, mesmo produzindo pouco.",
           },
           {
             id: "gastos_cat",
             titulo: "Categorias de Gasto (CEAP)",
             origem: "Q13 — Categorias de Gasto por Deputado",
-            formula: "Soma do gasto_total por descricao_despesa, sobre todos os deputados e anos",
+            formula: "Total gasto em cada tipo de despesa, somando todos os deputados e anos",
             passos: [
-              "1. Cada lançamento do CEAP possui uma categoria de despesa (ex.: Divulgação Parlamentar, Passagem Aérea).",
-              "2. Os valores são somados por categoria, independentemente do deputado ou partido.",
-              "3. O percentual é calculado como: (gasto da categoria ÷ total geral) × 100.",
-              "4. Isso revela onde o dinheiro público de gabinete vai, em termos agregados.",
+              "1. Toda despesa da cota tem um tipo, como Divulgação Parlamentar, Passagem Aérea ou Combustível.",
+              "2. Somamos quanto foi gasto em cada tipo, juntando todos os deputados e partidos.",
+              "3. Calculamos quanto cada tipo representa do total: por exemplo, 'Divulgação' pode ser 40% de tudo.",
+              "4. Isso mostra, de forma geral, para onde vai o dinheiro público das cotas.",
             ],
-            interpretacao: "Divulgação da Atividade Parlamentar representa ~40% do total do CEAP — é a categoria dominante e mais discutida em auditorias do uso da cota.",
-          },
-          {
-            id: "gastos_dep",
-            titulo: "Ranking de Gastos por Deputado",
-            origem: "Q1 — Gastos por Deputado",
-            formula: "gasto_total = soma de todos os lançamentos CEAP do deputado no período",
-            passos: [
-              "1. Cada nota fiscal ou lançamento reembolsado pelo CEAP é somado ao total do deputado.",
-              "2. O período cobre 2023-2026 (57ª Legislatura em exercício).",
-              "3. O ranking é ordenado de forma decrescente — quem gastou mais aparece no topo.",
-              "4. Gastos altos não significam corrupção; o CEAP é uma cota legal com limites por estado.",
-            ],
-            interpretacao: "Deputados de estados maiores (SP, RJ) têm cota CEAP maior, o que influencia quem aparece no topo do ranking. Compare dentro do mesmo estado para análises mais justas.",
+            interpretacao: "A 'Divulgação da Atividade Parlamentar' costuma ser a maior fatia (~40% do CEAP). Justamente por ser a maior, é também a mais questionada em auditorias sobre o uso da cota.",
           },
         ] as Array<{ id: string; titulo: string; origem: string; formula: string; passos: string[]; interpretacao: string }>).map((m) => (
           <div key={m.id} className="mb-2 border border-border" style={{ background: "#0a0a0a" }}>
