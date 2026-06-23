@@ -32,6 +32,9 @@ const fmtShort = (v: number) => {
   return fmtCurrency(v);
 };
 const fmtNum = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+// normaliza texto para busca (minúsculas, sem acentos)
+const normalizeText = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
 const camaraPhoto = (id: string | number) =>
   `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
 const deputyPhoto = (deputy: Pick<FilterChoice, "value" | "photo_url"> | null, id?: string | number) => {
@@ -314,6 +317,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
   const [q12Year, setQ12Year]             = useState("");
   const [q12Rows, setQ12Rows]             = useState<Row[]>([]);
   const [loadingQ12, setLoadingQ12]       = useState(false);
+  const [fornecedorSearch, setFornecedorSearch] = useState(""); // 2º filtro: nome do fornecedor
 
   const [pageLoading, setPageLoading] = useState(true);
 
@@ -496,16 +500,24 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
     const entries = [...map.values()].sort((a, b) => b.total - a.total);
     const grandTotal = entries.reduce((s, e) => s + e.total, 0);
     const maxTotal   = entries[0]?.total ?? 1;
-    return entries.map((e) => ({ ...e, pct: grandTotal > 0 ? (e.total / grandTotal) * 100 : 0, barPct: (e.total / maxTotal) * 100 }));
+    return entries.map((e, i) => ({ ...e, rank: i + 1, pct: grandTotal > 0 ? (e.total / grandTotal) * 100 : 0, barPct: (e.total / maxTotal) * 100 }));
   }, [q12Rows]);
 
-  const s2Total       = useMemo(() => s2Results.reduce((s, e) => s + e.total, 0), [s2Results]);
-  const s2Lancamentos = useMemo(() => s2Results.reduce((s, e) => s + e.lancamentos, 0), [s2Results]);
+  // 2º filtro: quando vazio, mostra a tabela inteira; quando preenchido, só os fornecedores que casam
+  const s2Visible = useMemo(() => {
+    const q = normalizeText(fornecedorSearch);
+    if (!q) return s2Results;
+    return s2Results.filter((e) => normalizeText(e.fornecedor).includes(q));
+  }, [s2Results, fornecedorSearch]);
+
+  const s2Total       = useMemo(() => s2Visible.reduce((s, e) => s + e.total, 0), [s2Visible]);
+  const s2Lancamentos = useMemo(() => s2Visible.reduce((s, e) => s + e.lancamentos, 0), [s2Visible]);
 
   const selectDeputy = (deputy: FilterChoice) => {
     setSelectedDep(deputy);
     setDepSearch(deputy.label);
     setShowDepDrop(false);
+    setFornecedorSearch(""); // reinicia o filtro de fornecedor ao trocar de deputado
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -969,56 +981,89 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
               <EmptyMsg text="NENHUM DADO ENCONTRADO PARA ESSE DEPUTADO NO PERÍODO SELECIONADO." />
             ) : (
               <>
+                {/* 2º filtro: pesquisar um fornecedor específico desse deputado */}
+                <div className="mb-6">
+                  <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+                    FILTRAR POR FORNECEDOR (OPCIONAL)
+                  </p>
+                  <div className="relative w-full max-w-xl">
+                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      ⌕
+                    </span>
+                    <input
+                      value={fornecedorSearch}
+                      onChange={(e) => setFornecedorSearch(e.target.value)}
+                      placeholder="Nome do fornecedor... (vazio = todos)"
+                      className="w-full border border-border bg-card py-3.5 pl-10 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                    />
+                    {fornecedorSearch ? (
+                      <button
+                        type="button"
+                        onClick={() => setFornecedorSearch("")}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        x
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+
                 {/* Cards de totais */}
                 <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
-                  <StatCard label="TOTAL GASTO"  value={fmtShort(s2Total)} sub={fmtCurrency(s2Total)} />
-                  <StatCard label="FORNECEDORES" value={fmtNum(s2Results.length)} />
+                  <StatCard label={fornecedorSearch.trim() ? "GASTO COM O FILTRO" : "TOTAL GASTO"} value={fmtShort(s2Total)} sub={fmtCurrency(s2Total)} />
+                  <StatCard label="FORNECEDORES" value={fmtNum(s2Visible.length)} />
                   <StatCard label="LANÇAMENTOS"  value={fmtNum(s2Lancamentos)} />
                 </div>
 
-                {/* Tabela de fornecedores */}
-                <div className="grid items-center gap-3 px-4 py-2.5" style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#0a0a0a", borderBottom: "1px solid rgba(240,236,228,0.08)" }}>
-                  {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
-                    <span key={h} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{h}</span>
-                  ))}
-                </div>
-
-                {s2Results.map((item, idx) => (
-                  <div
-                    key={item.fornecedor}
-                    className="grid items-center gap-3 px-4 py-4 transition-colors hover:bg-card"
-                    style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#111", borderBottom: "1px solid rgba(240,236,228,0.06)" }}
-                  >
-                    <span className="font-black" style={{ fontFamily: SERIF, fontSize: idx < 3 ? "1.25rem" : "1rem", color: idx < 3 ? RED : "rgba(240,236,228,0.3)" }}>
-                      {String(idx + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="mb-1 truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{item.fornecedor}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1" style={{ background: "rgba(240,236,228,0.07)", height: "6px" }}>
-                          <div style={{ width: `${item.barPct}%`, height: "100%", background: idx === 0 ? RED : "rgba(196,18,48,0.4)" }} />
-                        </div>
-                        <span className="shrink-0 text-xs" style={{ fontFamily: MONO, color: "#666660" }}>{item.pct.toFixed(1)}%</span>
-                      </div>
-                      {item.anos.size > 1 ? (
-                        <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{[...item.anos].sort().join(" · ")}</p>
-                      ) : null}
+                {s2Visible.length === 0 ? (
+                  <EmptyMsg text={`NENHUM FORNECEDOR ENCONTRADO PARA "${fornecedorSearch.trim().toUpperCase()}".`} />
+                ) : (
+                  <>
+                    {/* Tabela de fornecedores */}
+                    <div className="grid items-center gap-3 px-4 py-2.5" style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#0a0a0a", borderBottom: "1px solid rgba(240,236,228,0.08)" }}>
+                      {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
+                        <span key={h} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{h}</span>
+                      ))}
                     </div>
-                    <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(item.lancamentos)}</span>
-                    <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: idx === 0 ? RED : "#f0ece4" }}>{fmtShort(item.total)}</span>
-                  </div>
-                ))}
 
-                {/* Rodapé de total */}
-                <div
-                  className="grid items-center gap-3 px-4 py-3"
-                  style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: `${RED}11`, borderTop: `1px solid ${RED}44` }}
-                >
-                  <span />
-                  <span className="text-xs font-bold text-primary" style={{ fontFamily: MONO }}>TOTAL GASTO</span>
-                  <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(s2Lancamentos)}</span>
-                  <span className="text-right text-sm font-black text-primary" style={{ fontFamily: SERIF }}>{fmtShort(s2Total)}</span>
-                </div>
+                    {s2Visible.map((item) => (
+                      <div
+                        key={item.fornecedor}
+                        className="grid items-center gap-3 px-4 py-4 transition-colors hover:bg-card"
+                        style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#111", borderBottom: "1px solid rgba(240,236,228,0.06)" }}
+                      >
+                        <span className="font-black" style={{ fontFamily: SERIF, fontSize: item.rank <= 3 ? "1.25rem" : "1rem", color: item.rank <= 3 ? RED : "rgba(240,236,228,0.3)" }}>
+                          {String(item.rank).padStart(2, "0")}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="mb-1 truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{item.fornecedor}</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1" style={{ background: "rgba(240,236,228,0.07)", height: "6px" }}>
+                              <div style={{ width: `${item.barPct}%`, height: "100%", background: item.rank === 1 ? RED : "rgba(196,18,48,0.4)" }} />
+                            </div>
+                            <span className="shrink-0 text-xs" style={{ fontFamily: MONO, color: "#666660" }}>{item.pct.toFixed(1)}%</span>
+                          </div>
+                          {item.anos.size > 1 ? (
+                            <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{[...item.anos].sort().join(" · ")}</p>
+                          ) : null}
+                        </div>
+                        <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(item.lancamentos)}</span>
+                        <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: item.rank === 1 ? RED : "#f0ece4" }}>{fmtShort(item.total)}</span>
+                      </div>
+                    ))}
+
+                    {/* Rodapé de total */}
+                    <div
+                      className="grid items-center gap-3 px-4 py-3"
+                      style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: `${RED}11`, borderTop: `1px solid ${RED}44` }}
+                    >
+                      <span />
+                      <span className="text-xs font-bold text-primary" style={{ fontFamily: MONO }}>{fornecedorSearch.trim() ? "GASTO COM O FILTRO" : "TOTAL GASTO"}</span>
+                      <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(s2Lancamentos)}</span>
+                      <span className="text-right text-sm font-black text-primary" style={{ fontFamily: SERIF }}>{fmtShort(s2Total)}</span>
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>
