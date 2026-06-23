@@ -168,6 +168,126 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
   );
 }
 
+// ─── metodologia (Q5 + Q12) ───────────────────────────────────────────────────
+type MetodoItem = {
+  id: string;
+  titulo: string;
+  origem: string;
+  formula: string;
+  passos: string[];
+  interpretacao: string;
+};
+
+const METODOS: MetodoItem[] = [
+  {
+    id: "ranking_forn",
+    titulo: "Ranking de Fornecedores",
+    origem: "Q5 — Fornecedores por Valor",
+    formula: "Total pago ao fornecedor = soma do valor liquido de todas as despesas em que ele aparece",
+    passos: [
+      "1. Cada nota da cota parlamentar (CEAP) tem um fornecedor: a empresa ou pessoa que recebeu o pagamento.",
+      "2. Juntamos todas as notas de cada fornecedor e somamos os valores liquidos pagos.",
+      "3. Consideramos apenas a 57a Legislatura (2023 em diante) e ignoramos estornos (valores zero ou negativos).",
+      "4. Ordenamos do fornecedor que mais recebeu para o que menos recebeu.",
+    ],
+    interpretacao: "Receber muito da cota nao e irregular por si so — graficas e companhias aereas concentram grandes valores naturalmente. O ranking mostra para onde o dinheiro publico se concentra, nao onde ha suspeita.",
+  },
+  {
+    id: "concentracao",
+    titulo: "Concentracao e Participacao no Total",
+    origem: "Q5 — % do Total e Top 30",
+    formula: "% do fornecedor = total pago a ele ÷ total pago a todos os fornecedores do ano",
+    passos: [
+      "1. Para cada ano, somamos quanto foi pago a todos os fornecedores juntos.",
+      "2. Dividimos o valor de cada fornecedor por esse total para achar sua fatia (%).",
+      "3. Somando os 30 maiores, vemos quanto do dinheiro fica concentrado em poucas empresas.",
+      "4. A barra de cada linha mostra o tamanho do fornecedor em relacao ao maior do ranking.",
+    ],
+    interpretacao: "Quanto maior a fatia dos primeiros colocados, mais concentrado e o mercado de fornecedores da cota. Pouca concentracao indica gasto pulverizado entre muitas empresas.",
+  },
+  {
+    id: "dep_forn",
+    titulo: "Deputado × Fornecedores",
+    origem: "Q12 — Pares Deputado-Fornecedor",
+    formula: "Total = soma do valor liquido pago por um deputado a cada fornecedor",
+    passos: [
+      "1. Cada nota liga um deputado a um fornecedor especifico.",
+      "2. Para o deputado escolhido, agrupamos as notas por fornecedor e somamos os valores.",
+      "3. Cada par 'deputado-fornecedor' vira uma linha, com total pago e numero de lancamentos.",
+      "4. Ordenamos os fornecedores do que mais recebeu daquele deputado para o que menos recebeu.",
+    ],
+    interpretacao: "Mostra com quem cada deputado gasta a cota. Um fornecedor que concentra boa parte dos gastos de um parlamentar pode indicar uma relacao preferencial — um ponto de partida para investigacao, nao uma conclusao.",
+  },
+  {
+    id: "universo",
+    titulo: "Universo e Filtros dos Dados",
+    origem: "Q5 e Q12 — CEAP / 57a Legislatura",
+    formula: "Base = despesas da Cota Parlamentar (CEAP) de deputados da 57a Legislatura",
+    passos: [
+      "1. Usamos apenas despesas reembolsadas pela cota parlamentar (CEAP), nao o orcamento geral da Camara.",
+      "2. Restringimos aos deputados da 57a Legislatura (2023-2027) para nao misturar mandatos anteriores.",
+      "3. No ranking de gastos (Q5) consideramos so valores liquidos positivos, excluindo estornos e glosas.",
+      "4. Nomes de fornecedores sao padronizados (caracteres especiais normalizados) para evitar duplicatas.",
+    ],
+    interpretacao: "Esses filtros garantem que os valores reflitam gastos efetivos da atual legislatura. Pequenas diferencas com outras fontes geralmente vem de estornos ou de periodos diferentes.",
+  },
+];
+
+function MethodologySection() {
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  return (
+    <section className="border-t border-border px-6 py-14 md:px-14" style={{ background: "#0c0c0c" }}>
+      <SectionHeader
+        n="03"
+        tag="METODOLOGIA"
+        title="Como os indicadores foram calculados?"
+        desc="Transparência analítica · Clique em cada método para expandir e ver a fórmula, os passos e como interpretar."
+      />
+
+      {METODOS.map((m) => (
+        <div key={m.id} className="mb-2 border border-border" style={{ background: "#0a0a0a" }}>
+          <button
+            type="button"
+            onClick={() => toggle(m.id)}
+            className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+          >
+            <div>
+              <p className="text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.titulo}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{m.origem}</p>
+            </div>
+            <span className="ml-4 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              {open[m.id] ? "▲" : "▼"}
+            </span>
+          </button>
+
+          {open[m.id] ? (
+            <div className="border-t border-border px-5 py-5" style={{ background: "#080808" }}>
+              {/* Fórmula */}
+              <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: RED }}>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Fórmula</p>
+                <p className="mt-1 text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.formula}</p>
+              </div>
+              {/* Passos */}
+              <div className="mb-4 flex flex-col gap-2">
+                {m.passos.map((p, pi) => (
+                  <p key={pi} className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{p}</p>
+                ))}
+              </div>
+              {/* Interpretação */}
+              <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
+                <p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Como interpretar</p>
+                <p className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{m.interpretacao}</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </section>
+  );
+}
+
 // ─── componente principal ─────────────────────────────────────────────────────
 export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: Props) {
 
@@ -904,6 +1024,11 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
           </div>
         )}
       </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          SEÇÃO 03 — METODOLOGIA  (Q5 + Q12) · mesmo estilo dos recortes 1 e 2
+      ══════════════════════════════════════════════════════════ */}
+      <MethodologySection />
     </div>
   );
 }
