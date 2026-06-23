@@ -73,6 +73,70 @@ const PARTY_NAMES: Record<string, string> = {
 };
 
 
+type MetodoItem = {
+  id: string;
+  titulo: string;
+  origem: string;
+  formula: string;
+  passos: string[];
+  interpretacao: string;
+};
+
+const METODOS: MetodoItem[] = [
+  {
+    id: "freq",
+    titulo: "Frequencia nas Votacoes",
+    origem: "Q11.a — Frequencia dos Partidos",
+    formula: "Votacoes participadas = numero de votacoes distintas em que a bancada do partido registrou voto",
+    passos: [
+      "1. Cada vez que um deputado vota em um projeto, esse voto fica registrado junto com a sigla do partido dele.",
+      "2. Para cada partido, contamos em quantas votacoes diferentes a bancada apareceu (votacoes distintas).",
+      "3. Tambem somamos o total de votos individuais registrados pela bancada inteira.",
+      "4. Ordenamos do partido mais presente para o menos presente nas votacoes.",
+    ],
+    interpretacao: "Partidos com bancadas grandes tendem a registrar mais votos no total. Por isso a pagina destaca a media de votos por votacao, que ajuda a comparar partidos de tamanhos diferentes.",
+  },
+  {
+    id: "prop",
+    titulo: "Proposicoes por Partido",
+    origem: "Q11.b — Proposicoes de Projetos",
+    formula: "Total = numero de proposicoes distintas em que algum deputado do partido e autor",
+    passos: [
+      "1. Cada projeto de lei (proposicao) tem um ou mais deputados como autores, e cada autor pertence a um partido.",
+      "2. Para cada partido, contamos quantos projetos distintos tem pelo menos um autor da legenda.",
+      "3. Cada proposicao e contada uma unica vez por partido, mesmo que varios deputados da legenda a assinem (COUNT DISTINCT).",
+      "4. Ordenamos do partido que mais propos para o que menos propos.",
+    ],
+    interpretacao: "Quantidade nao e qualidade: muitos projetos nao significam que foram aprovados. O numero mostra o volume de iniciativa legislativa, nao o impacto de cada proposta.",
+  },
+  {
+    id: "gastos",
+    titulo: "Gastos do Partido (CEAP)",
+    origem: "Q11.c — Gastos por Partido",
+    formula: "Gasto total = soma do valor liquido de todas as despesas dos deputados do partido",
+    passos: [
+      "1. Toda despesa reembolsada pela cota parlamentar (CEAP) esta ligada ao deputado e, por ele, ao partido.",
+      "2. Somamos o valor liquido de todas as despesas dos deputados de cada partido.",
+      "3. Dividimos pelo numero de deputados da legenda para obter o gasto medio por deputado.",
+      "4. Ordenamos do partido que mais gastou para o que menos gastou e mostramos a evolucao por ano.",
+    ],
+    interpretacao: "O gasto total de um partido cresce com o tamanho da bancada. O gasto medio por deputado e a forma mais justa de comparar legendas grandes e pequenas.",
+  },
+  {
+    id: "nuvem",
+    titulo: "Nuvem de Temas",
+    origem: "Q11 (extra) — Temas das Proposicoes",
+    formula: "Quantas proposicoes distintas o partido apresentou em cada tema legislativo",
+    passos: [
+      "1. Lendo o tema de cada proposicao apresentada pelo partido, agrupamos os projetos por assunto legislativo.",
+      "2. Contamos quantas proposicoes distintas o partido tem em cada tema (COUNT DISTINCT).",
+      "3. Os temas com mais proposicoes aparecem maiores na nuvem de palavras.",
+      "4. Clicar em um tema filtra a lista para mostrar apenas as proposicoes daquele assunto.",
+    ],
+    interpretacao: "A nuvem revela as prioridades tematicas do partido — em que assuntos ele concentra suas propostas. Temas maiores indicam mais iniciativa naquela area, nao necessariamente mais aprovacoes.",
+  },
+];
+
 const formatCurrency = (value: number) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const formatNumber = (value: number) => value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 const raw = (row: Record<string, unknown> | undefined, key: string) => Number(row?.[key] || 0);
@@ -192,6 +256,8 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
   const [selectedTema, setSelectedTema] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [metodoOpen, setMetodoOpen] = useState<Record<string, boolean>>({});
+  const toggleMetodo = (id: string) => setMetodoOpen((state) => ({ ...state, [id]: !state[id] }));
 
   useEffect(() => {
     let mounted = true;
@@ -912,6 +978,60 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             ) : (
               <EmptyPanel message="Carregando temas do partido..." />
             )}
+          </section>
+
+          {/* ════════════════════════════════════════════════════════
+              METODOLOGIA — colapsavel, mesmo estilo dos recortes 1 e 2
+          ════════════════════════════════════════════════════════ */}
+          <section className="border-b border-border px-6 py-14 md:px-14">
+            <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+              5. METODOLOGIA
+            </p>
+            <h3 className="mb-3 text-3xl font-black" style={sectionTitleStyle}>
+              Como os indicadores foram calculados?
+            </h3>
+            <p className="mb-10 text-xs uppercase tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
+              Transparencia analitica · Clique em cada metodo para expandir
+            </p>
+
+            {METODOS.map((m) => (
+              <div key={m.id} className="mb-2 border border-border" style={{ background: "#0a0a0a" }}>
+                <button
+                  type="button"
+                  onClick={() => toggleMetodo(m.id)}
+                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+                >
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.titulo}</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>{m.origem}</p>
+                  </div>
+                  <span className="ml-4 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                    {metodoOpen[m.id] ? "▲" : "▼"}
+                  </span>
+                </button>
+
+                {metodoOpen[m.id] && (
+                  <div className="border-t border-border px-5 py-5" style={{ background: "#080808" }}>
+                    {/* Formula */}
+                    <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: "var(--primary)" }}>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Formula</p>
+                      <p className="mt-1 text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.formula}</p>
+                    </div>
+                    {/* Passos */}
+                    <div className="mb-4 flex flex-col gap-2">
+                      {m.passos.map((p, pi) => (
+                        <p key={pi} className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{p}</p>
+                      ))}
+                    </div>
+                    {/* Interpretacao */}
+                    <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
+                      <p className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Como interpretar</p>
+                      <p className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{m.interpretacao}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </section>
 
         </>

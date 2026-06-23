@@ -973,6 +973,143 @@ function ChartBox({
   );
 }
 
+type MetodoItem = {
+  id: string;
+  titulo: string;
+  origem: string;
+  formula: string;
+  passos: string[];
+  interpretacao: string;
+};
+
+const METODOS: MetodoItem[] = [
+  {
+    id: "gastos_dep",
+    titulo: "Quanto o deputado gastou",
+    origem: "Q1 — Gastos por Deputado",
+    formula: "Gasto total = soma de todas as despesas reembolsadas pela cota (CEAP)",
+    passos: [
+      "1. O CEAP é a 'cota parlamentar': uma verba pública que cada deputado pode usar para despesas do mandato, como passagens, combustível e divulgação.",
+      "2. Juntamos todas as notas fiscais que o deputado pediu para serem reembolsadas e somamos os valores.",
+      "3. Consideramos o período de 2023 a 2026, que é a atual legislatura (a 57ª).",
+      "4. Esse total é o número que aparece no topo do perfil dele.",
+    ],
+    interpretacao: "Gastar mais não é sinal de corrupção: o CEAP é uma verba legal. Deputados de estados grandes (como SP e RJ) têm cota maior, então o valor sozinho não diz tudo.",
+  },
+  {
+    id: "eixos",
+    titulo: "Em que temas ele atua",
+    origem: "Q2 — Eixos e Nuvem de Palavras",
+    formula: "Quantas propostas o deputado apresentou em cada tema (2023-2026)",
+    passos: [
+      "1. Cada projeto de lei (proposição) trata de algum assunto — por exemplo, Saúde, Educação ou Segurança.",
+      "2. Lendo o título e o resumo de cada projeto, o sistema o encaixa em um de 32 grandes temas.",
+      "3. Contamos quantos projetos desse deputado caíram em cada tema.",
+      "4. Os temas com mais projetos mostram onde ele concentra sua atuação.",
+    ],
+    interpretacao: "Um tema aparecer em destaque significa que o deputado apresentou muitos projetos sobre ele — não necessariamente que esses projetos foram aprovados ou tiveram impacto.",
+  },
+  {
+    id: "votos",
+    titulo: "Como ele vota por tema",
+    origem: "Q3 — Votações Nominais",
+    formula: "Contagem dos votos (Sim, Não, Abstenção) do deputado, separados por tema",
+    passos: [
+      "1. Nas votações importantes, o voto de cada deputado fica registrado: Sim, Não, Abstenção ou ausência.",
+      "2. Pegamos os votos desse deputado e os agrupamos pelo tema da matéria votada.",
+      "3. Para cada tema, contamos quantas vezes ele votou Sim, Não ou se absteve.",
+      "4. Você pode ver os números em quantidade ou em porcentagem, para comparar o comportamento dele entre os temas.",
+    ],
+    interpretacao: "Isso mostra a tendência de voto do deputado em cada assunto, mas não julga se o voto foi 'certo' ou 'errado' — apenas registra a posição que ele tomou.",
+  },
+  {
+    id: "cb",
+    titulo: "Custo-benefício do mandato",
+    origem: "Q7 — Índice de Custo-Benefício",
+    formula: "Score = o quanto o deputado 'entregou' ÷ o quanto ele gastou",
+    passos: [
+      "1. Primeiro estimamos o quanto o deputado produziu, combinando três coisas: número de projetos apresentados, projetos aprovados (que pesam mais) e presença nas sessões.",
+      "2. Depois dividimos essa 'entrega' pelo total que ele gastou da cota.",
+      "3. Quanto maior o resultado, mais ele entregou para cada real gasto.",
+      "4. Atenção: quem gastou quase nada pode aparecer com um score altíssimo e enganoso.",
+    ],
+    interpretacao: "Esse índice mede eficiência de custo, e não a qualidade do trabalho. Um deputado pode ter score alto só por gastar pouco, mesmo produzindo pouco.",
+  },
+  {
+    id: "gastos_cat",
+    titulo: "Em que ele gastou a cota",
+    origem: "Q13 — Categorias de Gasto por Deputado",
+    formula: "Total gasto pelo deputado em cada tipo de despesa",
+    passos: [
+      "1. Toda despesa da cota tem um tipo, como Divulgação Parlamentar, Passagem Aérea ou Combustível.",
+      "2. Somamos quanto esse deputado gastou em cada tipo.",
+      "3. Calculamos quanto cada tipo representa do total dele.",
+      "4. Isso mostra como ele distribuiu o uso da cota ao longo do mandato.",
+    ],
+    interpretacao: "A 'Divulgação da Atividade Parlamentar' costuma ser uma das maiores fatias. Por ser a mais alta, é também a mais questionada em auditorias sobre o uso da cota.",
+  },
+];
+
+function MethodologySection() {
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  const MONO = "'JetBrains Mono', monospace";
+
+  return (
+    <section className="border-t px-6 py-16 sm:px-10" style={{ borderColor: "rgba(243,239,232,0.12)" }}>
+      <div className="mx-auto max-w-[1434px]">
+        <div className="mb-9">
+          <p className="mb-4 text-[11px] uppercase" style={{ color: "#e00836", fontFamily: MONO, letterSpacing: "0.42em" }}>
+            Metodologia
+          </p>
+          <h2 className="text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "#f3efe8", fontFamily: "'Playfair Display', serif" }}>
+            Como os indicadores foram calculados?
+          </h2>
+          <p className="mt-3 text-[11px] uppercase" style={{ color: "rgba(243,239,232,0.48)", fontFamily: MONO, letterSpacing: "0.24em" }}>
+            Transparência analítica · Clique em cada método para expandir
+          </p>
+        </div>
+
+        {METODOS.map((m) => (
+          <div key={m.id} className="mb-2 border" style={{ borderColor: "rgba(243,239,232,0.14)", background: "rgba(255,255,255,0.018)" }}>
+            <button
+              type="button"
+              onClick={() => toggle(m.id)}
+              className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+            >
+              <div>
+                <p className="text-sm font-bold" style={{ color: "#f3efe8", fontFamily: MONO }}>{m.titulo}</p>
+                <p className="mt-0.5 text-[10px]" style={{ color: "rgba(243,239,232,0.5)", fontFamily: MONO }}>{m.origem}</p>
+              </div>
+              <span className="ml-4 shrink-0 text-xs" style={{ color: "rgba(243,239,232,0.5)", fontFamily: MONO }}>
+                {open[m.id] ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {open[m.id] && (
+              <div className="border-t px-5 py-5" style={{ borderColor: "rgba(243,239,232,0.14)", background: "rgba(255,255,255,0.01)" }}>
+                <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: "#e00836" }}>
+                  <p className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(243,239,232,0.5)", fontFamily: MONO }}>Fórmula</p>
+                  <p className="mt-1 text-sm font-bold" style={{ color: "#f3efe8", fontFamily: MONO }}>{m.formula}</p>
+                </div>
+                <div className="mb-4 flex flex-col gap-2">
+                  {m.passos.map((p, pi) => (
+                    <p key={pi} className="text-xs leading-relaxed" style={{ color: "rgba(243,239,232,0.75)", fontFamily: MONO }}>{p}</p>
+                  ))}
+                </div>
+                <div className="border p-3" style={{ borderColor: "rgba(243,239,232,0.14)", background: "rgba(224,8,54,0.06)" }}>
+                  <p className="mb-1 text-[10px] uppercase tracking-widest" style={{ color: "rgba(243,239,232,0.5)", fontFamily: MONO }}>Como interpretar</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgba(243,239,232,0.75)", fontFamily: MONO }}>{m.interpretacao}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: DeputadoPageProps) {
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [selectedDeputy, setSelectedDeputy] = useState<DeputySelection | null>(null);
@@ -1088,6 +1225,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: Dep
           <AxesSection payloads={payloads} />
           <VotesSection payloads={payloads} />
           <CostBenefitSection payloads={payloads} />
+          <MethodologySection />
         </>
       )}
     </main>
