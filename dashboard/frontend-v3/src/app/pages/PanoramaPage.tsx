@@ -35,6 +35,10 @@ const raw = (row: Row, key: string) => Number(row?.[key] ?? 0);
 const str = (row: Row, key: string) => String(row?.[key] ?? "");
 const normalizedCb = (row: Row) => raw(row, "custo_beneficio") * 1000;
 
+// Normaliza texto para busca (minúsculas, sem acentos)
+const normalizeText = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+
 const getGlobalCbRows = (payload: QuestionPayload) => {
   const globalTable = getGlobalCbTable(payload);
 
@@ -80,6 +84,156 @@ const fetchGlobalCbRanking = async () => {
 
   return dedupeRows([firstPayload, ...nextPayloads].flatMap(getGlobalCbRows));
 };
+
+// Busca o ranking COMPLETO de gastos (todas as páginas) para localizar posições
+const fetchAllGastosRanking = async () => {
+  const pageSize = 200;
+  const first = await fetchQuestion("q1", {}, { page: 1, pageSize });
+  const total = first.table_spec.total ?? 0;
+  const effectivePageSize = first.table_spec.page_size ?? pageSize;
+  const pages = Math.ceil(total / effectivePageSize);
+
+  const rest =
+    pages > 1
+      ? await Promise.all(
+          Array.from({ length: pages - 1 }, (_, index) =>
+            fetchQuestion("q1", {}, { page: index + 2, pageSize }),
+          ),
+        )
+      : [];
+
+  const allRows = [first, ...rest].flatMap((payload) => (payload.table_spec.rows ?? []) as Row[]);
+  return [...allRows].sort((a, b) => raw(b, "gasto_total") - raw(a, "gasto_total"));
+};
+
+// ── Filtro de posição: pesquisa um deputado e mostra sua colocação no ranking ──
+type PosicaoFinderProps = {
+  rows: Row[];
+  query: string;
+  onQuery: (value: string) => void;
+  metricLabel: string;
+  metric: (row: Row) => string;
+  rounded?: boolean;
+};
+
+function PosicaoFinder({ rows, query, onQuery, metricLabel, metric, rounded }: PosicaoFinderProps) {
+  const q = normalizeText(query);
+  const matches = q
+    ? rows
+        .map((row, idx) => ({ row, rank: idx + 1 }))
+        .filter(({ row }) => normalizeText(str(row, "nome")).includes(q))
+        .slice(0, 25)
+    : [];
+
+  return (
+    <div className="mb-8">
+      <div className="relative flex items-center">
+        <span className="pointer-events-none absolute left-4 text-sm text-muted-foreground" style={{ fontFamily: MONO }}>
+          ⌕
+        </span>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => onQuery(e.target.value)}
+          placeholder="DIGITE O NOME DO DEPUTADO PARA VER A POSIÇÃO NO RANKING"
+          className="w-full border border-border py-3 pl-10 pr-10 text-sm outline-none transition-colors focus:border-primary"
+          style={{ fontFamily: MONO, color: "#f0ece4", background: "#0e0e0e" }}
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => onQuery("")}
+            className="absolute right-3 text-lg leading-none text-muted-foreground transition-colors hover:text-primary"
+            style={{ fontFamily: MONO }}
+            aria-label="Limpar busca"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {query.trim() && (
+        <div className="mt-3 flex flex-col gap-2">
+          {rows.length === 0 ? (
+            <div
+              className="flex h-16 items-center justify-center border border-border text-xs text-muted-foreground"
+              style={{ fontFamily: MONO, background: "#0e0e0e" }}
+            >
+              CARREGANDO RANKING COMPLETO...
+            </div>
+          ) : matches.length === 0 ? (
+            <div
+              className="flex h-16 items-center justify-center border border-border text-xs text-muted-foreground"
+              style={{ fontFamily: MONO, background: "#0e0e0e" }}
+            >
+              NENHUM DEPUTADO ENCONTRADO PARA "{query.trim().toUpperCase()}"
+            </div>
+          ) : (
+            matches.map(({ row, rank }) => {
+              const id = str(row, "id_deputado");
+              const isTop = rank === 1;
+              const color = isTop ? RED : rank <= 3 ? "#d4841a" : "#f0ece4";
+              return (
+                <div
+                  key={`${id}-${rank}`}
+                  className="flex items-center gap-4 border px-5 py-3"
+                  style={{ background: "#0e0e0e", borderColor: rank <= 3 ? `${color}55` : "rgba(240,236,228,0.12)" }}
+                >
+                  {/* Posição */}
+                  <div className="flex shrink-0 flex-col items-center" style={{ minWidth: 64 }}>
+                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                      posição
+                    </span>
+                    <span className="text-2xl font-black leading-none" style={{ fontFamily: SERIF, color }}>
+                      {rank}º
+                    </span>
+                    <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                      de {rows.length}
+                    </span>
+                  </div>
+                  {/* Foto */}
+                  <img
+                    src={depPhoto(id)}
+                    alt=""
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    className={`h-12 w-12 shrink-0 object-cover object-top ${rounded ? "rounded-full" : ""}`}
+                    style={{ border: `2px solid ${color}` }}
+                  />
+                  {/* Nome + partido */}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-bold" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                      {str(row, "nome")}
+                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <span
+                        className="px-2 py-0.5 text-[11px] font-bold"
+                        style={{ fontFamily: MONO, background: "rgba(240,236,228,0.08)", color: "#f0ece4" }}
+                      >
+                        {str(row, "sigla_partido")}
+                      </span>
+                      <span className="text-[11px] font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>
+                        {str(row, "sigla_uf")}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Métrica */}
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-black" style={{ fontFamily: MONO, color }}>
+                      {metric(row)}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground" style={{ fontFamily: MONO }}>
+                      {metricLabel}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Section({ n, tag, title, sub, children }: SectionProps) {
   return (
@@ -136,6 +290,8 @@ const abrevCat = (s: string) =>
 export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PanoramaPageProps) {
   // Seção 01 — Top deputados
   const [top10, setTop10] = useState<Row[]>([]);
+  const [gastoAllRows, setGastoAllRows] = useState<Row[]>([]); // ranking completo p/ busca de posição
+  const [gastoQuery, setGastoQuery] = useState("");
   const [tableOpen, setTableOpen] = useState(false);
   const [tableRows, setTableRows] = useState<Row[]>([]);
   const [tablePage, setTablePage] = useState(1);
@@ -168,6 +324,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   const [cbTablePage, setCbTablePage] = useState(1);
   const [cbTableTotal, setCbTableTotal] = useState(0);
   const [cbTableLoading, setCbTableLoading] = useState(false);
+  const [cbQuery, setCbQuery] = useState(""); // busca de posição no ranking de custo-benefício
   const cbTableRef = useRef<HTMLDivElement>(null);
 
   // Abre/fecha tabela CB e carrega primeira página
@@ -209,6 +366,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         setTop10((payload.table_spec.rows ?? []) as Row[]);
         setTableTotal(payload.table_spec.total ?? 0);
       })
+      .catch(() => {});
+
+    // Carrega o ranking completo de gastos (em background) p/ busca de posição
+    fetchAllGastosRanking()
+      .then(setGastoAllRows)
       .catch(() => {});
 
     // Carrega categorias globais (complement_tables[2] do Q13)
@@ -285,6 +447,15 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
       />
 
       <Section n="01" tag="DEPUTADOS" title="Top 10 que mais gastam" sub="CEAP ACUMULADA 2023-2026 · TODOS OS DEPUTADOS FEDERAIS">
+
+        {/* ── Filtro: pesquisar posição de um deputado no ranking de gastos ── */}
+        <PosicaoFinder
+          rows={gastoAllRows}
+          query={gastoQuery}
+          onQuery={setGastoQuery}
+          metricLabel="Gasto total"
+          metric={(r) => fmtCurrency(raw(r, "gasto_total"))}
+        />
 
         {/* ── Ranking com fotos ── */}
         <div className="mb-10 flex flex-col gap-0 border border-border" style={{ background: "#0e0e0e" }}>
@@ -895,6 +1066,16 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           SEÇÃO 01D  CUSTO-BENEFÍCIO DOS DEPUTADOS
       ════════════════════════════════════════════════════════ */}
       <Section n="01D" tag="CUSTO-BENEFÍCIO" title="Quem entrega mais por menos?" sub="RANKING GLOBAL 2023-2026 · BENEFÍCIO ÷ GASTO TOTAL · TOP 10 DEPUTADOS">
+
+        {/* ── Filtro: pesquisar posição de um deputado no ranking de custo-benefício ── */}
+        <PosicaoFinder
+          rows={cbAllRows}
+          query={cbQuery}
+          onQuery={setCbQuery}
+          metricLabel="Pts / R$ 1 mil"
+          metric={(r) => normalizedCb(r).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          rounded
+        />
 
         {/* Ranking top 10 */}
         <div className="mb-10 flex flex-col gap-3">
