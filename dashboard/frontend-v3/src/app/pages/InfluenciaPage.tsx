@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as echarts from "echarts";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
@@ -86,6 +86,13 @@ const text = (row: Row | undefined, key: string) => String(row?.[key] ?? "");
 const fmtNum = (value: number) => value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 const fmtPct = (value: number) => `${value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
 
+// foto do deputado — mesmo padrão dos recortes 01 e 02
+const depPhoto = (id: string | number) =>
+  `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
+// normaliza texto para busca (minúsculas, sem acentos)
+const normalizeText = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+
 function SectionHeader({ tag, n, title, desc }: { tag: string; n: string; title: string; desc: string }) {
   return (
     <div className="mb-8">
@@ -143,6 +150,51 @@ function SimpleTable({ rows, columns, empty }: { rows: Row[]; columns: string[];
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+// Caixa de busca reutilizável
+function SearchInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="relative w-full max-w-xl">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+        ⌕
+      </span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full border border-border py-3 pl-9 pr-9 text-sm outline-none transition-colors focus:border-primary"
+        style={{ fontFamily: MONO, color: "#f0ece4", background: "#111" }}
+      />
+      {value ? (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-lg leading-none text-muted-foreground transition-colors hover:text-primary"
+          aria-label="Limpar busca"
+        >
+          ×
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+// Bloco colapsável (tabela inicialmente escondida, com botão mostrar/ocultar)
+function CollapsibleSection({ title, open, onToggle, children }: { title: string; open: boolean; onToggle: () => void; children: ReactNode }) {
+  return (
+    <div className="border border-border" style={{ background: "#0a0a0a" }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+      >
+        <span className="text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>{title}</span>
+        <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{open ? "▲ OCULTAR" : "▼ MOSTRAR"}</span>
+      </button>
+      {open ? <div className="border-t border-border p-4">{children}</div> : null}
     </div>
   );
 }
@@ -311,6 +363,12 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   const [methQ10Open, setMethQ10Open] = useState(false);
   const [q8GraphTopLimit, setQ8GraphTopLimit] = useState(80);
   const [selectedDeputy, setSelectedDeputy] = useState<RawGraphNode | null>(null);
+  // filtros de busca e visibilidade das tabelas
+  const [q8DepSearch, setQ8DepSearch] = useState("");
+  const [q10PartySearch, setQ10PartySearch] = useState("");
+  const [q8TableOpen, setQ8TableOpen] = useState(false);
+  const [q10TableOpen, setQ10TableOpen] = useState(false);
+  const [q10AnnualOpen, setQ10AnnualOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -359,6 +417,29 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   const q10Columns = q10Year
     ? ["posicao", "ano_dados", "sigla_partido", "ideologia", "total_votos", "votos_alinhados", "pct_alinhamento"]
     : ["posicao", "sigla_partido", "ideologia", "qtd_deputados", "total_votos_com_diretriz", "votos_alinhados", "votos_contrarios", "pct_alinhamento"];
+
+  // ── Seção 8: ranking com posição + busca por deputado ──
+  const q8Ranked = useMemo(() => q8FullRanking.map((row, index) => ({ row, rank: index + 1 })), [q8FullRanking]);
+  const q8FilteredRanked = useMemo(() => {
+    const q = normalizeText(q8DepSearch);
+    if (!q) return q8Ranked;
+    return q8Ranked.filter(({ row }) => normalizeText(text(row, "nome")).includes(q));
+  }, [q8Ranked, q8DepSearch]);
+  const q8SearchActive = q8DepSearch.trim() !== "";
+  const q8VisibleRanked = q8SearchActive ? q8FilteredRanked : q8FilteredRanked.slice(0, q8RowsShown);
+
+  // ── Seção 10: busca por partido (filtra as tabelas) ──
+  const q10PartyActive = q10PartySearch.trim() !== "";
+  const q10FilteredRows = useMemo(() => {
+    const q = normalizeText(q10PartySearch);
+    if (!q) return q10Rows;
+    return q10Rows.filter((row) => normalizeText(text(row, "sigla_partido")).includes(q));
+  }, [q10Rows, q10PartySearch]);
+  const q10AnnualFiltered = useMemo(() => {
+    const q = normalizeText(q10PartySearch);
+    if (!q) return q10AnnualRows.slice(0, 40);
+    return q10AnnualRows.filter((row) => normalizeText(text(row, "sigla_partido")).includes(q));
+  }, [q10AnnualRows, q10PartySearch]);
 
   const communityNodes = useMemo(() => q8Communities.map((row, index) => ({
     id: text(row, "comunidade"),
@@ -730,21 +811,73 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </ResponsiveContainer>
         </div>
 
-        <SimpleTable
-          rows={q8FullRanking.slice(0, q8RowsShown)}
-          columns={["id_deputado", "nome", "proposicoes_autoria", "proposicoes_aprovadas", "pct_aprovadas"]}
-          empty="Sem linhas da Q8."
-        />
-        {q8RowsShown < q8FullRanking.length ? (
-          <button
-            type="button"
-            onClick={() => setQ8RowsShown((value) => value + 20)}
-            className="mt-4 border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-            style={{ fontFamily: MONO }}
-          >
-            CARREGAR MAIS LINHAS
-          </button>
-        ) : null}
+        {/* Filtro: pesquisar deputado pelo nome */}
+        <div className="mb-4">
+          <SearchInput value={q8DepSearch} onChange={setQ8DepSearch} placeholder="Pesquisar deputado pelo nome..." />
+        </div>
+
+        {/* Tabela de deputados — inicialmente escondida (abre ao mostrar ou ao pesquisar) */}
+        <CollapsibleSection
+          title={`TABELA DE DEPUTADOS · ${fmtNum(q8FilteredRanked.length)} ${q8SearchActive ? "ENCONTRADOS" : "NO RANKING"}`}
+          open={q8TableOpen || q8SearchActive}
+          onToggle={() => setQ8TableOpen((v) => !v)}
+        >
+          <div className="overflow-x-auto" style={{ maxHeight: 520, overflowY: "auto" }}>
+            <table className="min-w-full text-left text-sm">
+              <thead style={{ background: "#0a0a0a", position: "sticky", top: 0, zIndex: 1 }}>
+                <tr>
+                  {["#", "Foto", "Deputado", "Autoria", "Aprovadas", "% Aprovadas"].map((col) => (
+                    <th key={col} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {q8VisibleRanked.map(({ row, rank }) => {
+                  const id = text(row, "id_deputado");
+                  const isFirst = rank === 1;
+                  return (
+                    <tr key={id || rank} className="border-t border-border hover:bg-white/[0.03]">
+                      <td className="px-4 py-2 font-bold" style={{ fontFamily: SERIF, color: isFirst ? RED : "rgba(240,236,228,0.4)" }}>
+                        {String(rank).padStart(2, "0")}
+                      </td>
+                      <td className="px-2 py-1">
+                        <img
+                          src={depPhoto(id)}
+                          alt=""
+                          className="h-10 w-8 object-cover object-top"
+                          style={{ filter: "grayscale(40%) contrast(1.05)" }}
+                          onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+                        />
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "#f0ece4", fontFamily: SERIF }}>{text(row, "nome")}</td>
+                      <td className="px-4 py-2 text-muted-foreground">{fmtNum(raw(row, "proposicoes_autoria"))}</td>
+                      <td className="px-4 py-2 text-muted-foreground">{fmtNum(raw(row, "proposicoes_aprovadas"))}</td>
+                      <td className="px-4 py-2 font-bold" style={{ color: isFirst ? RED : "#f0ece4" }}>{fmtPct(raw(row, "pct_aprovadas"))}</td>
+                    </tr>
+                  );
+                })}
+                {q8VisibleRanked.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                      {q8SearchActive ? `NENHUM DEPUTADO ENCONTRADO PARA "${q8DepSearch.trim().toUpperCase()}".` : "Sem linhas da Q8."}
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+
+          {!q8SearchActive && q8RowsShown < q8FullRanking.length ? (
+            <button
+              type="button"
+              onClick={() => setQ8RowsShown((value) => value + 20)}
+              className="mt-4 border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              style={{ fontFamily: MONO }}
+            >
+              CARREGAR MAIS LINHAS
+            </button>
+          ) : null}
+        </CollapsibleSection>
 
       </section>
 
@@ -756,7 +889,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           desc="A Q10 ordena os partidos pelo alinhamento interno: votos alinhados com a orientacao partidaria dividido pelo total de votos com diretriz."
         />
 
-        <div className="mb-6 flex flex-wrap gap-2">
+        {/* Filtro por ANO */}
+        <p className="mb-2 text-[10px] tracking-[0.28em] text-muted-foreground" style={{ fontFamily: MONO }}>FILTRAR POR ANO</p>
+        <div className="mb-5 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setQ10Year("")}
@@ -776,6 +911,12 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
               {year.label}
             </button>
           ))}
+        </div>
+
+        {/* Filtro por PARTIDO */}
+        <p className="mb-2 text-[10px] tracking-[0.28em] text-muted-foreground" style={{ fontFamily: MONO }}>FILTRAR POR PARTIDO</p>
+        <div className="mb-6">
+          <SearchInput value={q10PartySearch} onChange={setQ10PartySearch} placeholder="Pesquisar partido (ex: PT, PL, MDB)..." />
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
@@ -813,11 +954,18 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </ResponsiveContainer>
         </div>
 
-        <SimpleTable
-          rows={q10Rows}
-          columns={q10Columns}
-          empty="Sem linhas da Q10."
-        />
+        {/* Tabela principal — inicialmente escondida (abre ao mostrar ou ao pesquisar partido) */}
+        <CollapsibleSection
+          title={`RANKING DE PARTIDOS · ${fmtNum(q10FilteredRows.length)} ${q10PartyActive ? "ENCONTRADOS" : "PARTIDOS"}`}
+          open={q10TableOpen || q10PartyActive}
+          onToggle={() => setQ10TableOpen((v) => !v)}
+        >
+          <SimpleTable
+            rows={q10FilteredRows}
+            columns={q10Columns}
+            empty={q10PartyActive ? `Nenhum partido encontrado para "${q10PartySearch.trim().toUpperCase()}".` : "Sem linhas da Q10."}
+          />
+        </CollapsibleSection>
 
         {!q10Year && q10AnnualRows.length ? (
           <div className="mt-10">
@@ -827,11 +975,18 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
               title="Alinhamento interno por ano"
               desc="Tabela complementar da Q10 para comparar a disciplina partidaria ano a ano."
             />
-            <SimpleTable
-              rows={q10AnnualRows.slice(0, 40)}
-              columns={["ano_dados", "sigla_partido", "ideologia", "total_votos", "votos_alinhados", "pct_alinhamento"]}
-              empty="Sem linhas anuais da Q10."
-            />
+            {/* Tabela anual — inicialmente escondida (abre ao mostrar ou ao pesquisar partido) */}
+            <CollapsibleSection
+              title={`ALINHAMENTO POR ANO · ${fmtNum(q10AnnualFiltered.length)} ${q10PartyActive ? "ENCONTRADAS" : "LINHAS"}`}
+              open={q10AnnualOpen || q10PartyActive}
+              onToggle={() => setQ10AnnualOpen((v) => !v)}
+            >
+              <SimpleTable
+                rows={q10AnnualFiltered}
+                columns={["ano_dados", "sigla_partido", "ideologia", "total_votos", "votos_alinhados", "pct_alinhamento"]}
+                empty={q10PartyActive ? `Nenhum partido encontrado para "${q10PartySearch.trim().toUpperCase()}".` : "Sem linhas anuais da Q10."}
+              />
+            </CollapsibleSection>
           </div>
         ) : null}
       </section>
