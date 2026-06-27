@@ -99,14 +99,14 @@ const fmtCurrency = (v: number) =>
 
 const TOOLTIP = {
   contentStyle: {
-    background: "#141414",
-    border: "1px solid rgba(240,236,228,0.12)",
+    background: "var(--chart-tooltip-bg)",
+    border: "1px solid var(--chart-tooltip-border)",
     fontFamily: MONO,
     fontSize: 11,
-    color: "#fff",
+    color: "var(--chart-tooltip-text)",
   },
-  itemStyle: { color: "#fff" },
-  labelStyle: { color: "#fff" },
+  itemStyle: { color: "var(--chart-tooltip-text)" },
+  labelStyle: { color: "var(--chart-tooltip-text)" },
 };
 
 function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title: string; desc: string }) {
@@ -116,7 +116,7 @@ function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title:
         <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.22)" }}>{n}</span>
         <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{title}</h2>
+      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
     </div>
   );
@@ -134,7 +134,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string; 
 
 function EmptyPanel({ text: msg }: { text: string }) {
   return (
-    <div className="border border-border px-6 py-10 text-center" style={{ background: "#111" }}>
+    <div className="border border-border px-6 py-10 text-center" style={{ background: "var(--card)" }}>
       <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{msg}</p>
     </div>
   );
@@ -159,11 +159,11 @@ function HBar({
     <div style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} layout="vertical" margin={{ left: 0, right: 80, top: 0, bottom: 0 }}>
-          <XAxis type="number" tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-          <YAxis type="category" dataKey="escolaridade" width={150} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+          <XAxis type="number" tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+          <YAxis type="category" dataKey="escolaridade" width={150} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
           <Tooltip {...TOOLTIP} formatter={tooltipFormatter} />
           <Bar dataKey={dataKey} maxBarSize={24}
-            label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: labelFormatter ?? ((v: number) => fmtNum(v)) }}>
+            label={{ position: "right", fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO, formatter: labelFormatter ?? ((v: number) => fmtNum(v)) }}>
             {rows.map((row) => (
               <Cell key={text(row, "escolaridade")} fill={eduColor(text(row, "escolaridade"))} />
             ))}
@@ -180,12 +180,12 @@ function CollapsibleMethod({
   return (
     <div className="mb-3 border border-border">
       <button type="button" onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-        style={{ background: "#111" }}>
+        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-secondary"
+        style={{ background: "var(--card)" }}>
         <div className="flex items-baseline gap-3">
           <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>{n}</span>
           <div>
-            <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>{title}</p>
+            <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{title}</p>
             <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p>
           </div>
         </div>
@@ -194,7 +194,7 @@ function CollapsibleMethod({
         </span>
       </button>
       {open && (
-        <div className="border-t border-border px-5 py-7" style={{ background: "#0d0d0d" }}>
+        <div className="border-t border-border px-5 py-7" style={{ background: "var(--card)" }}>
           {children}
         </div>
       )}
@@ -209,7 +209,7 @@ function MethodSteps({ steps }: { steps: { n: string; title: string; body: strin
         <li key={s.n} className="flex gap-4">
           <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{s.n}</span>
           <div>
-            <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>{s.title}</p>
+            <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{s.title}</p>
             <p className="text-xs leading-relaxed text-muted-foreground">{s.body}</p>
           </div>
         </li>
@@ -376,7 +376,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+      <div className="min-h-screen bg-background">
         <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
           CARREGANDO DADOS...
@@ -386,7 +386,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
@@ -462,7 +462,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           {q4Rows.map((r) => (
             <span key={text(r, "escolaridade")}
               className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2 py-1 text-xs"
-              style={{ background: "#111", fontFamily: MONO }}>
+              style={{ background: "var(--card)", fontFamily: MONO }}>
               <span className="inline-block h-2 w-2 rounded-full" style={{ background: eduColor(text(r, "escolaridade")) }} />
               {text(r, "escolaridade")}
             </span>
@@ -471,7 +471,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
       </section>
 
       {/* ── 4.1 CONSULTA INDIVIDUAL ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="4.1"
           tag="CONSULTA INDIVIDUAL"
@@ -490,13 +490,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
               onBlur={() => setTimeout(() => setDepDropOpen(false), 180)}
               placeholder="Nome do deputado..."
               className="h-14 w-full border bg-transparent px-5 text-[15px] outline-none"
-              style={{ borderColor: "rgba(240,236,228,0.18)", color: "#f0ece4", fontFamily: MONO }}
+              style={{ borderColor: "var(--border)", color: "var(--foreground)", fontFamily: MONO }}
             />
 
             {depDropOpen && depSearch.trim() ? (
               <div
                 className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 border"
-                style={{ borderColor: "rgba(240,236,228,0.14)", background: "#141414" }}
+                style={{ borderColor: "var(--border)", background: "var(--card)" }}
               >
                 {depSuggestions.length === 0 ? (
                   <p className="px-4 py-4 text-xs uppercase text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -513,7 +513,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                         setDepDropOpen(false);
                       }}
                       className="flex w-full items-center gap-4 border-b px-4 py-3 text-left transition-colors hover:bg-white/5"
-                      style={{ borderColor: "rgba(240,236,228,0.08)" }}
+                      style={{ borderColor: "var(--border)" }}
                     >
                       <img
                         src={depPhotoUrl(text(dep, "id_deputado"))}
@@ -523,7 +523,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                         onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
                       />
                       <span className="min-w-0 flex-1">
-                        <strong className="block truncate text-[15px]" style={{ color: "#f0ece4", fontFamily: SERIF }}>
+                        <strong className="block truncate text-[15px]" style={{ color: "var(--foreground)", fontFamily: SERIF }}>
                           {text(dep, "nome")}
                         </strong>
                         <small className="mt-0.5 flex items-center gap-1.5 text-[10px] uppercase" style={{ fontFamily: MONO, letterSpacing: "0.12em" }}>
@@ -547,7 +547,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
             const nivel = text(selectedDep, "escolaridade") || "Nao informado";
             const color = eduColor(nivel);
             return (
-              <div className="mt-6 border border-border" style={{ background: "#111", borderLeft: `4px solid ${color}` }}>
+              <div className="mt-6 border border-border" style={{ background: "var(--card)", borderLeft: `4px solid ${color}` }}>
                 <div className="flex items-start gap-0">
                   {/* Foto */}
                   <div className="relative shrink-0 overflow-hidden" style={{ width: 120, minHeight: 160, background: "#1a1a1a" }}>
@@ -572,7 +572,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                   {/* Info */}
                   <div className="flex flex-1 flex-col justify-between gap-4 p-6">
                     <div>
-                      <h3 className="text-xl font-black leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                      <h3 className="text-xl font-black leading-tight" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
                         {nome}
                       </h3>
                       <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -634,7 +634,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
       </section>
 
       {/* ── 6b FIDELIDADE ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="6b"
           tag="ESCOLARIDADE × FIDELIDADE PARTIDARIA"
@@ -670,7 +670,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
       </section>
 
       {/* ── 6d PRESENÇA EM EVENTOS ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="6d"
           tag="ESCOLARIDADE × PRESENCA EM EVENTOS"
@@ -706,7 +706,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
       </section>
 
       {/* ── EVOLUÇÃO POR ANO ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="6f"
           tag="EVOLUCAO ANUAL"
@@ -715,9 +715,9 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
         />
 
         {anos.length && q6MainRows.length ? (
-          <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+          <div className="overflow-x-auto border border-border" style={{ background: "var(--card)" }}>
             <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
-              <thead style={{ background: "#0a0a0a" }}>
+              <thead style={{ background: "var(--secondary)" }}>
                 <tr>
                   {["Ano", "Escolaridade", "Qtd Dep", "Media Gasto", "Media Fidelidade", "Media Proposicoes", "Presenca Eventos", "Presenca Plenario"].map((col) => (
                     <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
@@ -726,7 +726,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
               </thead>
               <tbody>
                 {q6MainRows.map((row, i) => (
-                  <tr key={i} className="border-t border-border hover:bg-[#181818]">
+                  <tr key={i} className="border-t border-border hover:bg-secondary">
                     <td className="whitespace-nowrap px-4 py-2 text-muted-foreground">{text(row, "ano_dados")}</td>
                     <td className="whitespace-nowrap px-4 py-2">
                       <span className="inline-flex items-center gap-1.5">
@@ -749,7 +749,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
       </section>
 
       {/* ── ETA COMPLEMENTAR ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#070707" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="η²"
           tag="ETA COMPLEMENTAR"
@@ -776,7 +776,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           return (
             <div className="space-y-8">
               {/* Gráfico */}
-              <div className="border border-border p-6" style={{ background: "#0e0e0e" }}>
+              <div className="border border-border p-6" style={{ background: "var(--card)" }}>
                 <p className="mb-4 text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
                   η² POR INDICADOR — quanto da variação é explicada pela escolaridade
                 </p>
@@ -791,7 +791,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                       type="number"
                       domain={[0, 0.016]}
                       tickFormatter={(v: number) => v.toFixed(4)}
-                      tick={{ fill: "rgba(240,236,228,0.4)", fontSize: 10, fontFamily: MONO }}
+                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }}
                       axisLine={false}
                       tickLine={false}
                     />
@@ -799,12 +799,12 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                       type="category"
                       dataKey="name"
                       width={155}
-                      tick={{ fill: "rgba(240,236,228,0.7)", fontSize: 11, fontFamily: MONO }}
+                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 11, fontFamily: MONO }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.12)", fontFamily: MONO, fontSize: 11 }}
+                      contentStyle={{ background: "var(--chart-tooltip-bg)", border: "1px solid var(--chart-tooltip-border)", fontFamily: MONO, fontSize: 11, color: "var(--chart-tooltip-text)" }}
                       formatter={(v: number, _: string, entry: { payload?: { interpretacao?: string; registros?: number } }) => [
                         `η² = ${v.toFixed(4)}  ·  ${entry.payload?.interpretacao ?? ""}  ·  ${entry.payload?.registros ?? 0} registros`,
                         "Força",
@@ -833,9 +833,9 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
               </div>
 
               {/* Tabela de valores */}
-              <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+              <div className="overflow-x-auto border border-border" style={{ background: "var(--card)" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
-                  <thead style={{ background: "#0a0a0a" }}>
+                  <thead style={{ background: "var(--secondary)" }}>
                     <tr>
                       {["Indicador", "Registros válidos", "Grupos", "η²", "Interpretação"].map((col) => (
                         <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
@@ -845,7 +845,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                   <tbody>
                     {barData.map((row, i) => (
                       <tr key={i} className="border-t border-border">
-                        <td className="px-4 py-2.5 font-medium" style={{ color: "#f0ece4" }}>{row.name}</td>
+                        <td className="px-4 py-2.5 font-medium" style={{ color: "var(--foreground)" }}>{row.name}</td>
                         <td className="px-4 py-2.5 text-right text-muted-foreground">{fmtNum(row.registros)}</td>
                         <td className="px-4 py-2.5 text-right text-muted-foreground">
                           {fmtNum(raw(q6EtaRows.find((r) => text(r, "indicador").replace(/_/g, " ") === row.name) ?? {}, "grupos_escolaridade"))}
@@ -859,11 +859,11 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
               </div>
 
               {/* Conclusão */}
-              <div className="border border-border p-6" style={{ background: "#0e0e0e", borderLeft: `4px solid ${RED}` }}>
+              <div className="border border-border p-6" style={{ background: "var(--card)", borderLeft: `4px solid ${RED}` }}>
                 <p className="mb-2 text-xs font-bold uppercase tracking-[0.24em]" style={{ color: RED, fontFamily: MONO }}>Conclusão estatística</p>
                 <p className="text-sm leading-relaxed text-muted-foreground" style={{ fontFamily: MONO }}>
                   Todos os η² ficam abaixo de 0,02 — na prática, a escolaridade explica menos de 2% da variação em qualquer
-                  indicador parlamentar. A análise estatística confirma o que as médias sugerem: <strong style={{ color: "#f0ece4" }}>
+                  indicador parlamentar. A análise estatística confirma o que as médias sugerem: <strong style={{ color: "var(--foreground)" }}>
                   partido, ideologia e trajetória política importam muito mais do que o grau de instrução</strong> para
                   prever gastos, fidelidade, produção legislativa ou presença parlamentar.
                 </p>
@@ -874,7 +874,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
       </section>
 
       {/* ── METODOLOGIA ── */}
-      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "#080808" }}>
+      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
         <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA</p>
 
         <CollapsibleMethod n="4" title="DISTRIBUICAO POR ESCOLARIDADE" sub="Como classificamos o nivel de instrucao de cada deputado"

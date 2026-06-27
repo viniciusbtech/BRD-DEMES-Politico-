@@ -91,7 +91,7 @@ function SectionHeader({ tag, n, title, desc }: { tag: string; n: string; title:
         <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.22)" }}>{n}</span>
         <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{title}</h2>
+      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
     </div>
   );
@@ -109,7 +109,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string; 
 
 function EmptyPanel({ text: msg }: { text: string }) {
   return (
-    <div className="border border-border px-6 py-12 text-center" style={{ background: "#111" }}>
+    <div className="border border-border px-6 py-12 text-center" style={{ background: "var(--card)" }}>
       <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{msg}</p>
     </div>
   );
@@ -118,9 +118,9 @@ function EmptyPanel({ text: msg }: { text: string }) {
 function SimpleTable({ rows, columns, empty }: { rows: Row[]; columns: string[]; empty: string }) {
   if (!rows.length) return <EmptyPanel text={empty} />;
   return (
-    <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+    <div className="overflow-x-auto border border-border" style={{ background: "var(--card)" }}>
       <table className="min-w-full text-left text-sm">
-        <thead style={{ background: "#0a0a0a" }}>
+        <thead className="bg-background">
           <tr>
             {columns.map((col) => (
               <th key={col} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -163,12 +163,12 @@ function CollapsibleMethod({ n, title, sub, open, onToggle, children }: {
         type="button"
         onClick={onToggle}
         className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-        style={{ background: "#111" }}
+        style={{ background: "var(--card)" }}
       >
         <div className="flex items-baseline gap-3">
           <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>{n}</span>
           <div>
-            <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>{title}</p>
+            <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{title}</p>
             <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p>
           </div>
         </div>
@@ -177,7 +177,7 @@ function CollapsibleMethod({ n, title, sub, open, onToggle, children }: {
         </span>
       </button>
       {open && (
-        <div className="border-t border-border px-5 py-7" style={{ background: "#0d0d0d" }}>
+        <div className="border-t border-border px-5 py-7" style={{ background: "var(--card)" }}>
           {children}
         </div>
       )}
@@ -192,7 +192,7 @@ function MethodSteps({ steps }: { steps: { n: string; title: string; body: strin
         <li key={step.n} className="flex gap-4">
           <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
           <div>
-            <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>{step.title}</p>
+            <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{step.title}</p>
             <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
           </div>
         </li>
@@ -478,14 +478,14 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   const totalPolarizadas = q94Rows.length;
 
   const tooltipStyle = {
-    contentStyle: { background: "#141414", border: "1px solid rgba(240,236,228,0.12)", fontFamily: MONO, fontSize: 11, color: "#fff" },
-    itemStyle: { color: "#fff" },
-    labelStyle: { color: "#fff" },
+    contentStyle: { background: "var(--chart-tooltip-bg)", border: "1px solid var(--chart-tooltip-border)", fontFamily: MONO, fontSize: 11, color: "var(--chart-tooltip-text)" },
+    itemStyle: { color: "var(--chart-tooltip-text)" },
+    labelStyle: { color: "var(--chart-tooltip-text)" },
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+      <div className="min-h-screen bg-background">
         <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>CARREGANDO DADOS...</div>
       </div>
@@ -493,7 +493,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
@@ -549,10 +549,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           const color = scoreColor(score);
           return (
             <>
-              <div className="border border-border p-6" style={{ background: "#111", borderLeft: `4px solid ${color}` }}>
+              <div className="border border-border p-6" style={{ background: "var(--card)", borderLeft: `4px solid ${color}` }}>
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{text(found1, "nome_deputado")}</h3>
+                    <h3 className="text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{text(found1, "nome_deputado")}</h3>
                     <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                       <span>{text(found1, "sigla_partido")}</span>
                       <span>· partido rotulado:</span>
@@ -571,7 +571,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                   <span>CENTRO (50)</span>
                   <span style={{ color: "#2b5490" }}>DIREITA (100) →</span>
                 </div>
-                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "var(--secondary)" }}>
                   <StatCard label="VOTOS EM POLARIZADAS" value={fmtNum(raw(found1, "votos_em_polarizadas"))} />
                   <StatCard label="COM ESQUERDA" value={fmtNum(raw(found1, "votos_com_esquerda"))} color={RED} />
                   <StatCard label="COM DIREITA" value={fmtNum(raw(found1, "votos_com_direita"))} color="#2b5490" />
@@ -587,7 +587,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
               {/* ── 9.3 OBSERVAR O VOTO DE PROPOSTA (voto real do deputado) ── */}
               <div className="mt-10">
                 <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>9.3 — OBSERVAR O VOTO DE PROPOSTA</p>
-                <h3 className="mb-2 text-2xl font-black md:text-3xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>Como {text(found1, "nome_deputado")} votou em cada proposta</h3>
+                <h3 className="mb-2 text-2xl font-black md:text-3xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>Como {text(found1, "nome_deputado")} votou em cada proposta</h3>
                 <p className="mb-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
                   Voto real do deputado nas propostas que dividem esquerda e direita. A coluna "votou com" indica de qual campo o voto se aproximou em cada proposta. Use o filtro para separar as propostas do campo da esquerda e da direita.
                 </p>
@@ -602,7 +602,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                       type="button"
                       onClick={() => setBancadaCampo(c)}
                       className="border px-3 py-1.5 text-xs font-bold"
-                      style={{ fontFamily: MONO, borderColor: bancadaCampo === c ? RED : "rgba(240,236,228,0.12)", color: bancadaCampo === c ? RED : "var(--muted-foreground)" }}
+                      style={{ fontFamily: MONO, borderColor: bancadaCampo === c ? RED : "var(--border)", color: bancadaCampo === c ? RED : "var(--muted-foreground)" }}
                     >
                       {c === "todos" ? `TODAS (${depVotosRows.length})` : c === "esquerda" ? "CAMPO ESQUERDA" : "CAMPO DIREITA"}
                     </button>
@@ -612,9 +612,9 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                 {depVotosLoading ? (
                   <EmptyPanel text="CARREGANDO VOTOS DO DEPUTADO..." />
                 ) : depVotosFiltered.length ? (
-                  <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+                  <div className="overflow-x-auto border border-border" style={{ background: "var(--card)" }}>
                     <table className="min-w-full text-left text-sm">
-                      <thead style={{ background: "#0a0a0a" }}>
+                      <thead className="bg-background">
                         <tr>
                           {["ano", "votacao", "proposta", "campo", "voto", "votou com"].map((h) => (
                             <th key={h} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{h}</th>
@@ -648,7 +648,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader n="9.1" tag="CLASSIFICACAO DOS PARTIDOS" title="Qual o vies de cada partido?" desc="Cada partido foi classificado por espectro ideologico. O grafico mostra a distribuicao dos partidos por campo politico e lista os integrantes de cada grupo." />
 
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={{ background: "var(--secondary)" }}>
           <StatCard label="PARTIDOS MAPEADOS" value={fmtNum(totalPartidos)} />
           <StatCard label="CAMPOS IDEOLOGICOS" value={fmtNum(ideologiaGroups.length)} />
           <StatCard label="DEPUTADOS ANALISADOS" value={fmtNum(totalDeputados)} color="#d6a84f" />
@@ -678,7 +678,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
             {ideologiaGroups.map((group) => {
               const color = IDEOLOGY_COLORS[group.ideologia] ?? "#555";
               return (
-                <div key={group.ideologia} className="border border-border p-4" style={{ background: "#111", borderLeft: `3px solid ${color}` }}>
+                <div key={group.ideologia} className="border border-border p-4" style={{ background: "var(--card)", borderLeft: `3px solid ${color}` }}>
                   <div className="mb-2 flex items-center justify-between">
                     <IdeologyBadge ideology={group.ideologia} />
                     <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{group.qtd} partido{group.qtd !== 1 ? "s" : ""}</span>
@@ -696,10 +696,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       </section>
 
       {/* ── Q9.2 CORRELAÇÃO ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader n="9.2" tag="CORRELACAO PARTIDO X PROPOSTA" title="Qual campo vota mais Sim?" desc="Para cada votacao, calculamos o percentual de votos Sim por campo ideologico. O resumo exibe a media de apoio de cada campo ao longo de todo o periodo." />
 
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-2" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-2" style={{ background: "var(--secondary)" }}>
           <StatCard label="VOTACOES ANALISADAS" value={fmtNum(totalVotacoes)} />
           <StatCard label="REGISTROS IDEOLOGIA X VOTACAO" value={fmtNum(q92Rows.length)} color="#d6a84f" />
         </div>
@@ -710,10 +710,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
             <div className="mb-8 h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={q92Summary} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="ideologia" width={110} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v: string) => IDEOLOGY_LABELS[v] ?? v} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <YAxis type="category" dataKey="ideologia" width={110} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v: string) => IDEOLOGY_LABELS[v] ?? v} />
                   <Tooltip {...tooltipStyle} formatter={(value, _n, props) => [`${value}%`, `${IDEOLOGY_LABELS[props.payload.ideologia] ?? props.payload.ideologia} · ${fmtNum(props.payload.total)} registros`]} />
-                  <Bar dataKey="media_pct_sim" maxBarSize={28} label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
+                  <Bar dataKey="media_pct_sim" maxBarSize={28} label={{ position: "right", fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
                     {q92Summary.map((e) => <Cell key={e.ideologia} fill={IDEOLOGY_COLORS[e.ideologia] ?? "#555"} />)}
                   </Bar>
                 </BarChart>
@@ -729,7 +729,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
         {q92PartidoResumo.length ? (
           <div className="mt-12 border-t border-border pt-10">
             <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>VISAO POR PARTIDO</p>
-            <h3 className="mb-3 text-2xl font-black md:text-3xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>Cada partido votou mais Sim ou Nao?</h3>
+            <h3 className="mb-3 text-2xl font-black md:text-3xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>Cada partido votou mais Sim ou Nao?</h3>
             <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
               Agora descendo do campo ideologico para o partido: a media de % Sim de cada legenda, se a maioria votou Sim ou Nao no periodo, e o quanto o voto da bancada bateu com a orientacao oficial do partido.
             </p>
@@ -738,10 +738,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
             <div className="mb-8" style={{ height: Math.max(360, q92PartidoResumo.length * 26) }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={q92PartidoResumo} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="sigla_partido" width={90} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <YAxis type="category" dataKey="sigla_partido" width={90} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
                   <Tooltip {...tooltipStyle} formatter={(value, _n, props) => [`${value}% Sim`, `${props.payload.sigla_partido} · ${IDEOLOGY_LABELS[props.payload.ideologia] ?? props.payload.ideologia} · ${fmtNum(props.payload.votacoes)} votacoes`]} />
-                  <Bar dataKey="media_pct_sim" maxBarSize={20} label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
+                  <Bar dataKey="media_pct_sim" maxBarSize={20} label={{ position: "right", fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
                     {q92PartidoResumo.map((row) => <Cell key={text(row, "sigla_partido")} fill={IDEOLOGY_COLORS[text(row, "ideologia")] ?? "#555"} />)}
                   </Bar>
                 </BarChart>
@@ -786,7 +786,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                       type="button"
                       onClick={() => setDetYear("")}
                       className="border px-2.5 py-1 text-xs font-bold"
-                      style={{ fontFamily: MONO, borderColor: !detYear ? RED : "rgba(240,236,228,0.12)", color: !detYear ? RED : "var(--muted-foreground)" }}
+                      style={{ fontFamily: MONO, borderColor: !detYear ? RED : "var(--border)", color: !detYear ? RED : "var(--muted-foreground)" }}
                     >
                       TODOS
                     </button>
@@ -796,7 +796,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                         type="button"
                         onClick={() => setDetYear(y)}
                         className="border px-2.5 py-1 text-xs font-bold"
-                        style={{ fontFamily: MONO, borderColor: detYear === y ? RED : "rgba(240,236,228,0.12)", color: detYear === y ? RED : "var(--muted-foreground)" }}
+                        style={{ fontFamily: MONO, borderColor: detYear === y ? RED : "var(--border)", color: detYear === y ? RED : "var(--muted-foreground)" }}
                       >
                         {y}
                       </button>
@@ -847,7 +847,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           desc="Filtramos as votacoes em que a diferenca entre o % Sim da esquerda e da direita foi de 30 pontos percentuais ou mais. Essas sao as votacoes que realmente revelam posicionamento ideologico."
         />
 
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "var(--secondary)" }}>
           <StatCard label="VOTACOES POLARIZADAS" value={fmtNum(totalPolarizadas)} sub="divergencia >= 30pp entre esq e dir" />
           <StatCard label="MAIOR DIVERGENCIA" value={q94Rows[0] ? fmtPct(raw(q94Rows[0], "divergencia_esq_dir")) : "-"} sub={q94Rows[0] ? text(q94Rows[0], "titulo_proposicao").slice(0, 40) + "…" : ""} color="#d6a84f" />
           <StatCard label="FAVORAVEIS A ESQUERDA" value={fmtNum(q94Rows.filter((r) => text(r, "campo_favoravel") === "esquerda favoravel").length)} color={RED} />
@@ -859,8 +859,8 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
             <div className="mb-8 h-[420px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={q94Rows.slice(0, 15)} layout="vertical" margin={{ left: 0, right: 50, top: 0, bottom: 0 }}>
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="id_votacao" width={72} tick={{ fill: "#888880", fontSize: 9, fontFamily: MONO }} axisLine={false} tickLine={false} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <YAxis type="category" dataKey="id_votacao" width={72} tick={{ fill: "var(--chart-axis-fill)", fontSize: 9, fontFamily: MONO }} axisLine={false} tickLine={false} />
                   <Tooltip
                     {...tooltipStyle}
                     formatter={(value, name, props) => {
@@ -868,7 +868,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                       return [`Esq ${fmtPct(raw(r, "pct_sim_esquerda"))} / Dir ${fmtPct(raw(r, "pct_sim_direita"))} / Ctr ${fmtPct(raw(r, "pct_sim_centro"))}`, text(r, "titulo_proposicao").slice(0, 60)];
                     }}
                   />
-                  <Bar dataKey="divergencia_esq_dir" maxBarSize={22} label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
+                  <Bar dataKey="divergencia_esq_dir" maxBarSize={22} label={{ position: "right", fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
                     {q94Rows.slice(0, 15).map((row) => (
                       <Cell key={text(row, "id_votacao")} fill={text(row, "campo_favoravel") === "esquerda favoravel" ? RED : "#2b5490"} />
                     ))}
@@ -896,7 +896,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       </section>
 
       {/* ── Q9.5 SCORE DE VIÉS ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="9.5"
           tag="VIES INDIVIDUAL DO DEPUTADO"
@@ -939,10 +939,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           const ideologia = text(foundDeputy, "ideologia_partido") || text(foundDeputy, "ideologia");
           const cardColor = score !== null ? scoreColor(score) : (IDEOLOGY_COLORS[ideologia] ?? "#888");
           return (
-            <div className="mb-8 border border-border p-6" style={{ background: "#111", borderLeft: `4px solid ${cardColor}` }}>
+            <div className="mb-8 border border-border p-6" style={{ background: "var(--card)", borderLeft: `4px solid ${cardColor}` }}>
               <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-2xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{text(foundDeputy, "nome_deputado")}</h3>
+                  <h3 className="text-2xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{text(foundDeputy, "nome_deputado")}</h3>
                   <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                     <span>{text(foundDeputy, "sigla_partido")}</span>
                     <IdeologyBadge ideology={ideologia} />
@@ -979,14 +979,14 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
               )}
 
               {score !== null ? (
-                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "var(--secondary)" }}>
                   <StatCard label="VOTOS EM POLARIZADAS" value={fmtNum(raw(foundDeputy, "votos_em_polarizadas"))} />
                   <StatCard label="COM ESQUERDA" value={fmtNum(raw(foundDeputy, "votos_com_esquerda"))} color={RED} />
                   <StatCard label="COM DIREITA" value={fmtNum(raw(foundDeputy, "votos_com_direita"))} color="#2b5490" />
                   <StatCard label="% COM DIREITA" value={fmtPct(raw(foundDeputy, "pct_com_direita"))} color={cardColor} />
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+                <div className="grid grid-cols-2 gap-px border border-border md:grid-cols-3" style={{ background: "var(--secondary)" }}>
                   <StatCard label="TOTAL DE VOTOS" value={fmtNum(raw(foundDeputy, "total_votos"))} />
                   <StatCard label="SEGUIU PARTIDO" value={fmtNum(raw(foundDeputy, "seguiu_orientacao"))} color="#4a7c59" />
                   <StatCard label="CONTRARIOU" value={fmtNum(raw(foundDeputy, "contrariou_orientacao"))} color={RED} />
@@ -1003,7 +1003,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                         <button key={`${text(row, "id_deputado")}-${i}`} type="button"
                           onClick={() => setSearch(text(row, "nome_deputado"))}
                           className="flex w-full items-center justify-between border border-border px-4 py-2 text-xs hover:border-primary"
-                          style={{ background: "#0d0d0d", fontFamily: MONO }}>
+                          style={{ background: "var(--card)", fontFamily: MONO }}>
                           <span>{text(row, "nome_deputado")} · {text(row, "sigla_partido")}</span>
                           {rowScore !== null
                             ? <span style={{ color: scoreColor(rowScore) }}>SCORE {rowScore.toFixed(1)}</span>
@@ -1033,7 +1033,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                   return (
                     <div key={`${text(row, "id_deputado")}-${i}`} className="group relative flex flex-col items-center" style={{ width: 16 }}>
                       <div className="w-full rounded-sm" style={{ height: `${heightPct * 0.9}px`, background: color, opacity: 0.85 }} />
-                      <div className="pointer-events-none absolute bottom-full mb-1 hidden w-48 border border-border p-2 text-xs group-hover:block" style={{ background: "#141414", fontFamily: MONO, zIndex: 10 }}>
+                      <div className="pointer-events-none absolute bottom-full mb-1 hidden w-48 border border-border p-2 text-xs group-hover:block" style={{ background: "var(--card)", fontFamily: MONO, zIndex: 10 }}>
                         <p style={{ color }}>{text(row, "nome_deputado")}</p>
                         <p className="text-muted-foreground">{text(row, "sigla_partido")} · SCORE {score.toFixed(1)}</p>
                       </div>
@@ -1053,11 +1053,11 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                 const score = raw(row, "score_vies");
                 const color = scoreColor(score);
                 return (
-                  <div key={text(row, "id_deputado")} className="border border-border p-4" style={{ background: "#111" }}>
+                  <div key={text(row, "id_deputado")} className="border border-border p-4" style={{ background: "var(--card)" }}>
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          <span className="font-bold text-sm" style={{ color: "#f0ece4" }}>{text(row, "nome_deputado")}</span>
+                          <span className="font-bold text-sm" style={{ color: "var(--foreground)" }}>{text(row, "nome_deputado")}</span>
                           <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{text(row, "sigla_partido")}</span>
                           <IdeologyBadge ideology={text(row, "ideologia_partido")} />
                         </div>
@@ -1102,10 +1102,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
             <div className="mb-8" style={{ height: Math.max(360, Math.min(q93Rows.length, 20) * 34) }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={q93Rows.slice(0, 20)} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="nome_deputado" width={160} tick={{ fill: "#888880", fontSize: 9, fontFamily: MONO }} axisLine={false} tickLine={false} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <YAxis type="category" dataKey="nome_deputado" width={160} tick={{ fill: "var(--chart-axis-fill)", fontSize: 9, fontFamily: MONO }} axisLine={false} tickLine={false} />
                   <Tooltip {...tooltipStyle} formatter={(value, _n, props) => [`${value}%`, `${props.payload.nome_deputado} · ${props.payload.sigla_partido}`]} />
-                  <Bar dataKey="pct_aderencia_partido" maxBarSize={22} label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
+                  <Bar dataKey="pct_aderencia_partido" maxBarSize={22} label={{ position: "right", fill: "var(--chart-axis-fill)", fontSize: 10, fontFamily: MONO, formatter: (v: number) => fmtPct(v) }}>
                     {q93Rows.slice(0, 20).map((row) => <Cell key={text(row, "id_deputado")} fill={IDEOLOGY_COLORS[text(row, "ideologia")] ?? "#555"} />)}
                   </Bar>
                 </BarChart>
@@ -1128,7 +1128,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       </section>
 
       {/* ── 9.6 OBSERVAR UMA PROPOSTA -> VOTO DE CADA DEPUTADO ── */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="9.6"
           tag="OBSERVAR UMA PROPOSTA"
@@ -1152,7 +1152,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           </div>
         </div>
 
-        <div className="mb-8 max-h-72 overflow-y-auto border border-border" style={{ background: "#111" }}>
+        <div className="mb-8 max-h-72 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
           {votacaoMatches.length === 0 ? (
             <div className="px-4 py-6 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Nenhuma votacao encontrada.</div>
           ) : votacaoMatches.map((r) => {
@@ -1184,10 +1184,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           <EmptyPanel text="CARREGANDO VOTOS... (a base completa de votos e carregada na primeira consulta — pode levar alguns segundos)" />
         ) : (
           <>
-            <div className="mb-6 border-l-4 py-4 pl-5" style={{ background: "#111", borderColor: RED }}>
-              <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{text(selectedVotacao, "titulo_proposicao")}</h3>
+            <div className="mb-6 border-l-4 py-4 pl-5" style={{ background: "var(--card)", borderColor: RED }}>
+              <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{text(selectedVotacao, "titulo_proposicao")}</h3>
               <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{text(selectedVotacao, "ano_dados")} · {selectedVotacaoId}</p>
-              <div className="mt-4 grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+              <div className="mt-4 grid grid-cols-2 gap-px border border-border md:grid-cols-4" style={{ background: "var(--secondary)" }}>
                 <StatCard label="DEPUTADOS" value={fmtNum(vvCounts.total)} />
                 <StatCard label="SIM" value={fmtNum(vvCounts.sim)} color="#4a7c59" />
                 <StatCard label="NAO" value={fmtNum(vvCounts.nao)} color={RED} />
@@ -1204,7 +1204,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
                     type="button"
                     onClick={() => setVvVoto(val)}
                     className="border px-2.5 py-1 text-xs font-bold"
-                    style={{ fontFamily: MONO, borderColor: vvVoto === val ? RED : "rgba(240,236,228,0.12)", color: vvVoto === val ? RED : "var(--muted-foreground)" }}
+                    style={{ fontFamily: MONO, borderColor: vvVoto === val ? RED : "var(--border)", color: vvVoto === val ? RED : "var(--muted-foreground)" }}
                   >
                     {lab}
                   </button>
@@ -1224,9 +1224,9 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
               </div>
             </div>
 
-            <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+            <div className="overflow-x-auto border border-border" style={{ background: "var(--card)" }}>
               <table className="min-w-full text-left text-sm">
-                <thead style={{ background: "#0a0a0a" }}>
+                <thead className="bg-background">
                   <tr>
                     {["deputado", "partido", "uf", "voto"].map((h) => (
                       <th key={h} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{h}</th>
@@ -1264,7 +1264,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
       </section>
 
       {/* ── METODOLOGIA ── */}
-      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "#080808" }}>
+      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
         <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA — COMO CHEGAMOS AQUI</p>
 
         <CollapsibleMethod n="9.1" title="CLASSIFICACAO DOS PARTIDOS POR IDEOLOGIA" sub="Como mapeamos o espectro politico de cada partido" open={methQ91Open} onToggle={() => setMethQ91Open((v) => !v)}>

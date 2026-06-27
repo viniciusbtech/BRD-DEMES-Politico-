@@ -49,18 +49,18 @@ function BiasBar({
 }) {
   return (
     <div>
-      <div className="relative mb-1.5 h-5" style={{ background: "rgba(240,236,228,0.06)" }}>
+      <div className="relative mb-1.5 h-5" style={{ background: "var(--secondary)" }}>
         <div
           className="absolute inset-0"
           style={{ background: "linear-gradient(to right, #c41230 0%, #d4841a 50%, #1a3a7c 100%)", opacity: 0.12 }}
         />
-        {showCenter ? <div className="absolute bottom-0 top-0 w-px opacity-20" style={{ left: "50%", background: "#f0ece4" }} /> : null}
+        {showCenter ? <div className="absolute bottom-0 top-0 w-px opacity-20" style={{ left: "50%", background: "var(--foreground)" }} /> : null}
         <div
           className="absolute bottom-1 top-1 w-3"
           style={{ left: `calc(${score}% - 6px)`, background: color, transition: "left 0.6s ease" }}
         />
       </div>
-      <div className="flex justify-between text-xs" style={{ fontFamily: MONO, color: "#555555" }}>
+      <div className="flex justify-between text-xs" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>
         <span>ESQUERDA</span>
         <span style={{ color }}>{label}</span>
         <span>DIREITA</span>
@@ -164,7 +164,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
   const discrepancy = bias ? Math.abs(bias.realScore - bias.declaredScore) : 0;
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
@@ -181,7 +181,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
         ]}
       />
 
-      <div className="border-b border-border px-6 py-10 md:px-14" style={{ background: "#0d0d0d" }}>
+      <div className="border-b border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
@@ -213,7 +213,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                 </button>
               ) : null}
               {depDropOpen ? (
-                <div className="absolute left-0 right-0 top-full z-20 border border-border" style={{ background: "#141414" }}>
+                <div className="absolute left-0 right-0 top-full z-20 border border-border" style={{ background: "var(--card)" }}>
                   {(depQuery ? filteredDeps : comportamentoDeputies).map((deputy) => (
                     <button
                       key={deputy.id}
@@ -278,7 +278,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                 </button>
               ) : null}
               {partyDropOpen ? (
-                <div className="absolute left-0 right-0 top-full z-20 border border-border" style={{ background: "#141414" }}>
+                <div className="absolute left-0 right-0 top-full z-20 border border-border" style={{ background: "var(--card)" }}>
                   {(partyQuery ? filteredParties : comportamentoParties).map((party) => (
                     <button
                       key={party.id}
@@ -289,7 +289,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                       }}
                       className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
                     >
-                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-xs font-black" style={{ background: party.color, fontFamily: SERIF, color: "#f0ece4" }}>
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center text-xs font-black" style={{ background: party.color, fontFamily: SERIF, color: "var(--primary-foreground)" }}>
                         {party.name}
                       </span>
                       <div className="min-w-0 flex-1">
@@ -324,7 +324,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
             ESPECTRO IDEOLÓGICO
           </p>
         </div>
-        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
           O deputado vota como se declara?
         </h2>
 
@@ -358,7 +358,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
               <BiasBar score={bias.declaredScore} label={bias.declaredLabel} color="#d4841a" />
             </div>
 
-            <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "rgba(240,236,228,0.08)" }}>
+            <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "var(--secondary)" }}>
               <div className="bg-background px-6 py-6">
                 <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
                   CONSISTÊNCIA
@@ -394,7 +394,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
             PARTIDO
           </p>
         </div>
-        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
           Qual o viés real do partido?
         </h2>
 
@@ -421,9 +421,9 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                 <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                   COMPARAÇÃO DEPUTADO x PARTIDO
                 </p>
-                <div className="relative h-12" style={{ background: "rgba(240,236,228,0.04)" }}>
+                <div className="relative h-12" style={{ background: "var(--secondary)" }}>
                   <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #c41230 0%, #d4841a 50%, #1a3a7c 100%)", opacity: 0.1 }} />
-                  <div className="absolute bottom-0 top-0 w-px opacity-20" style={{ left: "50%", background: "#f0ece4" }} />
+                  <div className="absolute bottom-0 top-0 w-px opacity-20" style={{ left: "50%", background: "var(--foreground)" }} />
                   <div className="absolute bottom-1 top-1 flex flex-col items-center" style={{ left: `calc(${activeParty.score}% - 1px)` }}>
                     <div className="h-full w-0.5 bg-amber-500 opacity-70" />
                     <span className="absolute -top-5 whitespace-nowrap text-xs" style={{ fontFamily: MONO, color: "#d4841a" }}>
@@ -440,7 +440,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
               </div>
             ) : null}
 
-            <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "rgba(240,236,228,0.08)" }}>
+            <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "var(--secondary)" }}>
               <div className="bg-background px-6 py-6">
                 <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
                   COESÃO INTERNA
@@ -470,7 +470,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                       <span className="w-12 flex-shrink-0 text-xs font-bold" style={{ fontFamily: MONO, color: party.color }}>
                         {party.name}
                       </span>
-                      <div className="relative h-2 flex-1" style={{ background: "rgba(240,236,228,0.07)" }}>
+                      <div className="relative h-2 flex-1" style={{ background: "var(--secondary)" }}>
                         <div style={{ width: `${party.score}%`, background: party.color, height: "100%" }} />
                       </div>
                       <span className="w-20 flex-shrink-0 text-xs" style={{ fontFamily: MONO, color: "#888888" }}>
@@ -494,7 +494,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
             VOTAÇÕES
           </p>
         </div>
-        <h2 className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+        <h2 className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
           Como votou em propostas específicas?
         </h2>
         <p className="mb-8 max-w-lg text-sm text-muted-foreground">
@@ -529,7 +529,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
           ))}
         </div>
 
-        <div className="flex flex-col gap-px overflow-x-auto border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="flex flex-col gap-px overflow-x-auto border border-border" style={{ background: "var(--secondary)" }}>
           <div className="grid min-w-[820px] gap-4 bg-background px-6 py-3" style={{ gridTemplateColumns: "120px 1fr 110px 120px 110px" }}>
             {["Nº / DATA", "PROPOSTA", "TEMA", "RESULTADO", "VOTO"].map((heading) => (
               <span key={heading} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>

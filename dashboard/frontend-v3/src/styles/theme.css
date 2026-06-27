@@ -2,6 +2,59 @@
 
 :root {
   --font-size: 16px;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #003366;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #003366;
+  --accent-foreground: #ffffff;
+  --destructive: #c41230;
+  --destructive-foreground: #ffffff;
+  --border: #cbd5e1;
+  --input: transparent;
+  --input-background: #f1f5f9;
+  --switch-background: #cbd5e1;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #003366;
+  --chart-1: #c41230;
+  --chart-2: #c8970a;
+  --chart-3: #4a7c59;
+  --chart-4: #2e5fa3;
+  --chart-5: #7b3fa0;
+  --radius: 0.25rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #003366;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #cbd5e1;
+  --sidebar-ring: #003366;
+  /* Glass surface for navbars/headers */
+  --surface-glass: rgba(248, 250, 252, 0.96);
+  --surface-glass-border: rgba(0, 0, 0, 0.10);
+  /* RGB helpers for rgba() usage */
+  --foreground-rgb: 15, 23, 42;
+  --primary-rgb: 0, 51, 102;
+  --background-rgb: 248, 250, 252;
+  /* Chart-specific tokens */
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #cbd5e1;
+  --chart-tooltip-text: #0f172a;
+  --chart-axis-fill: #64748b;
+  --chart-grid: #e2e8f0;
+}
+
+.dark {
   --background: #0a0a0a;
   --foreground: #f0ece4;
   --card: #141414;
@@ -31,51 +84,27 @@
   --chart-4: #2e5fa3;
   --chart-5: #7b3fa0;
   --radius: 0.25rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --sidebar: #141414;
+  --sidebar-foreground: #f0ece4;
+  --sidebar-primary: #c41230;
+  --sidebar-primary-foreground: #f0ece4;
+  --sidebar-accent: #1c1c1c;
+  --sidebar-accent-foreground: #f0ece4;
+  --sidebar-border: rgba(240, 236, 228, 0.1);
+  --sidebar-ring: #888880;
+  /* Glass surface for navbars/headers */
+  --surface-glass: rgba(8, 8, 8, 0.90);
+  --surface-glass-border: rgba(240, 236, 228, 0.08);
+  /* RGB helpers for rgba() usage */
+  --foreground-rgb: 240, 236, 228;
+  --primary-rgb: 196, 18, 48;
+  --background-rgb: 10, 10, 10;
+  /* Chart-specific tokens */
+  --chart-tooltip-bg: #141414;
+  --chart-tooltip-border: rgba(240, 236, 228, 0.12);
+  --chart-tooltip-text: #f0ece4;
+  --chart-axis-fill: #888880;
+  --chart-grid: rgba(240, 236, 228, 0.08);
 }
 
 @theme inline {

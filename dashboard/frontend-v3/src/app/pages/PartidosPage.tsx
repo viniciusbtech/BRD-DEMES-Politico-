@@ -3,6 +3,7 @@ import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
 import type { FilterChoice, QuestionPayload, TableSpec } from "../types";
+import { useTheme } from "../../contexts/ThemeContext";
 
 type PartidosPageProps = {
   onNavigateHome: () => void;
@@ -46,7 +47,7 @@ type AnnualPartySnapshot = {
 
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
-const sectionTitleStyle = { fontFamily: SERIF, color: "#f0ece4" };
+const sectionTitleStyle = { fontFamily: SERIF, color: "var(--foreground)" };
 const PARTY_COLORS = ["#1a3a7c", "#d4841a", "#c41230", "#2e5fa3", "#4a7c59", "#7b3fa0", "#c8970a", "#888880"];
 
 const PARTY_NAMES: Record<string, string> = {
@@ -234,7 +235,7 @@ function buildParties(payload: QuestionPayload | null, metaParties: FilterChoice
 
 function EmptyPanel({ message }: { message: string }) {
   return (
-    <div className="border border-border px-6 py-12 text-center text-sm text-muted-foreground" style={{ background: "#111111", fontFamily: MONO }}>
+    <div className="border border-border px-6 py-12 text-center text-sm text-muted-foreground" style={{ background: "var(--card)", fontFamily: MONO }}>
       {message}
     </div>
   );
@@ -242,6 +243,8 @@ function EmptyPanel({ message }: { message: string }) {
 
 
 export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PartidosPageProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [payload, setPayload] = useState<QuestionPayload | null>(null);
   const [selectedPayload, setSelectedPayload] = useState<QuestionPayload | null>(null);
   const [annualPayloads, setAnnualPayloads] = useState<Record<string, QuestionPayload>>({});
@@ -446,7 +449,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
   const presenceRank = selected ? sortedParties.findIndex((party) => party.id === selected.id) + 1 : 0;
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
@@ -491,7 +494,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               ) : null}
 
               {showPartyDrop ? (
-                <div className="absolute left-0 right-0 top-full z-20 max-h-80 overflow-y-auto border border-border" style={{ background: "#141414" }}>
+                <div className="absolute left-0 right-0 top-full z-20 max-h-80 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
                   {filteredParties.length ? (
                     filteredParties.map((party) => (
                       <button
@@ -504,7 +507,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                         }}
                         className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center text-sm font-black" style={{ background: party.color, fontFamily: SERIF, color: "#f0ece4" }}>
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center text-sm font-black" style={{ background: party.color, fontFamily: SERIF, color: "var(--primary-foreground)" }}>
                           {party.name === "REPUBLICANOS" ? "RP" : party.name === "SOLIDARIEDADE" ? "SD" : party.name}
                         </span>
                         <span className="min-w-0 flex-1">
@@ -538,9 +541,9 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               onClick={() => setSelectedYear("")}
               className="border px-4 py-2 text-xs font-bold uppercase transition-colors"
               style={{
-                borderColor: selectedYear ? "rgba(240,236,228,0.14)" : "var(--primary)",
+                borderColor: selectedYear ? "var(--border)" : "var(--primary)",
                 background: selectedYear ? "transparent" : "var(--primary)",
-                color: selectedYear ? "var(--muted-foreground)" : "#fff",
+                color: selectedYear ? "var(--muted-foreground)" : "var(--primary-foreground)",
                 fontFamily: MONO,
               }}
             >
@@ -553,9 +556,9 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 onClick={() => setSelectedYear(year.value)}
                 className="border px-4 py-2 text-xs font-bold uppercase transition-colors"
                 style={{
-                  borderColor: selectedYear === year.value ? "var(--primary)" : "rgba(240,236,228,0.14)",
+                  borderColor: selectedYear === year.value ? "var(--primary)" : "var(--border)",
                   background: selectedYear === year.value ? "var(--primary)" : "transparent",
-                  color: selectedYear === year.value ? "#fff" : "var(--muted-foreground)",
+                  color: selectedYear === year.value ? "var(--primary-foreground)" : "var(--muted-foreground)",
                   fontFamily: MONO,
                 }}
               >
@@ -580,7 +583,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         </section>
       ) : (
         <>
-          <div className="flex items-center gap-6 border-b border-border px-6 py-8 md:px-14" style={{ borderLeft: `4px solid ${selected.color}`, background: "#111111" }}>
+          <div className="flex items-center gap-6 border-b border-border px-6 py-8 md:px-14" style={{ borderLeft: `4px solid ${selected.color}`, background: "var(--card)" }}>
             {selectedPartyLogo ? (
               <img
                 src={selectedPartyLogo}
@@ -589,7 +592,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center text-xl font-black" style={{ background: selected.color, color: "#f0ece4", fontFamily: SERIF }}>
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center text-xl font-black" style={{ background: selected.color, color: "var(--primary-foreground)", fontFamily: SERIF }}>
                 {selected.name === "REPUBLICANOS" ? "RP" : selected.name === "SOLIDARIEDADE" ? "SD" : selected.name}
               </div>
             )}
@@ -611,7 +614,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               Frequencia do partido nas votacoes
             </h3>
 
-            <div className="grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "rgba(240,236,228,0.07)" }}>
+            <div className="grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "var(--secondary)" }}>
               {[
                 { label: "MEDIA DE VOTOS POR VOTACAO", value: selected.averageVotesPerSession.toFixed(1), note: "votos registrados por votacao participada" },
                 { label: "VOTACOES PARTICIPADAS", value: formatNumber(selected.votes), note: selectedYear ? `em ${selectedYear}` : "todos os anos" },
@@ -636,7 +639,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>MENOR MEDIA</span>
                 <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>MAIOR MEDIA</span>
               </div>
-              <div className="h-4 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)" }}>
+              <div className="h-4 overflow-hidden" style={{ background: "var(--secondary)" }}>
                 <div style={{ width: `${selected.presence}%`, background: selected.color, height: "100%" }} />
               </div>
               <p className="mt-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -651,9 +654,20 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               <div className="flex flex-col gap-2">
                 {(() => {
                   const maxVal = Math.max(...sortedParties.map((p) => p.averageVotesPerSession), 1);
-                  return sortedParties.map((party) => {
+                  return sortedParties.map((party, index) => {
                     const pct = (party.averageVotesPerSession / maxVal) * 100;
                     const isSelected = party.id === selected.id;
+                    const rankColor =
+                      index === 0
+                        ? "#c41230"
+                        : index === 1
+                          ? "#9a5a00"
+                          : index === 2
+                            ? "#7c2d12"
+                            : index < 6
+                              ? "#9f1239"
+                              : "#003366";
+                    const barColor = isSelected ? selected.color : isDark ? "rgba(240,236,228,0.22)" : rankColor;
                     return (
                       <div key={party.id} className="flex items-center gap-3">
                         <span
@@ -661,17 +675,23 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                           style={{
                             fontFamily: MONO,
                             fontWeight: isSelected ? 700 : 500,
-                            color: isSelected ? selected.color : "#c8c4bc",
+                            color: isSelected ? selected.color : "var(--muted-foreground)",
                           }}
                         >
                           {party.name}
                         </span>
-                        <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
+                        <div
+                          className="relative flex-1"
+                          style={{
+                            background: isDark ? "rgba(240,236,228,0.06)" : "rgba(15,23,42,0.08)",
+                            height: "12px",
+                          }}
+                        >
                           <div
                             style={{
                               width: `${pct}%`,
                               height: "100%",
-                              background: isSelected ? selected.color : "rgba(240,236,228,0.22)",
+                              background: barColor,
                             }}
                           />
                         </div>
@@ -679,7 +699,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                           className="w-10 shrink-0 text-xs"
                           style={{
                             fontFamily: MONO,
-                            color: isSelected ? selected.color : "#888880",
+                            color: isSelected ? selected.color : "var(--muted-foreground)",
                           }}
                         >
                           {party.averageVotesPerSession.toFixed(1)}
@@ -720,18 +740,35 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 <div className="flex flex-col gap-2">
                   {(() => {
                     const maxVal = Math.max(...proposalRankParties.map((p) => p.proposals), 1);
-                    return proposalRankParties.map((party) => {
+                    return proposalRankParties.map((party, index) => {
                       const pct = (party.proposals / maxVal) * 100;
                       const isSel = party.id === selected.id;
+                      const rankColor =
+                        index === 0
+                          ? "#c41230"
+                        : index === 1
+                            ? "#9a5a00"
+                            : index === 2
+                              ? "#7c2d12"
+                              : index < 6
+                                ? "#9f1239"
+                                : "#003366";
+                      const barColor = isSel ? selected.color : isDark ? "rgba(240,236,228,0.22)" : rankColor;
                       return (
                         <div key={party.id} className="flex items-center gap-3">
-                          <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "#c8c4bc" }}>
+                          <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "var(--muted-foreground)" }}>
                             {party.name}
                           </span>
-                          <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
-                            <div style={{ width: `${pct}%`, height: "100%", background: isSel ? selected.color : "rgba(240,236,228,0.22)" }} />
+                          <div
+                            className="relative flex-1"
+                            style={{
+                              background: isDark ? "rgba(240,236,228,0.06)" : "rgba(15,23,42,0.08)",
+                              height: "12px",
+                            }}
+                          >
+                            <div style={{ width: `${pct}%`, height: "100%", background: barColor }} />
                           </div>
-                          <span className="w-20 shrink-0 text-right text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "#888880" }}>
+                          <span className="w-20 shrink-0 text-right text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "var(--muted-foreground)" }}>
                             {formatNumber(party.proposals)}
                           </span>
                         </div>
@@ -755,7 +792,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             {selected.spending > 0 ? (
               <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
                 <div>
-                  <div className="mb-6 grid grid-cols-1 gap-px border border-border sm:grid-cols-2" style={{ background: "rgba(240,236,228,0.07)" }}>
+                  <div className="mb-6 grid grid-cols-1 gap-px border border-border sm:grid-cols-2" style={{ background: "var(--secondary)" }}>
                     {[
                       { label: "TOTAL GASTO", value: formatCurrency(selected.spending), note: selectedYear ? `em ${selectedYear}` : "todos os anos" },
                       { label: "GASTO MEDIO POR DEPUTADO", value: formatCurrency(selected.averageSpending || (selected.seats ? selected.spending / selected.seats : 0)), note: "Q11.c" },
@@ -790,13 +827,13 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                         const maxVal = Math.max(...annualSnapshots.map((s) => s.spending), 1);
                         return annualSnapshots.map((snap) => (
                           <div key={snap.year} className="flex items-center gap-3">
-                            <span className="w-12 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: 600, color: "#c8c4bc" }}>
+                            <span className="w-12 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: 600, color: "var(--muted-foreground)" }}>
                               {snap.year}
                             </span>
                             <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
                               <div style={{ width: `${(snap.spending / maxVal) * 100}%`, height: "100%", background: selected.color }} />
                             </div>
-                            <span className="w-28 shrink-0 text-xs" style={{ fontFamily: MONO, color: "#888880" }}>
+                            <span className="w-28 shrink-0 text-xs" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>
                               {formatCurrency(snap.spending)}
                             </span>
                           </div>
@@ -817,13 +854,13 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                           const isSel = party.id === selected.id;
                           return (
                             <div key={party.id} className="flex items-center gap-3">
-                              <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "#c8c4bc" }}>
+                              <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "var(--muted-foreground)" }}>
                                 {party.name}
                               </span>
                               <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.06)", height: "12px" }}>
                                 <div style={{ width: `${pct}%`, height: "100%", background: isSel ? selected.color : "rgba(240,236,228,0.22)" }} />
                               </div>
-                              <span className="w-28 shrink-0 text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "#888880" }}>
+                              <span className="w-28 shrink-0 text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "var(--muted-foreground)" }}>
                                 {formatCurrency(party.spending)}
                               </span>
                             </div>
@@ -863,9 +900,9 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                       className="rounded-full border px-3 py-1 text-xs transition-colors"
                       style={{
                         fontFamily: MONO,
-                        borderColor: selectedTema === null ? selected.color : "rgba(240,236,228,0.15)",
+                        borderColor: selectedTema === null ? selected.color : "var(--border)",
                         background: selectedTema === null ? selected.color : "transparent",
-                        color: selectedTema === null ? "#111" : "#c8c4bc",
+                        color: selectedTema === null ? "#111" : "var(--muted-foreground)",
                       }}
                     >
                       TODOS
@@ -881,9 +918,9 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                           className="rounded-full border px-3 py-1 text-xs transition-all"
                           style={{
                             fontFamily: MONO,
-                            borderColor: isActive ? color : "rgba(240,236,228,0.15)",
+                            borderColor: isActive ? color : "var(--border)",
                             background: isActive ? color : "transparent",
-                            color: isActive ? "#111" : "#c8c4bc",
+                            color: isActive ? "#111" : "var(--muted-foreground)",
                           }}
                         >
                           {item.tema}
@@ -896,7 +933,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 {/* Nuvem de palavras */}
                 <div
                   className="flex min-h-[280px] flex-wrap items-center justify-center gap-x-8 gap-y-5 border border-border p-10"
-                  style={{ background: "#0e0e0e" }}
+                  style={{ background: "var(--card)" }}
                 >
                   {(() => {
                     const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
@@ -952,16 +989,16 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                         >
                           <span
                             className="w-64 shrink-0 text-right text-xs"
-                            style={{ fontFamily: MONO, color: isActive ? "#e8e4dc" : "#555", fontWeight: isActive ? 600 : 400 }}
+                            style={{ fontFamily: MONO, color: isActive ? "var(--foreground)" : "var(--muted-foreground)", fontWeight: isActive ? 600 : 400 }}
                           >
                             {item.tema}
                           </span>
-                          <div className="relative flex-1" style={{ background: "rgba(240,236,228,0.05)", height: "10px" }}>
+                          <div className="relative flex-1" style={{ background: "var(--secondary)", height: "10px" }}>
                             <div
                               style={{
                                 width: `${(item.frequencia / maxFreq) * 100}%`,
                                 height: "100%",
-                                background: isActive ? color : "rgba(240,236,228,0.08)",
+                                background: isActive ? color : "var(--secondary)",
                                 transition: "width 0.4s ease",
                               }}
                             />
@@ -995,14 +1032,14 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             </p>
 
             {METODOS.map((m) => (
-              <div key={m.id} className="mb-2 border border-border" style={{ background: "#0a0a0a" }}>
+              <div key={m.id} className="mb-2 border border-border" style={{ background: "var(--card)" }}>
                 <button
                   type="button"
                   onClick={() => toggleMetodo(m.id)}
                   className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
                 >
                   <div>
-                    <p className="text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.titulo}</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.titulo}</p>
                     <p className="mt-0.5 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>{m.origem}</p>
                   </div>
                   <span className="ml-4 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -1011,22 +1048,22 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 </button>
 
                 {metodoOpen[m.id] && (
-                  <div className="border-t border-border px-5 py-5" style={{ background: "#080808" }}>
+                  <div className="border-t border-border px-5 py-5" style={{ background: "var(--card)" }}>
                     {/* Formula */}
                     <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: "var(--primary)" }}>
                       <p className="text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Formula</p>
-                      <p className="mt-1 text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.formula}</p>
+                      <p className="mt-1 text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
                     </div>
                     {/* Passos */}
                     <div className="mb-4 flex flex-col gap-2">
                       {m.passos.map((p, pi) => (
-                        <p key={pi} className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{p}</p>
+                        <p key={pi} className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{p}</p>
                       ))}
                     </div>
                     {/* Interpretacao */}
                     <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
                       <p className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Como interpretar</p>
-                      <p className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{m.interpretacao}</p>
+                      <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{m.interpretacao}</p>
                     </div>
                   </div>
                 )}

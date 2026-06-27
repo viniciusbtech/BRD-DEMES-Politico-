@@ -4,6 +4,7 @@ import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
 import { fetchQuestion } from "../api";
 import type { QuestionPayload, TableSpec } from "../types";
+import { useTheme } from "../../contexts/ThemeContext";
 
 type PanoramaPageProps = {
   onNavigateHome: () => void;
@@ -136,8 +137,8 @@ function PosicaoFinder({ rows, query, onQuery, metricLabel, metric, rounded }: P
           value={query}
           onChange={(e) => onQuery(e.target.value)}
           placeholder="DIGITE O NOME DO DEPUTADO PARA VER A POSIÇÃO NO RANKING"
-          className="w-full border border-border py-3 pl-10 pr-10 text-sm outline-none transition-colors focus:border-primary"
-          style={{ fontFamily: MONO, color: "#f0ece4", background: "#0e0e0e" }}
+          className="w-full border border-border bg-card text-foreground py-3 pl-10 pr-10 text-sm outline-none transition-colors focus:border-primary placeholder:text-muted-foreground"
+          style={{ fontFamily: MONO }}
         />
         {query && (
           <button
@@ -157,14 +158,14 @@ function PosicaoFinder({ rows, query, onQuery, metricLabel, metric, rounded }: P
           {rows.length === 0 ? (
             <div
               className="flex h-16 items-center justify-center border border-border text-xs text-muted-foreground"
-              style={{ fontFamily: MONO, background: "#0e0e0e" }}
+              style={{ fontFamily: MONO, background: "var(--card)" }}
             >
               CARREGANDO RANKING COMPLETO...
             </div>
           ) : matches.length === 0 ? (
             <div
               className="flex h-16 items-center justify-center border border-border text-xs text-muted-foreground"
-              style={{ fontFamily: MONO, background: "#0e0e0e" }}
+              style={{ fontFamily: MONO, background: "var(--card)" }}
             >
               NENHUM DEPUTADO ENCONTRADO PARA "{query.trim().toUpperCase()}"
             </div>
@@ -172,12 +173,12 @@ function PosicaoFinder({ rows, query, onQuery, metricLabel, metric, rounded }: P
             matches.map(({ row, rank }) => {
               const id = str(row, "id_deputado");
               const isTop = rank === 1;
-              const color = isTop ? RED : rank <= 3 ? "#d4841a" : "#f0ece4";
+              const color = isTop ? RED : rank <= 3 ? "#d4841a" : "var(--foreground)";
               return (
                 <div
                   key={`${id}-${rank}`}
                   className="flex items-center gap-4 border px-5 py-3"
-                  style={{ background: "#0e0e0e", borderColor: rank <= 3 ? `${color}55` : "rgba(240,236,228,0.12)" }}
+                  style={{ background: "var(--card)", borderColor: rank <= 3 ? `${color}55` : "var(--border)" }}
                 >
                   {/* Posição */}
                   <div className="flex shrink-0 flex-col items-center" style={{ minWidth: 64 }}>
@@ -201,13 +202,13 @@ function PosicaoFinder({ rows, query, onQuery, metricLabel, metric, rounded }: P
                   />
                   {/* Nome + partido */}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-base font-bold" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                    <p className="truncate text-base font-bold" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
                       {str(row, "nome")}
                     </p>
                     <div className="mt-1 flex items-center gap-2">
                       <span
                         className="px-2 py-0.5 text-[11px] font-bold"
-                        style={{ fontFamily: MONO, background: "rgba(240,236,228,0.08)", color: "#f0ece4" }}
+                        style={{ fontFamily: MONO, background: "var(--secondary)", color: "var(--foreground)" }}
                       >
                         {str(row, "sigla_partido")}
                       </span>
@@ -246,7 +247,7 @@ function Section({ n, tag, title, sub, children }: SectionProps) {
           {tag}
         </span>
       </div>
-      <h2 className="mb-2 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+      <h2 className="mb-2 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
         {title}
       </h2>
       {sub ? (
@@ -288,6 +289,9 @@ const abrevCat = (s: string) =>
     .trim();
 
 export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PanoramaPageProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   // Seção 01 — Top deputados
   const [top10, setTop10] = useState<Row[]>([]);
   const [gastoAllRows, setGastoAllRows] = useState<Row[]>([]); // ranking completo p/ busca de posição
@@ -428,7 +432,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   }));
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
@@ -458,7 +462,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         />
 
         {/* ── Ranking com fotos ── */}
-        <div className="mb-10 flex flex-col gap-0 border border-border" style={{ background: "#0e0e0e" }}>
+        <div className="mb-10 flex flex-col gap-0 border border-border" style={{ background: "var(--card)" }}>
           {top10.map((dep, idx) => {
             const id = str(dep, "id_deputado");
             const nome = str(dep, "nome");
@@ -466,7 +470,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             const uf = str(dep, "sigla_uf");
             const total = raw(dep, "gasto_total");
             const isFirst = idx === 0;
-            const rankColor = isFirst ? RED : idx < 3 ? "#d4841a" : "rgba(240,236,228,0.18)";
+            const rankColor = isDark ? (isFirst ? RED : idx < 3 ? "#d4841a" : "rgba(240,236,228,0.18)") : RED;
             const barPct = top10[0] ? (total / raw(top10[0], "gasto_total")) * 100 : 0;
 
             return (
@@ -497,27 +501,41 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
                 {/* Nome + partido */}
                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-5">
-                  <p className="truncate text-xl font-bold leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                  <p className="truncate text-xl font-bold leading-tight" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
                     {nome}
                   </p>
                   <div className="flex items-center gap-2">
                     <span
                       className="border px-2 py-1 text-xs font-bold uppercase"
-                      style={{ fontFamily: MONO, borderColor: `${rankColor}55`, color: rankColor, background: `${rankColor}11` }}
+                      style={{
+                        minWidth: "2.4rem",
+                        textAlign: "center",
+                        fontFamily: MONO,
+                        borderColor: isDark ? `${rankColor}55` : RED,
+                        color: isDark ? rankColor : "#ffffff",
+                        background: isDark ? `${rankColor}11` : RED,
+                      }}
                     >
-                      {partido}
+                      {partido || "-"}
                     </span>
                     <span className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>{uf}</span>
                   </div>
                   {/* Barra de proporção */}
-                  <div className="mt-2 h-0.5 overflow-hidden rounded-full" style={{ background: "rgba(240,236,228,0.08)", width: "100%" }}>
-                    <div style={{ width: `${barPct}%`, background: isFirst ? RED : idx < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%", transition: "width 0.6s ease" }} />
+                  <div className="mt-2 h-0.5 overflow-hidden rounded-full" style={{ background: "var(--secondary)", width: "100%" }}>
+                    <div
+                      style={{
+                        width: `${barPct}%`,
+                        background: isDark ? (isFirst ? RED : idx < 3 ? "#d4841a" : "rgba(196,18,48,0.4)") : RED,
+                        height: "100%",
+                        transition: "width 0.6s ease",
+                      }}
+                    />
                   </div>
                 </div>
 
                 {/* Total */}
                 <div className="flex shrink-0 items-center px-6 py-5">
-                  <span className="text-base font-black tabular-nums" style={{ fontFamily: MONO, color: isFirst ? RED : "#f0ece4" }}>
+                  <span className="text-base font-black tabular-nums" style={{ fontFamily: MONO, color: isFirst ? RED : "var(--foreground)" }}>
                     {fmtCurrency(total)}
                   </span>
                 </div>
@@ -533,7 +551,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         </div>
 
         {/* ── Tabela colapsável com paginação ── */}
-        <div className="border border-border" style={{ background: "#0a0a0a" }}>
+        <div className="border border-border" style={{ background: "var(--card)" }}>
           {/* Cabeçalho colapsável */}
           <button
             type="button"
@@ -556,10 +574,16 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               {/* Tabela */}
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
-                  <thead style={{ background: "#0d0d0d", position: "sticky", top: 0, zIndex: 1 }}>
+                  <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Foto", "Deputado", "Partido", "UF", "Total Gasto"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                        <th
+                          key={col}
+                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}
+                        >
+                          {col}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -574,7 +598,13 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                       const isFirst = globalIdx === 0;
                       return (
                         <tr key={id} className="border-t border-border hover:bg-white/[0.03]">
-                          <td className="px-4 py-2 font-bold" style={{ color: isFirst ? RED : "rgba(240,236,228,0.35)", fontFamily: SERIF }}>
+                          <td
+                            className="px-4 py-2 font-bold"
+                            style={{
+                              color: isDark ? (isFirst ? RED : "rgba(240,236,228,0.35)") : RED,
+                              fontFamily: SERIF,
+                            }}
+                          >
                             {String(globalIdx + 1).padStart(2, "0")}
                           </td>
                           <td className="px-2 py-1">
@@ -586,12 +616,12 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                               onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
                             />
                           </td>
-                          <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "#f0ece4", fontFamily: SERIF }}>
+                          <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "var(--foreground)", fontFamily: SERIF }}>
                             {str(dep, "nome")}
                           </td>
                           <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_partido")}</td>
                           <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_uf")}</td>
-                          <td className="px-4 py-2 text-right font-bold" style={{ color: isFirst ? RED : "#f0ece4" }}>
+                          <td className="px-4 py-2 text-right font-bold" style={{ color: isFirst ? RED : "var(--foreground)" }}>
                             {fmtCurrency(raw(dep, "gasto_total"))}
                           </td>
                         </tr>
@@ -605,7 +635,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               {tableTotal > PAGE_SIZE && (
                 <div
                   className="flex items-center justify-between border-t px-5 py-4"
-                  style={{ borderColor: "rgba(240,236,228,0.18)", background: "#111" }}
+                  style={{ borderColor: "var(--border)", background: "var(--card)" }}
                 >
                   <button
                     type="button"
@@ -614,8 +644,8 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
                     style={{
                       fontFamily: MONO,
-                      border: "1px solid rgba(240,236,228,0.35)",
-                      color: "#f0ece4",
+                      border: "1px solid var(--border)",
+                      color: "var(--foreground)",
                       background: "transparent",
                     }}
                   >
@@ -624,7 +654,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
                   <span
                     className="text-xs font-bold tracking-widest"
-                    style={{ fontFamily: MONO, color: "#f0ece4" }}
+                    style={{ fontFamily: MONO, color: "var(--foreground)" }}
                   >
                     {(tablePage - 1) * PAGE_SIZE + 1}–{Math.min(tablePage * PAGE_SIZE, tableTotal)}&nbsp;&nbsp;/&nbsp;&nbsp;{tableTotal} DEPUTADOS
                   </span>
@@ -636,8 +666,8 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
                     style={{
                       fontFamily: MONO,
-                      border: "1px solid rgba(240,236,228,0.35)",
-                      color: "#f0ece4",
+                      border: "1px solid var(--border)",
+                      color: "var(--foreground)",
                       background: "transparent",
                     }}
                   >
@@ -667,7 +697,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
           return (
             <div className="mb-10">
-              <div className="mb-2 h-[340px] border border-border p-4" style={{ background: "#0e0e0e" }}>
+              <div className="mb-2 h-[340px] border border-border p-4" style={{ background: "var(--card)" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     layout="vertical"
@@ -677,7 +707,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                   >
                     <XAxis
                       type="number"
-                      tick={{ fill: "rgba(240,236,228,0.55)", fontSize: 11, fontFamily: MONO }}
+                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 11, fontFamily: MONO }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) =>
@@ -688,14 +718,14 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                       type="category"
                       dataKey="name"
                       width={250}
-                      tick={{ fill: "#f0ece4", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
+                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", color: "#ffffff", fontFamily: MONO, fontSize: 12 }}
-                      itemStyle={{ color: "#ffffff" }}
-                      labelStyle={{ color: "#ffffff" }}
+                      contentStyle={{ background: "var(--chart-tooltip-bg)", border: "1px solid var(--chart-tooltip-border)", color: "var(--chart-tooltip-text)", fontFamily: MONO, fontSize: 12 }}
+                      itemStyle={{ color: "var(--chart-tooltip-text)" }}
+                      labelStyle={{ color: "var(--chart-tooltip-text)" }}
                       formatter={(v: number, _: string, e: { payload?: { pct?: number } }) => [
                         `${fmtCurrency(v)}  ·  ${(e.payload?.pct ?? 0).toFixed(1)}% do total`,
                         "Total CEAP",
@@ -714,7 +744,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               <div className="grid grid-cols-2 gap-px border border-border sm:grid-cols-5" style={{ background: "rgba(240,236,228,0.06)" }}>
                 {catTop10.slice(0, 5).map((r, i) => (
                   <div key={i} className="bg-background px-4 py-3">
-                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "#f0ece4" }}>
+                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "var(--foreground)" }}>
                       {raw(r, "pct_total").toFixed(1)}%
                     </p>
                     <p className="text-xs font-semibold leading-snug text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -749,13 +779,13 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             </div>
           );
         })() : (
-          <div className="mb-10 flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "#0e0e0e" }}>
+          <div className="mb-10 flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "var(--card)" }}>
             CARREGANDO...
           </div>
         )}
 
         {/* Tabela colapsável — todas as categorias */}
-        <div className="border border-border" style={{ background: "#0a0a0a" }}>
+        <div className="border border-border" style={{ background: "var(--card)" }}>
           <button
             type="button"
             onClick={() => setCatTableOpen((v) => !v)}
@@ -777,10 +807,16 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               {/* Tabela com scroll interno — igual à seção de deputados */}
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
-                  <thead style={{ background: "#0d0d0d", position: "sticky", top: 0, zIndex: 1 }}>
+                  <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Categoria", "Total Gasto", "Lançamentos", "% Total"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                        <th
+                          key={col}
+                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}
+                        >
+                          {col}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -796,14 +832,20 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                         const lances = raw(r, "qtd_lancamentos");
                         return (
                           <tr key={globalIdx} className="border-t border-border hover:bg-white/[0.03]">
-                            <td className="px-4 py-2.5 font-bold" style={{ color: isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(240,236,228,0.3)", fontFamily: SERIF }}>
+                            <td
+                              className="px-4 py-2.5 font-bold"
+                              style={{
+                                color: isDark ? (isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED,
+                                fontFamily: SERIF,
+                              }}
+                            >
                               {String(globalIdx + 1).padStart(2, "0")}
                             </td>
-                            <td className="px-4 py-2.5" style={{ color: "#f0ece4", maxWidth: 360 }}>
+                            <td className="px-4 py-2.5" style={{ color: "var(--foreground)", maxWidth: 360 }}>
                               <span className="block leading-tight">{abrevCat(nome)}</span>
                               <span className="mt-0.5 block text-[10px] text-muted-foreground">{nome}</span>
                             </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "#f0ece4" }}>
+                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
                               {fmtCurrency(total)}
                             </td>
                             <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
@@ -814,7 +856,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                                 <div className="h-1.5 flex-1 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)", maxWidth: 80 }}>
                                   <div style={{ width: `${Math.min(pct, 100)}%`, background: isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%" }} />
                                 </div>
-                                <span style={{ color: isTop ? RED : "#f0ece4", minWidth: 40 }}>{pct.toFixed(1)}%</span>
+                                <span style={{ color: isTop ? RED : "var(--foreground)", minWidth: 40 }}>{pct.toFixed(1)}%</span>
                               </div>
                             </td>
                           </tr>
@@ -828,18 +870,18 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               {catAllRows.length > CAT_PAGE_SIZE && (
                 <div
                   className="flex items-center justify-between border-t px-5 py-4"
-                  style={{ borderColor: "rgba(240,236,228,0.18)", background: "#111" }}
+                  style={{ borderColor: "var(--border)", background: "var(--card)" }}
                 >
                   <button
                     type="button"
                     disabled={catTablePage === 1}
                     onClick={() => setCatTablePage((p) => Math.max(1, p - 1))}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid rgba(240,236,228,0.35)", color: "#f0ece4", background: "transparent" }}
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
                   >
                     ← ANTERIOR
                   </button>
-                  <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+                  <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                     {(catTablePage - 1) * CAT_PAGE_SIZE + 1}–{Math.min(catTablePage * CAT_PAGE_SIZE, catAllRows.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{catAllRows.length} CATEGORIAS
                   </span>
                   <button
@@ -847,7 +889,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     disabled={catTablePage * CAT_PAGE_SIZE >= catAllRows.length}
                     onClick={() => setCatTablePage((p) => p + 1)}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid rgba(240,236,228,0.35)", color: "#f0ece4", background: "transparent" }}
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
                   >
                     PRÓXIMA →
                   </button>
@@ -876,7 +918,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
           return (
             <div className="mb-10">
-              <div className="mb-2 h-[360px] border border-border p-4" style={{ background: "#0e0e0e" }}>
+              <div className="mb-2 h-[360px] border border-border p-4" style={{ background: "var(--card)" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     layout="vertical"
@@ -886,7 +928,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                   >
                     <XAxis
                       type="number"
-                      tick={{ fill: "rgba(240,236,228,0.55)", fontSize: 11, fontFamily: MONO }}
+                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 11, fontFamily: MONO }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) => v.toLocaleString("pt-BR")}
@@ -895,14 +937,14 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                       type="category"
                       dataKey="name"
                       width={260}
-                      tick={{ fill: "#f0ece4", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
+                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.1)", color: "#ffffff", fontFamily: MONO, fontSize: 12 }}
-                      itemStyle={{ color: "#ffffff" }}
-                      labelStyle={{ color: "#ffffff" }}
+                      contentStyle={{ background: "var(--chart-tooltip-bg)", border: "1px solid var(--chart-tooltip-border)", color: "var(--chart-tooltip-text)", fontFamily: MONO, fontSize: 12 }}
+                      itemStyle={{ color: "var(--chart-tooltip-text)" }}
+                      labelStyle={{ color: "var(--chart-tooltip-text)" }}
                       formatter={(v: number, _: string, e: { payload?: { aprovadas?: number; pct?: number } }) => [
                         `${v.toLocaleString("pt-BR")} proposições  ·  ${(e.payload?.pct ?? 0).toFixed(1)}% do total  ·  ${(e.payload?.aprovadas ?? 0).toLocaleString("pt-BR")} aprovadas`,
                         "Total",
@@ -921,7 +963,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               <div className="grid grid-cols-2 gap-px border border-border sm:grid-cols-5" style={{ background: "rgba(240,236,228,0.06)" }}>
                 {eixoTop10.map((r, i) => (
                   <div key={i} className="bg-background px-4 py-3">
-                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "#f0ece4" }}>
+                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "var(--foreground)" }}>
                       {raw(r, "qtd_proposicoes").toLocaleString("pt-BR")}
                     </p>
                     <p className="text-xs font-semibold leading-snug text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -957,13 +999,13 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             </div>
           );
         })() : (
-          <div className="mb-10 flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "#0e0e0e" }}>
+          <div className="mb-10 flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "var(--card)" }}>
             CARREGANDO...
           </div>
         )}
 
         {/* Tabela colapsável — todos os eixos */}
-        <div className="border border-border" style={{ background: "#0a0a0a" }}>
+        <div className="border border-border" style={{ background: "var(--card)" }}>
           <button
             type="button"
             onClick={() => setEixoTableOpen((v) => !v)}
@@ -984,10 +1026,16 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             <div className="border-t border-border">
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
-                  <thead style={{ background: "#0d0d0d", position: "sticky", top: 0, zIndex: 1 }}>
+                  <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Eixo Temático", "Proposições", "Aprovadas", "% Total"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                        <th
+                          key={col}
+                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}
+                        >
+                          {col}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -1002,13 +1050,19 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                         const pct = raw(r, "pct_total");
                         return (
                           <tr key={gi} className="border-t border-border hover:bg-white/[0.03]">
-                            <td className="px-4 py-2.5 font-bold" style={{ color: isTop ? RED : gi < 3 ? "#d4841a" : "rgba(240,236,228,0.3)", fontFamily: SERIF }}>
+                            <td
+                              className="px-4 py-2.5 font-bold"
+                              style={{
+                                color: isDark ? (isTop ? RED : gi < 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED,
+                                fontFamily: SERIF,
+                              }}
+                            >
                               {String(gi + 1).padStart(2, "0")}
                             </td>
-                            <td className="px-4 py-2.5 font-medium" style={{ color: "#f0ece4" }}>
+                            <td className="px-4 py-2.5 font-medium" style={{ color: "var(--foreground)" }}>
                               {str(r, "tema")}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "#f0ece4" }}>
+                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
                               {total.toLocaleString("pt-BR")}
                             </td>
                             <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
@@ -1019,7 +1073,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                                 <div className="h-1.5 flex-1 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)", maxWidth: 80 }}>
                                   <div style={{ width: `${Math.min(pct / (raw(eixoAllRows[0], "pct_total") || 1) * 100, 100)}%`, background: isTop ? RED : gi < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%" }} />
                                 </div>
-                                <span style={{ color: isTop ? RED : "#f0ece4", minWidth: 40 }}>{pct.toFixed(1)}%</span>
+                                <span style={{ color: isTop ? RED : "var(--foreground)", minWidth: 40 }}>{pct.toFixed(1)}%</span>
                               </div>
                             </td>
                           </tr>
@@ -1032,18 +1086,18 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               {eixoAllRows.length > EIXO_PAGE_SIZE && (
                 <div
                   className="flex items-center justify-between border-t px-5 py-4"
-                  style={{ borderColor: "rgba(240,236,228,0.18)", background: "#111" }}
+                  style={{ borderColor: "var(--border)", background: "var(--card)" }}
                 >
                   <button
                     type="button"
                     disabled={eixoTablePage === 1}
                     onClick={() => setEixoTablePage((p) => Math.max(1, p - 1))}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid rgba(240,236,228,0.35)", color: "#f0ece4", background: "transparent" }}
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
                   >
                     ← ANTERIOR
                   </button>
-                  <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+                  <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                     {(eixoTablePage - 1) * EIXO_PAGE_SIZE + 1}–{Math.min(eixoTablePage * EIXO_PAGE_SIZE, eixoAllRows.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{eixoAllRows.length} EIXOS
                   </span>
                   <button
@@ -1051,7 +1105,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     disabled={eixoTablePage * EIXO_PAGE_SIZE >= eixoAllRows.length}
                     onClick={() => setEixoTablePage((p) => p + 1)}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid rgba(240,236,228,0.35)", color: "#f0ece4", background: "transparent" }}
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
                   >
                     PRÓXIMA →
                   </button>
@@ -1080,7 +1134,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         {/* Ranking top 10 */}
         <div className="mb-10 flex flex-col gap-3">
           {cbTop10.length === 0 && (
-            <div className="flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "#0e0e0e" }}>
+            <div className="flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "var(--card)" }}>
               CARREGANDO...
             </div>
           )}
@@ -1096,7 +1150,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             const barW = Math.min((cb / maxCb) * 100, 100);
             const color = i === 0 ? RED : i < 3 ? "#d4841a" : "rgba(196,18,48,0.55)";
             return (
-              <div key={i} className="flex items-center gap-5 border border-border px-6 py-4" style={{ background: "#0a0a0a" }}>
+              <div key={i} className="flex items-center gap-5 border border-border px-6 py-4" style={{ background: "var(--card)" }}>
                 {/* Rank */}
                 <span className="w-9 shrink-0 text-2xl font-black" style={{ fontFamily: SERIF, color }}>
                   {String(i + 1).padStart(2, "0")}
@@ -1111,11 +1165,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                 />
                 {/* Info */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-lg font-black" style={{ color: "#f0ece4", fontFamily: MONO }}>
+                  <p className="truncate text-lg font-black" style={{ color: "var(--foreground)", fontFamily: MONO }}>
                     {nome}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="px-2 py-1 text-xs font-bold" style={{ background: "rgba(240,236,228,0.08)", color: "#f0ece4", fontFamily: MONO }}>
+                    <span className="px-2 py-1 text-xs font-bold" style={{ background: "var(--secondary)", color: "var(--foreground)", fontFamily: MONO }}>
                       {partido}
                     </span>
                     <span className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: MONO }}>{uf}</span>
@@ -1141,7 +1195,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         </div>
 
         {/* Tabela colapsável — todos por custo-benefício */}
-        <div className="border border-border" style={{ background: "#0a0a0a" }}>
+        <div className="border border-border" style={{ background: "var(--card)" }}>
           <button
             type="button"
             onClick={handleToggleCbTable}
@@ -1162,10 +1216,16 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             <div className="border-t border-border">
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
-                  <thead style={{ background: "#0d0d0d", position: "sticky", top: 0, zIndex: 1 }}>
+                  <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Foto", "Deputado", "Partido", "UF", "Ano", "Pts / R$ 1 mil", "Benefício", "Gasto"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                        <th
+                          key={col}
+                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}
+                        >
+                          {col}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -1176,7 +1236,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                       const globalRank = (cbTablePage - 1) * CB_PAGE_SIZE + i + 1;
                       const id = raw(r, "id_deputado");
                       const isTop = globalRank === 1;
-                      const color = isTop ? RED : globalRank <= 3 ? "#d4841a" : "rgba(240,236,228,0.3)";
+                      const color = isDark ? (isTop ? RED : globalRank <= 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED;
                       return (
                         <tr key={i} className="border-t border-border hover:bg-white/[0.03]">
                           <td className="px-4 py-2.5 font-bold" style={{ color, fontFamily: SERIF }}>
@@ -1186,11 +1246,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                             <img src={depPhoto(id)} alt="" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                               className="h-7 w-7 rounded-full object-cover" style={{ border: `1px solid ${color}` }} />
                           </td>
-                          <td className="whitespace-nowrap px-4 py-2.5 font-medium" style={{ color: "#f0ece4" }}>{str(r, "nome")}</td>
+                          <td className="whitespace-nowrap px-4 py-2.5 font-medium" style={{ color: "var(--foreground)" }}>{str(r, "nome")}</td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "sigla_partido")}</td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "sigla_uf")}</td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "ano_dados")}</td>
-                          <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "#f0ece4" }}>
+                          <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
                             {normalizedCb(r).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
@@ -1207,17 +1267,17 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               </div>
 
               {cbTableTotal > CB_PAGE_SIZE && (
-                <div className="flex items-center justify-between border-t px-5 py-4" style={{ borderColor: "rgba(240,236,228,0.18)", background: "#111" }}>
+                <div className="flex items-center justify-between border-t px-5 py-4" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
                   <button
                     type="button"
                     disabled={cbTablePage <= 1 || cbTableLoading}
                     onClick={() => fetchCbTablePage(cbTablePage - 1)}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid rgba(240,236,228,0.35)", color: "#f0ece4", background: "transparent" }}
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
                   >
                     ← ANTERIOR
                   </button>
-                  <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+                  <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                     {(cbTablePage - 1) * CB_PAGE_SIZE + 1}–{Math.min(cbTablePage * CB_PAGE_SIZE, cbTableTotal)}&nbsp;&nbsp;/&nbsp;&nbsp;{cbTableTotal} REGISTROS
                   </span>
                   <button
@@ -1225,7 +1285,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                     disabled={cbTablePage * CB_PAGE_SIZE >= cbTableTotal || cbTableLoading}
                     onClick={() => fetchCbTablePage(cbTablePage + 1)}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid rgba(240,236,228,0.35)", color: "#f0ece4", background: "transparent" }}
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
                   >
                     PRÓXIMA →
                   </button>
@@ -1294,14 +1354,14 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             interpretacao: "A 'Divulgação da Atividade Parlamentar' costuma ser a maior fatia (~40% do CEAP). Justamente por ser a maior, é também a mais questionada em auditorias sobre o uso da cota.",
           },
         ] as Array<{ id: string; titulo: string; origem: string; formula: string; passos: string[]; interpretacao: string }>).map((m) => (
-          <div key={m.id} className="mb-2 border border-border" style={{ background: "#0a0a0a" }}>
+          <div key={m.id} className="mb-2 border border-border" style={{ background: "var(--card)" }}>
             <button
               type="button"
               onClick={() => toggleMetodo(m.id)}
               className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
             >
               <div>
-                <p className="text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.titulo}</p>
+                <p className="text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.titulo}</p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>{m.origem}</p>
               </div>
               <span className="ml-4 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -1310,22 +1370,22 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             </button>
 
             {metodoOpen[m.id] && (
-              <div className="border-t border-border px-5 py-5" style={{ background: "#080808" }}>
+              <div className="border-t border-border px-5 py-5" style={{ background: "var(--card)" }}>
                 {/* Fórmula */}
                 <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: RED }}>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Fórmula</p>
-                  <p className="mt-1 text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.formula}</p>
+                  <p className="mt-1 text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
                 </div>
                 {/* Passos */}
                 <div className="mb-4 flex flex-col gap-2">
                   {m.passos.map((p, pi) => (
-                    <p key={pi} className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{p}</p>
+                    <p key={pi} className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{p}</p>
                   ))}
                 </div>
                 {/* Interpretação */}
                 <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: MONO }}>Como interpretar</p>
-                  <p className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{m.interpretacao}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{m.interpretacao}</p>
                 </div>
               </div>
             )}

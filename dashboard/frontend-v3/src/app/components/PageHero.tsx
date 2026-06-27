@@ -63,7 +63,7 @@ export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImage
         />
         <div
           className="absolute bottom-0 inset-x-0 h-24"
-          style={{ background: "linear-gradient(to top, #0a0a0a, transparent)" }}
+          style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
         />
         <span
           className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-black"

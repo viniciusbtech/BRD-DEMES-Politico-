@@ -1,3 +1,5 @@
+import { useTheme } from "../../contexts/ThemeContext";
+
 type NavBarProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
@@ -8,10 +10,16 @@ const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
 
 export default function NavBar({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: NavBarProps) {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <nav
-      className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border px-6 md:px-14"
-      style={{ background: "rgba(10,10,10,0.96)", backdropFilter: "blur(14px)" }}
+      className="sticky top-0 z-50 flex h-14 items-center justify-between border-b px-6 md:px-14"
+      style={{
+        background: "var(--surface-glass)",
+        borderColor: "var(--surface-glass-border)",
+        backdropFilter: "blur(14px)",
+      }}
     >
       <button
         onClick={onNavigateHome}
@@ -23,7 +31,7 @@ export default function NavBar({ onNavigateHome, onNavigateRecortes, onNavigateD
 
       <button className="flex items-center gap-2.5" onClick={onNavigateHome}>
         <span className="h-5 w-1.5 bg-primary" />
-        <span className="text-sm font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+        <span className="text-sm font-black text-foreground" style={{ fontFamily: SERIF }}>
           QUEM<span className="text-primary">GOVERNA</span>
         </span>
       </button>
@@ -42,6 +50,14 @@ export default function NavBar({ onNavigateHome, onNavigateRecortes, onNavigateD
           style={{ fontFamily: MONO }}
         >
           DEPUTADOS
+        </button>
+        <button
+          onClick={toggleTheme}
+          className="ml-1 flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+          aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+          title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+        >
+          {theme === "dark" ? "☀" : "☾"}
         </button>
       </div>
     </nav>

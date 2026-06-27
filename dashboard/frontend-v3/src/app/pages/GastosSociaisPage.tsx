@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import NavBar from "../components/NavBar";
+import { useTheme } from "../../contexts/ThemeContext";
 import {
   formatCurrency,
   luxuryComparisons,
@@ -45,10 +46,21 @@ function SectionProblemBg({ img }: { img: string }) {
 }
 
 export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: GastosSociaisPageProps) {
+  const { theme } = useTheme();
   const [savings, setSavings] = useState(50);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>(initialSliderValues);
   const [glitch, setGlitch] = useState(false);
   const [heroTarget, setHeroTarget] = useState<"deputado" | "povo">("povo");
+  const isDark = theme === "dark";
+  const lightModeColorOverrides = (!isDark
+    ? {
+        "--muted-foreground": "#0069ff",
+        "--foreground": "#4c814f",
+        "--primary": "#007fff",
+        "--primary-rgb": "0, 127, 255",
+        "--ring": "#007fff",
+      }
+    : {}) as CSSProperties;
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -75,7 +87,10 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div
+      className="min-h-screen overflow-x-hidden bg-background"
+      style={{ fontFamily: "'Inter', sans-serif", ...lightModeColorOverrides }}
+    >
       <style>{`
         @keyframes gastos-glitch-1 {
           0% { transform: translateX(0) skewX(0deg); opacity: 1; }

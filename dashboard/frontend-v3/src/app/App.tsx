@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import DeputadoPage from "./pages/DeputadoPage";
+import { ThemeContext } from "../contexts/ThemeContext";
 import EscolaridadePage from "./pages/EscolaridadePage";
 import FornecedoresPage from "./pages/FornecedoresPage";
 import GastosSociaisPage from "./pages/GastosSociaisPage";
@@ -380,6 +381,8 @@ function ReferenceHome({
   onNavigateIdeologia: () => void;
   onNavigateEscolaridade: () => void;
 }) {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const isDark = theme === "dark";
   const [shockIndex, setShockIndex] = useState(0);
   const [shockDeputies, setShockDeputies] = useState<Politician[]>(() =>
     shufflePoliticians(deputies).slice(0, 40),
@@ -405,8 +408,8 @@ function ReferenceHome({
     <main
       className="relative min-h-screen overflow-x-hidden"
       style={{
-        background: "#050505",
-        color: "#f3efe8",
+        background: "var(--background)",
+        color: "var(--foreground)",
         fontFamily: "'Inter', sans-serif",
         isolation: "isolate",
       }}
@@ -461,29 +464,35 @@ function ReferenceHome({
           aria-hidden="true"
           className="h-full w-full object-cover"
           style={{
-            opacity: 0.24,
-            filter: "grayscale(42%) contrast(1.2) brightness(0.58) saturate(0.72)",
+            opacity: isDark ? 0.24 : 0.1,
+            filter: isDark
+              ? "grayscale(42%) contrast(1.2) brightness(0.58) saturate(0.72)"
+              : "grayscale(72%) contrast(0.95) brightness(1.16) saturate(0.42)",
           }}
         />
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(90deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.88) 39%, rgba(5,5,5,0.66) 100%)",
+            background: isDark
+              ? "linear-gradient(90deg, rgba(5,5,5,0.96) 0%, rgba(5,5,5,0.88) 39%, rgba(5,5,5,0.66) 100%)"
+              : "linear-gradient(90deg, rgba(248,250,252,0.98) 0%, rgba(248,250,252,0.94) 43%, rgba(240,245,250,0.82) 100%)",
           }}
         />
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "radial-gradient(circle at 78% 30%, rgba(224,8,54,0.22) 0, rgba(224,8,54,0.08) 24%, rgba(5,5,5,0) 52%)",
+            background: isDark
+              ? "radial-gradient(circle at 78% 30%, rgba(224,8,54,0.22) 0, rgba(224,8,54,0.08) 24%, rgba(5,5,5,0) 52%)"
+              : "radial-gradient(circle at 78% 30%, rgba(0,51,102,0.12) 0, rgba(196,18,48,0.055) 25%, rgba(248,250,252,0) 56%)",
           }}
         />
         <div
-          className="absolute inset-0 opacity-25"
+          className={`absolute inset-0 ${isDark ? "opacity-25" : "opacity-40"}`}
           style={{
             backgroundImage:
-              "repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 5px)",
+              isDark
+                ? "repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 5px)"
+                : "repeating-linear-gradient(0deg, rgba(15,23,42,0.035) 0, rgba(15,23,42,0.035) 1px, transparent 1px, transparent 6px)",
           }}
         />
       </div>
@@ -491,24 +500,23 @@ function ReferenceHome({
       <header
         className="relative z-20 flex h-14 items-center justify-between border-b px-6 sm:px-10"
         style={{
-          borderColor: "rgba(243,239,232,0.08)",
-          background: "rgba(8,8,8,0.88)",
+          borderColor: "var(--surface-glass-border)",
+          background: "var(--surface-glass)",
           backdropFilter: "blur(10px)",
         }}
       >
         <div className="flex items-center gap-3">
-          <span className="block h-[22px] w-1" style={{ background: "#e00836" }} />
+          <span className="block h-[22px] w-1 bg-primary" />
           <span
-            className="text-[16px] font-black tracking-[0.04em]"
+            className="text-[16px] font-black tracking-[0.04em] text-foreground"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            QUEM<span style={{ color: "#e00836" }}>GOVERNA</span>
+            QUEM<span className="text-primary">GOVERNA</span>
           </span>
         </div>
         <nav
-          className="hidden items-center gap-4 text-[11px] uppercase sm:flex"
+          className="hidden items-center gap-4 text-[11px] uppercase sm:flex text-muted-foreground"
           style={{
-            color: "rgba(243,239,232,0.46)",
             fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "0.2em",
           }}
@@ -519,21 +527,32 @@ function ReferenceHome({
           <span>·</span>
           <span>57ª Legislatura</span>
         </nav>
+        <button
+          onClick={toggleTheme}
+          className="ml-2 flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+          aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+          title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+          style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.85rem" }}
+        >
+          {theme === "dark" ? "☀" : "☾"}
+        </button>
       </header>
 
       <section className="home-page relative z-10 flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-10 pt-20 sm:px-10 sm:pt-[88px]">
         <div
           className="pointer-events-none absolute inset-y-0 right-0 w-[54vw]"
           style={{
-            background:
-              "radial-gradient(circle at 63% 47%, rgba(224,8,54,0.10) 0, rgba(224,8,54,0.045) 17%, rgba(7,7,7,0) 38%)",
+            background: isDark
+              ? "radial-gradient(circle at 63% 47%, rgba(224,8,54,0.10) 0, rgba(224,8,54,0.045) 17%, rgba(7,7,7,0) 38%)"
+              : "radial-gradient(circle at 63% 47%, rgba(0,51,102,0.12) 0, rgba(196,18,48,0.055) 22%, rgba(248,250,252,0) 48%)",
           }}
         />
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              "linear-gradient(90deg, rgba(7,7,7,0.94) 0%, rgba(7,7,7,0.82) 46%, rgba(22,2,8,0.56) 100%)",
+            background: isDark
+              ? "linear-gradient(90deg, rgba(7,7,7,0.94) 0%, rgba(7,7,7,0.82) 46%, rgba(22,2,8,0.56) 100%)"
+              : "linear-gradient(90deg, rgba(248,250,252,0.96) 0%, rgba(248,250,252,0.88) 47%, rgba(226,232,240,0.48) 100%)",
           }}
         />
 
@@ -567,7 +586,7 @@ function ReferenceHome({
 
             <p
               className="max-w-[640px] text-[16px] leading-[1.5] sm:text-[18px]"
-              style={{ color: "rgba(243,239,232,0.64)" }}
+              style={{ color: isDark ? "rgba(243,239,232,0.64)" : "rgba(15,23,42,0.7)" }}
             >
               Uma análise de dados legislativos para revelar contradições entre
               gastos, votos, proposições, ideologia e comportamento parlamentar.
@@ -576,7 +595,7 @@ function ReferenceHome({
             <p
               className="mt-4 text-[10px]"
               style={{
-                color: "rgba(243,239,232,0.62)",
+                color: isDark ? "rgba(243,239,232,0.62)" : "rgba(15,23,42,0.58)",
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: "0.16em",
               }}
@@ -587,10 +606,13 @@ function ReferenceHome({
           </div>
 
           <div
-            className="relative aspect-[0.78] w-full max-w-[280px] overflow-hidden border bg-black sm:max-w-[330px]"
+            className="relative aspect-[0.78] w-full max-w-[280px] overflow-hidden border sm:max-w-[330px]"
             style={{
-              borderColor: "rgba(243,239,232,0.2)",
-              boxShadow: "0 30px 90px rgba(0,0,0,0.64), inset 0 0 0 1px rgba(224,8,54,0.28)",
+              background: isDark ? "#000000" : "#ffffff",
+              borderColor: isDark ? "rgba(243,239,232,0.2)" : "rgba(15,23,42,0.14)",
+              boxShadow: isDark
+                ? "0 30px 90px rgba(0,0,0,0.64), inset 0 0 0 1px rgba(224,8,54,0.28)"
+                : "0 26px 70px rgba(15,23,42,0.16), inset 0 0 0 1px rgba(0,51,102,0.12)",
             }}
             aria-hidden="true"
           >
@@ -606,15 +628,16 @@ function ReferenceHome({
                 }}
               />
             ) : (
-              <div className="h-full w-full bg-black" />
+              <div className="h-full w-full" style={{ background: isDark ? "#000000" : "#ffffff" }} />
             )}
             <div
               className="pointer-events-none absolute inset-0"
               style={{
-                background:
-                  "linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0) 34%, rgba(5,5,5,0.74) 100%), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 5px)",
-                mixBlendMode: "screen",
-                opacity: 0.34,
+                background: isDark
+                  ? "linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0) 34%, rgba(5,5,5,0.74) 100%), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 5px)"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 34%, rgba(248,250,252,0.52) 100%), repeating-linear-gradient(0deg, rgba(15,23,42,0.05) 0, rgba(15,23,42,0.05) 1px, transparent 1px, transparent 5px)",
+                mixBlendMode: isDark ? "screen" : "multiply",
+                opacity: isDark ? 0.34 : 0.26,
               }}
             />
             <div
@@ -638,7 +661,9 @@ function ReferenceHome({
             <div
               className="pointer-events-none absolute inset-0"
               style={{
-                boxShadow: "inset 0 0 0 10px rgba(5,5,5,0.28), inset 0 0 54px rgba(224,8,54,0.22)",
+                boxShadow: isDark
+                  ? "inset 0 0 0 10px rgba(5,5,5,0.28), inset 0 0 54px rgba(224,8,54,0.22)"
+                  : "inset 0 0 0 10px rgba(255,255,255,0.24), inset 0 0 48px rgba(0,51,102,0.12)",
               }}
             />
           </div>
@@ -646,38 +671,38 @@ function ReferenceHome({
 
         <div
           className="relative z-10 mt-12 grid shrink-0 border sm:grid-cols-3"
-          style={{ borderColor: "rgba(243,239,232,0.18)",
-     
-           }}
+          style={{ borderColor: "var(--border)" }}
         >
           {referenceStats.map((item, index) => (
             <article
               key={item.title}
               className="min-h-[190px] px-7 pt-8 pb-16 sm:px-8 sm:pt-9 sm:pb-20"
               style={{
-                borderLeft:
-                  index === 0 ? "0" : "1px solid rgba(243,239,232,0.10)",
-                      minHeight: "230px",
-                         paddingBottom:"80px"
+                borderLeft: index === 0 ? "0" : "1px solid var(--border)",
+                background: isDark
+                  ? "transparent"
+                  : index % 2 === 0
+                    ? "rgba(255,255,255,0.68)"
+                    : "rgba(241,245,249,0.58)",
+                minHeight: "230px",
+                paddingBottom: "80px",
               }}
             >
               <p
-                className="text-[42px] font-black leading-none sm:text-[48px]"
+                className="text-[42px] font-black leading-none sm:text-[48px] text-primary"
                 style={{
-                  color: "#e00836",
                   fontFamily: "'Playfair Display', serif",
                   letterSpacing: "-0.03em",
                 }}
               >
                 {item.value}
               </p>
-              <h2 className="mt-1 text-[14px] font-black leading-tight text-white">
+              <h2 className="mt-1 text-[14px] font-black leading-tight text-foreground">
                 {item.title}
               </h2>
               <p
-                className="mt-1 text-[11px]"
+                className="mt-1 text-[11px] text-muted-foreground"
                 style={{
-                  color: "rgba(243,239,232,0.62)",
                   fontFamily: "'JetBrains Mono', monospace",
                   letterSpacing: "0.08em",
                 }}
@@ -689,8 +714,19 @@ function ReferenceHome({
         </div>
       </section>
 
-      <section className="home-investigation relative z-10 overflow-hidden border-y px-6 py-16 sm:px-10 sm:py-20" style={{ borderColor: "rgba(243,239,232,0.12)" }}>
-        <div className="absolute inset-0 grid grid-cols-2 opacity-40 sm:grid-cols-5">
+      <section
+        className="home-investigation relative z-10 overflow-hidden border-y px-6 py-16 sm:px-10 sm:py-20"
+        style={{
+          borderColor: "var(--border)",
+          background: isDark
+            ? "var(--background)"
+            : "linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #eef4f9 100%)",
+        }}
+      >
+        <div
+          className="absolute inset-0 grid grid-cols-2 sm:grid-cols-5"
+          style={{ opacity: isDark ? 0.4 : 0.18 }}
+        >
           {problemImages.map((src, index) => (
             <div key={src} className="relative min-h-[180px] overflow-hidden">
               <img
@@ -699,15 +735,18 @@ function ReferenceHome({
                 aria-hidden="true"
                 className="h-full w-full object-cover"
                 style={{
-                  opacity: index % 2 === 0 ? 0.62 : 0.5,
-                  filter: "grayscale(70%) contrast(1.08) brightness(0.78)",
+                  opacity: isDark ? (index % 2 === 0 ? 0.62 : 0.5) : index % 2 === 0 ? 0.44 : 0.36,
+                  filter: isDark
+                    ? "grayscale(70%) contrast(1.08) brightness(0.78)"
+                    : "grayscale(88%) contrast(0.92) brightness(1.24) saturate(0.52)",
                 }}
               />
               <div
                 className="absolute inset-0"
                 style={{
-                  background:
-                    "linear-gradient(180deg, rgba(5,5,5,0.02) 0%, rgba(5,5,5,0.48) 100%)",
+                  background: isDark
+                    ? "linear-gradient(180deg, rgba(5,5,5,0.02) 0%, rgba(5,5,5,0.48) 100%)"
+                    : "linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(248,250,252,0.82) 100%)",
                 }}
               />
             </div>
@@ -716,15 +755,18 @@ function ReferenceHome({
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(90deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.62) 48%, rgba(38,0,10,0.48) 100%)",
+            background: isDark
+              ? "linear-gradient(90deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.62) 48%, rgba(38,0,10,0.48) 100%)"
+              : "linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.78) 50%, rgba(226,232,240,0.64) 100%)",
           }}
         />
         <div
-          className="absolute inset-0 opacity-40"
+          className={`absolute inset-0 ${isDark ? "opacity-40" : "opacity-35"}`}
           style={{
             backgroundImage:
-              "repeating-linear-gradient(90deg, rgba(224,8,54,0.12) 0, rgba(224,8,54,0.12) 1px, transparent 1px, transparent 84px)",
+              isDark
+                ? "repeating-linear-gradient(90deg, rgba(224,8,54,0.12) 0, rgba(224,8,54,0.12) 1px, transparent 1px, transparent 84px)"
+                : "repeating-linear-gradient(90deg, rgba(0,51,102,0.08) 0, rgba(0,51,102,0.08) 1px, transparent 1px, transparent 84px)",
           }}
         />
 
@@ -749,9 +791,8 @@ function ReferenceHome({
               </h2>
             </div>
             <p
-              className="max-w-[430px] text-[14px] leading-relaxed sm:text-[15px]"
+              className="max-w-[430px] text-[14px] leading-relaxed sm:text-[15px] text-muted-foreground"
               style={{
-                color: "rgba(243,239,232,0.68)",
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: "0.04em",
               }}
@@ -766,25 +807,45 @@ function ReferenceHome({
               <figure
                 key={`problem-gallery-${src}`}
                 tabIndex={0}
-                className={`group relative m-0 min-h-[250px] overflow-hidden border bg-black ${
+                className={`group relative m-0 min-h-[250px] overflow-hidden border ${
                   index === 0 || index === 7 ? "lg:col-span-2" : ""
                 }`}
-                style={{ borderColor: "rgba(243,239,232,0.22)" }}
+                style={{
+                  background: isDark ? "#000000" : "#ffffff",
+                  borderColor: isDark ? "rgba(243,239,232,0.22)" : "rgba(15,23,42,0.12)",
+                  boxShadow: isDark ? "none" : "0 18px 45px rgba(15,23,42,0.08)",
+                }}
                 onMouseEnter={(event) => {
                   const image = event.currentTarget.querySelector("img");
-                  if (image) image.style.filter = "grayscale(0%) contrast(1.03) brightness(1.02) saturate(1.08)";
+                  if (image) {
+                    image.style.filter = isDark
+                      ? "grayscale(0%) contrast(1.03) brightness(1.02) saturate(1.08)"
+                      : "grayscale(8%) contrast(1) brightness(1.04) saturate(1.02)";
+                  }
                 }}
                 onMouseLeave={(event) => {
                   const image = event.currentTarget.querySelector("img");
-                  if (image) image.style.filter = "grayscale(100%) contrast(1.18) brightness(0.52)";
+                  if (image) {
+                    image.style.filter = isDark
+                      ? "grayscale(100%) contrast(1.18) brightness(0.52)"
+                      : "grayscale(62%) contrast(0.96) brightness(1.08) saturate(0.78)";
+                  }
                 }}
                 onFocus={(event) => {
                   const image = event.currentTarget.querySelector("img");
-                  if (image) image.style.filter = "grayscale(0%) contrast(1.03) brightness(1.02) saturate(1.08)";
+                  if (image) {
+                    image.style.filter = isDark
+                      ? "grayscale(0%) contrast(1.03) brightness(1.02) saturate(1.08)"
+                      : "grayscale(8%) contrast(1) brightness(1.04) saturate(1.02)";
+                  }
                 }}
                 onBlur={(event) => {
                   const image = event.currentTarget.querySelector("img");
-                  if (image) image.style.filter = "grayscale(100%) contrast(1.18) brightness(0.52)";
+                  if (image) {
+                    image.style.filter = isDark
+                      ? "grayscale(100%) contrast(1.18) brightness(0.52)"
+                      : "grayscale(62%) contrast(0.96) brightness(1.08) saturate(0.78)";
+                  }
                 }}
               >
                 <img
@@ -792,13 +853,17 @@ function ReferenceHome({
                   alt=""
                   className="h-full min-h-[250px] w-full object-cover transition duration-500 group-hover:scale-105"
                   style={{
-                    filter: "grayscale(100%) contrast(1.18) brightness(0.52)",
+                    filter: isDark
+                      ? "grayscale(100%) contrast(1.18) brightness(0.52)"
+                      : "grayscale(62%) contrast(0.96) brightness(1.08) saturate(0.78)",
                   }}
                 />
                 <div
                   className="pointer-events-none absolute inset-0 transition-opacity duration-500 group-hover:opacity-10"
                   style={{
-                    background: "linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0.54) 100%)",
+                    background: isDark
+                      ? "linear-gradient(180deg, rgba(5,5,5,0.08) 0%, rgba(5,5,5,0.54) 100%)"
+                      : "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(248,250,252,0.42) 100%)",
                   }}
                 />
               </figure>
@@ -810,10 +875,7 @@ function ReferenceHome({
       <section
         id="recortes"
         className="relative z-10 px-6 py-16 sm:px-10 sm:py-20"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(7,7,7,0.88) 0%, rgba(11,11,11,0.92) 46%, rgba(7,7,7,0.9) 100%)",
-        }}
+        style={{ background: "var(--background)" }}
       >
         <div className="mx-auto max-w-[1434px]">
           <div className="mb-10 flex flex-col justify-between gap-5 border-t pt-8 sm:flex-row sm:items-end">
@@ -836,9 +898,8 @@ function ReferenceHome({
               </h2>
             </div>
             <p
-              className="max-w-[380px] text-[13px] leading-relaxed"
+              className="max-w-[380px] text-[13px] leading-relaxed text-muted-foreground"
               style={{
-                color: "rgba(243,239,232,0.56)",
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: "0.04em",
               }}
@@ -897,8 +958,8 @@ function ReferenceHome({
                     }
                     className="group grid min-h-[250px] overflow-hidden border md:grid-cols-[220px_1fr] lg:grid-cols-1 xl:grid-cols-[180px_1fr]"
                     style={{
-                      background: "rgba(255,255,255,0.018)",
-                      borderColor: "rgba(243,239,232,0.14)",
+                      background: "var(--card)",
+                      borderColor: "var(--border)",
                     }}
                   >
                     <div className="relative h-[210px] overflow-hidden md:h-full">
@@ -940,15 +1001,14 @@ function ReferenceHome({
                           {item.id}
                         </span>
                         <h3
-                          className="mt-3 max-w-[430px] text-[24px] font-black leading-tight sm:text-[28px]"
+                          className="mt-3 max-w-[430px] text-[24px] font-black leading-tight sm:text-[28px] text-foreground"
                           style={{ fontFamily: "'Playfair Display', serif" }}
                         >
                           {item.title}
                         </h3>
                       </div>
                       <p
-                        className="mt-6 max-w-[430px] text-[15px] leading-relaxed sm:text-[16px]"
-                        style={{ color: "rgba(243,239,232,0.74)" }}
+                        className="mt-6 max-w-[430px] text-[15px] leading-relaxed sm:text-[16px] text-muted-foreground"
                       >
                         {item.description}
                       </p>
@@ -967,6 +1027,9 @@ function ReferenceHome({
 type Phase = "intro" | "transitioning" | "home";
 
 export default function App() {
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === "dark";
+
   const [phase, setPhase] = useState<Phase>("intro");
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [flash, setFlash] = useState(false);
@@ -1196,7 +1259,11 @@ export default function App() {
       {flash && (
         <div
           className="flash fixed inset-0 z-50 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse, #c41230 0%, #0a0a0a 100%)" }}
+          style={{
+            background: isDark
+              ? "radial-gradient(ellipse, #c41230 0%, #0a0a0a 100%)"
+              : "radial-gradient(ellipse, #003366 0%, #ffffff 100%)",
+          }}
         />
       )}
 
@@ -1205,23 +1272,36 @@ export default function App() {
         <div
           onClick={handleClick}
           className={`fixed inset-0 z-40 flex flex-col justify-center cursor-pointer select-none overflow-hidden bg-background ${phase === "transitioning" ? "intro-exit" : ""}`}
-          style={{ background: "#0a0a0a" }}
         >
           {/* Grain overlay */}
           <div
-            className="absolute inset-0 pointer-events-none z-10 opacity-30"
+            className="absolute inset-0 pointer-events-none z-10"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
               backgroundSize: "180px",
+              opacity: isDark ? 0.30 : 0.08,
             }}
           />
 
           {/* Top vignette */}
-          <div className="absolute top-0 left-0 right-0 h-40 z-20 pointer-events-none" style={{ background: "linear-gradient(to bottom, #0a0a0a, transparent)" }} />
+          <div
+            className="absolute top-0 left-0 right-0 h-40 z-20 pointer-events-none"
+            style={{ background: "linear-gradient(to bottom, var(--background), transparent)" }}
+          />
           {/* Bottom vignette */}
-          <div className="absolute bottom-0 left-0 right-0 h-40 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, #0a0a0a, transparent)" }} />
+          <div
+            className="absolute bottom-0 left-0 right-0 h-40 z-20 pointer-events-none"
+            style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
+          />
           {/* Center mask */}
-          <div className="absolute inset-0 z-20 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(10,10,10,0.7) 100%)" }} />
+          <div
+            className="absolute inset-0 z-20 pointer-events-none"
+            style={{
+              background: isDark
+                ? "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(10,10,10,0.7) 100%)"
+                : "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(255,255,255,0.7) 100%)",
+            }}
+          />
 
           {/* Scrolling strips */}
           <div className="flex flex-col gap-3">
@@ -1229,7 +1309,7 @@ export default function App() {
             <div className="overflow-hidden">
               <div className="strip-left flex gap-3" style={{ width: "max-content" }}>
                 {strip1.map((item, i) => (
-                  <div key={`${item.label}-${i}`} className="relative flex-shrink-0 w-40 h-48 overflow-hidden" style={{ filter: "grayscale(75%) contrast(1.15)" }}>
+                  <div key={`${item.label}-${i}`} className="relative flex-shrink-0 w-40 h-48 overflow-hidden" style={{ filter: isDark ? "grayscale(75%) contrast(1.15)" : "grayscale(100%) contrast(1.2)" }}>
                     <img
                       src={item.img}
                       alt={item.label}
@@ -1238,8 +1318,21 @@ export default function App() {
                         event.currentTarget.style.display = "none";
                       }}
                     />
-                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(196,18,48,0.34), rgba(10,10,10,0.08))" }} />
-                    <span className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em] text-white/80" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: isDark
+                          ? "linear-gradient(to top, rgba(196,18,48,0.34), rgba(10,10,10,0.08))"
+                          : "linear-gradient(to top, rgba(0,51,102,0.30), rgba(0,0,0,0.04))",
+                      }}
+                    />
+                    <span
+                      className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em]"
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        color: isDark ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.75)",
+                      }}
+                    >
                       {item.label}
                     </span>
                   </div>
@@ -1254,10 +1347,20 @@ export default function App() {
                   <div
                     key={`${p.id}-${i}`}
                     className="relative flex-shrink-0 w-44 h-56 md:w-48 md:h-64 overflow-hidden"
-                    style={{ filter: "grayscale(65%) contrast(1.18)", boxShadow: "0 0 40px rgba(196,18,48,0.2)" }}
+                    style={{
+                      filter: isDark ? "grayscale(65%) contrast(1.18)" : "grayscale(100%) contrast(1.25)",
+                      boxShadow: isDark ? "0 0 40px rgba(196,18,48,0.2)" : "0 0 30px rgba(0,51,102,0.12)",
+                    }}
                   >
                     <img src={p.img} alt={p.name} className="w-full h-full object-cover" loading="eager" />
-                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(10,10,10,0.3), transparent)" }} />
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: isDark
+                          ? "linear-gradient(to top, rgba(10,10,10,0.3), transparent)"
+                          : "linear-gradient(to top, rgba(0,0,0,0.12), transparent)",
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -1267,10 +1370,27 @@ export default function App() {
             <div className="overflow-hidden">
               <div className="strip-left2 flex gap-3" style={{ width: "max-content" }}>
                 {strip3.map((item, i) => (
-                  <div key={`${item.label}-${i}`} className="relative flex-shrink-0 w-40 h-48 overflow-hidden" style={{ filter: "grayscale(88%) contrast(1.2) brightness(0.82)" }}>
+                  <div
+                    key={`${item.label}-${i}`}
+                    className="relative flex-shrink-0 w-40 h-48 overflow-hidden"
+                    style={{ filter: isDark ? "grayscale(88%) contrast(1.2) brightness(0.82)" : "grayscale(100%) contrast(1.3) brightness(0.88)" }}
+                  >
                     <img src={item.img} alt={item.label} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(10,10,10,0.7), rgba(196,18,48,0.16))" }} />
-                    <span className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em] text-white/75" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: isDark
+                          ? "linear-gradient(to top, rgba(10,10,10,0.7), rgba(196,18,48,0.16))"
+                          : "linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,51,102,0.12))",
+                      }}
+                    />
+                    <span
+                      className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em]"
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        color: isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.72)",
+                      }}
+                    >
                       {item.label}
                     </span>
                   </div>
@@ -1285,9 +1405,11 @@ export default function App() {
               className="text-xs tracking-[0.35em] mb-4 px-3 py-1"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                color: "#fff7e8",
-                background: "rgba(10,10,10,0.38)",
-                textShadow: "0 2px 14px rgba(0,0,0,0.95), 0 0 18px rgba(196,18,48,0.55)",
+                color: isDark ? "#fff7e8" : "#000000",
+                background: isDark ? "rgba(10,10,10,0.38)" : "rgba(0,0,0,0.06)",
+                textShadow: isDark
+                  ? "0 2px 14px rgba(0,0,0,0.95), 0 0 18px rgba(196,18,48,0.55)"
+                  : "0 1px 6px rgba(0,0,0,0.12)",
               }}
             >
               REPÚBLICA FEDERATIVA DO BRASIL
@@ -1296,8 +1418,10 @@ export default function App() {
               className="text-6xl md:text-8xl font-black text-center leading-none mb-2"
               style={{
                 fontFamily: "'Playfair Display', serif",
-                color: "#f0ece4",
-                textShadow: "0 0 80px rgba(196,18,48,0.6)",
+                color: isDark ? "#f0ece4" : "#000000",
+                textShadow: isDark
+                  ? "0 0 80px rgba(196,18,48,0.6)"
+                  : "0 0 40px rgba(0,51,102,0.15)",
               }}
             >
               QUEM
@@ -1306,8 +1430,10 @@ export default function App() {
               className="text-6xl md:text-8xl font-black text-center leading-none"
               style={{
                 fontFamily: "'Playfair Display', serif",
-                color: "#c41230",
-                textShadow: "0 0 80px rgba(196,18,48,0.8)",
+                color: isDark ? "#c41230" : "#003366",
+                textShadow: isDark
+                  ? "0 0 80px rgba(196,18,48,0.8)"
+                  : "0 0 40px rgba(0,51,102,0.35)",
               }}
             >
               GOVERNA?
@@ -1321,10 +1447,12 @@ export default function App() {
               className="click-hint text-xs tracking-[0.3em] px-4 py-2"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                color: "#fff2d6",
-                background: "rgba(10,10,10,0.5)",
-                border: "1px solid rgba(240,236,228,0.28)",
-                textShadow: "0 2px 12px rgba(0,0,0,0.95), 0 0 16px rgba(196,18,48,0.7)",
+                color: isDark ? "#fff2d6" : "#000000",
+                background: isDark ? "rgba(10,10,10,0.5)" : "rgba(0,0,0,0.06)",
+                border: isDark ? "1px solid rgba(240,236,228,0.28)" : "1px solid rgba(0,0,0,0.20)",
+                textShadow: isDark
+                  ? "0 2px 12px rgba(0,0,0,0.95), 0 0 16px rgba(196,18,48,0.7)"
+                  : "0 1px 4px rgba(0,0,0,0.12)",
               }}
             >
               {cursorVisible ? "▶  CLIQUE PARA ENTRAR  ◀" : "   CLIQUE PARA ENTRAR   "}
@@ -1335,12 +1463,12 @@ export default function App() {
 
       {/* ── HOME ──────────────────────────────────────────── */}
       {phase === "home" && (
-        <div className="home-enter min-h-screen overflow-y-auto" style={{ background: "#0a0a0a" }}>
+        <div className="home-enter min-h-screen overflow-y-auto bg-background">
           {/* NAV */}
-          <nav className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 border-b border-border" style={{ background: "rgba(10,10,10,0.92)", backdropFilter: "blur(12px)" }}>
+          <nav className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 border-b border-border" style={{ background: "var(--surface-glass)", backdropFilter: "blur(12px)" }}>
             <div className="flex items-center gap-3">
               <span className="w-2 h-8 bg-primary block" />
-              <span className="text-lg font-black tracking-wider" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}>
+              <span className="text-lg font-black tracking-wider text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
                 REPÚBLICA<span className="text-primary">BR</span>
               </span>
             </div>
@@ -1370,8 +1498,8 @@ export default function App() {
               PLATAFORMA DE TRANSPARÊNCIA POLÍTICA
             </p>
             <h2
-              className="text-5xl md:text-7xl font-black leading-none mb-6 max-w-3xl"
-              style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}
+              className="text-5xl md:text-7xl font-black leading-none mb-6 max-w-3xl text-foreground"
+              style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Conheça seus<br />
               <span className="text-primary">representantes.</span>
@@ -1421,7 +1549,7 @@ export default function App() {
                 <p className="text-xs tracking-[0.3em] text-primary mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                   REPRESENTANTES EM DESTAQUE
                 </p>
-                <h3 className="text-3xl font-black" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}>
+                <h3 className="text-3xl font-black text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
                   Nossos Eleitos
                 </h3>
               </div>
@@ -1481,7 +1609,7 @@ export default function App() {
                 <p className="text-xs tracking-[0.3em] text-primary mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                   ÚLTIMAS NOTÍCIAS
                 </p>
-                <h3 className="text-3xl font-black" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}>
+                <h3 className="text-3xl font-black text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
                   O Congresso Hoje
                 </h3>
               </div>
@@ -1508,8 +1636,8 @@ export default function App() {
                     </span>
                   </div>
                   <h4
-                    className="text-lg font-bold leading-snug mb-3 group-hover:text-primary transition-colors"
-                    style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}
+                    className="text-lg font-bold leading-snug mb-3 group-hover:text-primary transition-colors text-foreground"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
                   >
                     {n.headline}
                   </h4>
@@ -1529,7 +1657,7 @@ export default function App() {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div className="flex items-center gap-3">
                 <span className="w-2 h-6 bg-primary block" />
-                <span className="text-base font-black" style={{ fontFamily: "'Playfair Display', serif", color: "#f0ece4" }}>
+                <span className="text-base font-black text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
                   REPÚBLICA<span className="text-primary">BR</span>
                 </span>
               </div>

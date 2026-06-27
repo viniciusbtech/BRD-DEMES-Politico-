@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import type { FilterChoice, QuestionPayload } from "../types";
+import { useTheme } from "../../contexts/ThemeContext";
 
 // ─── tipos ───────────────────────────────────────────────────────────────────
 type Props = {
@@ -76,7 +77,7 @@ function DeputyAvatar({
         style={{
           width: size, height: size, flexShrink: 0,
           background: "#1a1a1a",
-          border: "1px solid rgba(240,236,228,0.10)",
+          border: "1px solid var(--border)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
@@ -92,7 +93,7 @@ function DeputyAvatar({
       style={{
         width: size, height: size, flexShrink: 0,
         overflow: "hidden",
-        border: "1px solid rgba(240,236,228,0.12)",
+        border: "1px solid var(--border)",
       }}
     >
       <img
@@ -113,7 +114,7 @@ function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title:
         <span className="select-none text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.18)" }}>{n}</span>
         <span className="text-xs tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{title}</h2>
+      <h2 className="mb-2 text-3xl font-black leading-tight" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
       <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
     </div>
   );
@@ -127,7 +128,7 @@ function YearPills({ years, selected, onChange }: { years: FilterChoice[]; selec
         className="border px-3 py-1.5 text-xs font-bold uppercase transition-colors"
         style={{
           fontFamily: MONO,
-          borderColor: !selected ? RED : "rgba(240,236,228,0.12)",
+          borderColor: !selected ? RED : "var(--border)",
           background:  !selected ? `${RED}22` : "transparent",
           color:       !selected ? RED : "var(--muted-foreground)",
         }}
@@ -141,7 +142,7 @@ function YearPills({ years, selected, onChange }: { years: FilterChoice[]; selec
           className="border px-3 py-1.5 text-xs font-bold transition-colors"
           style={{
             fontFamily: MONO,
-            borderColor: selected === y.value ? RED : "rgba(240,236,228,0.12)",
+            borderColor: selected === y.value ? RED : "var(--border)",
             background:  selected === y.value ? `${RED}22` : "transparent",
             color:       selected === y.value ? RED : "var(--muted-foreground)",
           }}
@@ -155,7 +156,7 @@ function YearPills({ years, selected, onChange }: { years: FilterChoice[]; selec
 
 function EmptyMsg({ text }: { text: string }) {
   return (
-    <div className="border border-border px-6 py-10 text-center" style={{ background: "#111" }}>
+    <div className="border border-border px-6 py-10 text-center" style={{ background: "var(--card)" }}>
       <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{text}</p>
     </div>
   );
@@ -241,7 +242,7 @@ function MethodologySection() {
   const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <section className="border-t border-border px-6 py-14 md:px-14" style={{ background: "#0c0c0c" }}>
+    <section className="border-t border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
       <SectionHeader
         n="03"
         tag="METODOLOGIA"
@@ -250,14 +251,14 @@ function MethodologySection() {
       />
 
       {METODOS.map((m) => (
-        <div key={m.id} className="mb-2 border border-border" style={{ background: "#0a0a0a" }}>
+        <div key={m.id} className="mb-2 border border-border" style={{ background: "var(--card)" }}>
           <button
             type="button"
             onClick={() => toggle(m.id)}
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
           >
             <div>
-              <p className="text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.titulo}</p>
+              <p className="text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.titulo}</p>
               <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{m.origem}</p>
             </div>
             <span className="ml-4 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -266,22 +267,22 @@ function MethodologySection() {
           </button>
 
           {open[m.id] ? (
-            <div className="border-t border-border px-5 py-5" style={{ background: "#080808" }}>
+            <div className="border-t border-border px-5 py-5" style={{ background: "var(--card)" }}>
               {/* Fórmula */}
               <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: RED }}>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Fórmula</p>
-                <p className="mt-1 text-sm font-bold" style={{ color: "#f0ece4", fontFamily: MONO }}>{m.formula}</p>
+                <p className="mt-1 text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
               </div>
               {/* Passos */}
               <div className="mb-4 flex flex-col gap-2">
                 {m.passos.map((p, pi) => (
-                  <p key={pi} className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{p}</p>
+                  <p key={pi} className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{p}</p>
                 ))}
               </div>
               {/* Interpretação */}
               <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
                 <p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Como interpretar</p>
-                <p className="text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.75)", fontFamily: MONO }}>{m.interpretacao}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{m.interpretacao}</p>
               </div>
             </div>
           ) : null}
@@ -293,6 +294,8 @@ function MethodologySection() {
 
 // ─── componente principal ─────────────────────────────────────────────────────
 export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   // ── Q5 (seção 1) ──
   const [q5Payload, setQ5Payload]     = useState<QuestionPayload | null>(null);
@@ -523,7 +526,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
   // ─────────────────────────────────────────────────────────────────────────────
   if (pageLoading) {
     return (
-      <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+      <div className="min-h-screen bg-background">
         <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
           CARREGANDO DADOS…
@@ -533,7 +536,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       {/* ── HERO ── */}
@@ -554,12 +557,12 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
         />
         <div className="absolute inset-0" style={{ boxShadow: "inset 0 -70px 90px rgba(10,10,10,0.52)" }} />
         <p className="relative z-10 mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>05 — CONTRATOS</p>
-        <h1 className="relative z-10 mb-4 font-black leading-none" style={{ fontFamily: SERIF, color: "#f0ece4", fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
+        <h1 className="relative z-10 mb-4 font-black leading-none" style={{ fontFamily: SERIF, color: "var(--foreground)", fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
           Fornecedores
           <br />
           <span style={{ color: RED }}>× Deputados</span>
         </h1>
-        <p className="relative z-10 max-w-2xl text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.82)" }}>
+        <p className="relative z-10 max-w-2xl text-base leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
           Quem recebeu dinheiro da cota parlamentar — quanto cada empresa foi paga ao longo da 57ª Legislatura e com quais fornecedores cada deputado fez seus gastos.
         </p>
       </div>
@@ -567,7 +570,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
       {/* ══════════════════════════════════════════════════════════
           SEÇÃO 01 — FORNECEDORES POR VALOR  (Q5)
       ══════════════════════════════════════════════════════════ */}
-      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "#0c0c0c" }}>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="01"
           tag="FORNECEDORES POR VALOR"
@@ -593,7 +596,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
         </div>
 
         {/* Cards de resumo */}
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "var(--secondary)" }}>
           <StatCard
             label={q5Year ? `TOTAL PAGO — ${q5Year}` : "TOTAL PAGO — TODOS OS ANOS"}
             value={fmtShort(s1Total)}
@@ -615,10 +618,16 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
             {/* Cabeçalho */}
             <div
               className="grid items-center gap-3 px-4 py-2.5"
-              style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#0a0a0a", borderBottom: "1px solid rgba(240,236,228,0.08)" }}
+              style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}
             >
               {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
-                <span key={h} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{h}</span>
+                <span
+                  key={h}
+                  className="text-xs text-muted-foreground"
+                  style={{ fontFamily: MONO, ...(h === "POS." && !isDark ? { color: RED } : {}) }}
+                >
+                  {h}
+                </span>
               ))}
             </div>
 
@@ -632,7 +641,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
               const isExp  = expandedRow === name;
 
               return (
-                <div key={name + pos} style={{ borderBottom: "1px solid rgba(240,236,228,0.06)" }}>
+                <div key={name + pos} style={{ borderBottom: "1px solid var(--border)" }}>
                   <button
                     onClick={() => setExpandedRow(isExp ? null : name)}
                     className="grid w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-card"
@@ -640,21 +649,25 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                   >
                     <span
                       className="font-black"
-                      style={{ fontFamily: SERIF, fontSize: isTop3 ? "1.25rem" : "1rem", color: isTop3 ? RED : "rgba(240,236,228,0.3)" }}
+                      style={{
+                        fontFamily: SERIF,
+                        fontSize: isTop3 ? "1.25rem" : "1rem",
+                        color: isDark ? (isTop3 ? RED : "rgba(240,236,228,0.3)") : RED,
+                      }}
                     >
                       {String(pos).padStart(2, "0")}
                     </span>
                     <div className="min-w-0">
                       <p className="mb-1.5 truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{name}</p>
                       <div className="flex items-center gap-2">
-                        <div className="flex-1" style={{ background: "rgba(240,236,228,0.07)", height: "6px" }}>
+                        <div className="flex-1" style={{ background: "var(--secondary)", height: "6px" }}>
                           <div style={{ width: `${barPct}%`, height: "100%", background: isTop3 ? RED : "rgba(196,18,48,0.4)" }} />
                         </div>
                         <span className="shrink-0 text-xs" style={{ fontFamily: MONO, color: "#666660" }}>{barPct.toFixed(0)}%</span>
                       </div>
                     </div>
                     <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(lanc)}</span>
-                    <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: isTop3 ? RED : "#f0ece4" }}>{fmtShort(total)}</span>
+                    <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: isTop3 ? RED : "var(--foreground)" }}>{fmtShort(total)}</span>
                   </button>
 
                   {/* Painel de breakdown por ano */}
@@ -668,7 +681,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                       ) : (
                         <div className="flex flex-wrap gap-3">
                           {expandedBreakdown.map((yr) => (
-                            <div key={str(yr, "ano_dados")} className="border border-border px-4 py-3" style={{ background: "#111", minWidth: "160px" }}>
+                            <div key={str(yr, "ano_dados")} className="border border-border px-4 py-3" style={{ background: "var(--card)", minWidth: "160px" }}>
                               <p className="mb-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{str(yr, "ano_dados")}</p>
                               <p className="text-base font-black text-primary" style={{ fontFamily: SERIF }}>{fmtShort(raw(yr, "total_pago"))}</p>
                               <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -692,10 +705,10 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
             type="button"
             onClick={() => { setAnnualTableOpen((v) => !v); setAnnualPage(0); }}
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-            style={{ background: "#111" }}
+            style={{ background: "var(--card)" }}
           >
             <div>
-              <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+              <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                 TOP 30 FORNECEDORES POR ANO
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -708,20 +721,20 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
           </button>
 
           {annualTableOpen ? (
-            <div className="border-t border-border" style={{ background: "#0d0d0d" }}>
+            <div className="border-t border-border" style={{ background: "var(--card)" }}>
               {q5AnnualSorted.length === 0 ? (
                 <EmptyMsg text="SEM DADOS ANUAIS DISPONÍVEIS." />
               ) : (
                 <>
                   <div className="overflow-x-auto">
                     <table className="min-w-full text-left text-sm">
-                      <thead style={{ background: "#0a0a0a" }}>
+                      <thead style={{ background: "var(--secondary)" }}>
                         <tr>
                           {["ANO", "POS", "FORNECEDOR", "LANÇ.", "TOTAL", "% ANO"].map((h) => (
                             <th
                               key={h}
                               className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground"
-                              style={{ fontFamily: MONO }}
+                              style={{ fontFamily: MONO, ...(h === "POS" && !isDark ? { color: RED } : {}) }}
                             >
                               {h}
                             </th>
@@ -738,7 +751,10 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                               </td>
                               <td
                                 className="whitespace-nowrap px-4 py-3 font-black"
-                                style={{ fontFamily: MONO, color: pos <= 3 ? RED : "rgba(240,236,228,0.4)" }}
+                                style={{
+                                  fontFamily: MONO,
+                                  color: isDark ? (pos <= 3 ? RED : "rgba(240,236,228,0.4)") : RED,
+                                }}
                               >
                                 {String(pos).padStart(2, "0")}
                               </td>
@@ -748,7 +764,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                               <td className="whitespace-nowrap px-4 py-3 text-right text-muted-foreground" style={{ fontFamily: MONO }}>
                                 {fmtNum(raw(row, "qtd_lancamentos"))}
                               </td>
-                              <td className="whitespace-nowrap px-4 py-3 text-right font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>
+                              <td className="whitespace-nowrap px-4 py-3 text-right font-bold" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                                 {fmtCurrency(raw(row, "total_pago"))}
                               </td>
                               <td className="whitespace-nowrap px-4 py-3 text-right text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -764,7 +780,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                   {/* paginação — passa de 20 em 20 */}
                   <div
                     className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3"
-                    style={{ background: "#0a0a0a" }}
+                    style={{ background: "var(--secondary)" }}
                   >
                     <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                       {annualRangeStart}–{annualRangeEnd} de {fmtNum(q5AnnualSorted.length)}
@@ -803,7 +819,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
       {/* ══════════════════════════════════════════════════════════
           SEÇÃO 02 — DEPUTADO × FORNECEDORES  (Q12)
       ══════════════════════════════════════════════════════════ */}
-      <section className="px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section className="px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="02"
           tag="DEPUTADO × FORNECEDORES"
@@ -831,8 +847,8 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                     onClick={() => selectDeputy(deputy)}
                     className="flex flex-col items-center border p-3 text-center transition-colors hover:border-primary"
                     style={{
-                      background:  isSelected ? "rgba(196,18,48,0.09)" : "#111",
-                      borderColor: isSelected ? RED : "rgba(240,236,228,0.10)",
+                      background:  isSelected ? "rgba(196,18,48,0.09)" : "var(--card)",
+                      borderColor: isSelected ? RED : "var(--border)",
                     }}
                   >
                     {/* Foto */}
@@ -840,7 +856,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                       <DeputyAvatar nome={dep.nome} deputy={deputy} size={64} />
                       <span
                         className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center text-xs font-black"
-                        style={{ fontFamily: MONO, background: idx < 3 ? RED : "#222", color: "#fff" }}
+                        style={{ fontFamily: MONO, background: idx < 3 ? RED : "var(--secondary)", color: "#fff" }}
                       >
                         {idx + 1}
                       </span>
@@ -905,7 +921,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
               ) : null}
 
               {showDepDrop ? (
-                <div className="absolute left-0 right-0 top-full z-30 max-h-80 overflow-y-auto border border-border" style={{ background: "#141414" }}>
+                <div className="absolute left-0 right-0 top-full z-30 max-h-80 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
                   {filteredDeps.length === 0 ? (
                     <div className="px-4 py-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                       Nenhum deputado encontrado.
@@ -957,7 +973,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
             {(() => {
               const s = statsForDeputy(selectedDep);
               return (
-                <div className="mb-6 flex items-center gap-4 border-l-4 py-4 pl-5" style={{ background: "#111", borderColor: RED }}>
+                <div className="mb-6 flex items-center gap-4 border-l-4 py-4 pl-5" style={{ background: "var(--card)", borderColor: RED }}>
                   <DeputyAvatar nome={selectedDep.label} id={s?.id} deputy={selectedDep} size={72} />
                   <div>
                     <h3 className="text-2xl font-black text-foreground" style={{ fontFamily: SERIF }}>{selectedDep.label}</h3>
@@ -1009,7 +1025,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                 </div>
 
                 {/* Cards de totais */}
-                <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+                <div className="mb-8 grid grid-cols-1 gap-px border border-border sm:grid-cols-3" style={{ background: "var(--secondary)" }}>
                   <StatCard label={fornecedorSearch.trim() ? "GASTO COM O FILTRO" : "TOTAL GASTO"} value={fmtShort(s2Total)} sub={fmtCurrency(s2Total)} />
                   <StatCard label="FORNECEDORES" value={fmtNum(s2Visible.length)} />
                   <StatCard label="LANÇAMENTOS"  value={fmtNum(s2Lancamentos)} />
@@ -1020,9 +1036,15 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                 ) : (
                   <>
                     {/* Tabela de fornecedores */}
-                    <div className="grid items-center gap-3 px-4 py-2.5" style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#0a0a0a", borderBottom: "1px solid rgba(240,236,228,0.08)" }}>
+                    <div className="grid items-center gap-3 px-4 py-2.5" style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}>
                       {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
-                        <span key={h} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{h}</span>
+                        <span
+                          key={h}
+                          className="text-xs text-muted-foreground"
+                          style={{ fontFamily: MONO, ...(h === "POS." && !isDark ? { color: RED } : {}) }}
+                        >
+                          {h}
+                        </span>
                       ))}
                     </div>
 
@@ -1030,15 +1052,22 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                       <div
                         key={item.fornecedor}
                         className="grid items-center gap-3 px-4 py-4 transition-colors hover:bg-card"
-                        style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "#111", borderBottom: "1px solid rgba(240,236,228,0.06)" }}
+                        style={{ gridTemplateColumns: "2.5rem 1fr 6.5rem 7.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}
                       >
-                        <span className="font-black" style={{ fontFamily: SERIF, fontSize: item.rank <= 3 ? "1.25rem" : "1rem", color: item.rank <= 3 ? RED : "rgba(240,236,228,0.3)" }}>
+                        <span
+                          className="font-black"
+                          style={{
+                            fontFamily: SERIF,
+                            fontSize: item.rank <= 3 ? "1.25rem" : "1rem",
+                            color: isDark ? (item.rank <= 3 ? RED : "rgba(240,236,228,0.3)") : RED,
+                          }}
+                        >
                           {String(item.rank).padStart(2, "0")}
                         </span>
                         <div className="min-w-0">
                           <p className="mb-1 truncate text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{item.fornecedor}</p>
                           <div className="flex items-center gap-2">
-                            <div className="flex-1" style={{ background: "rgba(240,236,228,0.07)", height: "6px" }}>
+                            <div className="flex-1" style={{ background: "var(--secondary)", height: "6px" }}>
                               <div style={{ width: `${item.barPct}%`, height: "100%", background: item.rank === 1 ? RED : "rgba(196,18,48,0.4)" }} />
                             </div>
                             <span className="shrink-0 text-xs" style={{ fontFamily: MONO, color: "#666660" }}>{item.pct.toFixed(1)}%</span>
@@ -1048,7 +1077,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                           ) : null}
                         </div>
                         <span className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{fmtNum(item.lancamentos)}</span>
-                        <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: item.rank === 1 ? RED : "#f0ece4" }}>{fmtShort(item.total)}</span>
+                        <span className="text-right text-sm font-bold" style={{ fontFamily: MONO, color: item.rank === 1 ? RED : "var(--foreground)" }}>{fmtShort(item.total)}</span>
                       </div>
                     ))}
 

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import * as echarts from "echarts";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
 import type { FilterChoice, QuestionPayload } from "../types";
+import { useTheme } from "../../contexts/ThemeContext";
 
 type InfluenciaPageProps = {
   onNavigateHome: () => void;
@@ -100,7 +101,7 @@ function SectionHeader({ tag, n, title, desc }: { tag: string; n: string; title:
         <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.22)" }}>{n}</span>
         <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{title}</h2>
+      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "var(--influence-heading-color, #f0ece4)" }}>{title}</h2>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
     </div>
   );
@@ -118,7 +119,7 @@ function StatCard({ label, value, sub, unit }: { label: string; value: string; s
 
 function EmptyPanel({ text: message }: { text: string }) {
   return (
-    <div className="border border-border px-6 py-12 text-center" style={{ background: "#111" }}>
+    <div className="border border-border px-6 py-12 text-center" style={{ background: "var(--influence-panel-bg, #111)" }}>
       <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{message}</p>
     </div>
   );
@@ -127,9 +128,9 @@ function EmptyPanel({ text: message }: { text: string }) {
 function SimpleTable({ rows, columns, empty }: { rows: Row[]; columns: string[]; empty: string }) {
   if (!rows.length) return <EmptyPanel text={empty} />;
   return (
-    <div className="overflow-x-auto border border-border" style={{ background: "#111" }}>
+    <div className="overflow-x-auto border border-border" style={{ background: "var(--influence-panel-bg, #111)" }}>
       <table className="min-w-full text-left text-sm">
-        <thead style={{ background: "#0a0a0a" }}>
+        <thead style={{ background: "var(--influence-table-head-bg, #0a0a0a)" }}>
           <tr>
             {columns.map((column) => (
               <th key={column} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -166,7 +167,7 @@ function SearchInput({ value, onChange, placeholder }: { value: string; onChange
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full border border-border py-3 pl-9 pr-9 text-sm outline-none transition-colors focus:border-primary"
-        style={{ fontFamily: MONO, color: "#f0ece4", background: "#111" }}
+        style={{ fontFamily: MONO, color: "var(--influence-input-color, #f0ece4)", background: "var(--influence-input-bg, #111)" }}
       />
       {value ? (
         <button
@@ -185,7 +186,7 @@ function SearchInput({ value, onChange, placeholder }: { value: string; onChange
 // Bloco colapsável (tabela inicialmente escondida, com botão mostrar/ocultar)
 function CollapsibleSection({ title, open, onToggle, children }: { title: string; open: boolean; onToggle: () => void; children: ReactNode }) {
   return (
-    <div className="border border-border" style={{ background: "#0a0a0a" }}>
+    <div className="border border-border" style={{ background: "var(--influence-collapsible-bg, #0a0a0a)" }}>
       <button
         type="button"
         onClick={onToggle}
@@ -220,11 +221,13 @@ function LeidenGraph({
   links,
   selectedDeputy,
   onSelectDeputy,
+  isDark,
 }: {
   nodes: RawGraphNode[];
   links: RawGraphLink[];
   selectedDeputy?: RawGraphNode | null;
   onSelectDeputy: (node: RawGraphNode | null) => void;
+  isDark: boolean;
 }) {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
@@ -240,14 +243,14 @@ function LeidenGraph({
     });
 
     const option: echarts.EChartsOption = {
-      backgroundColor: "#080808",
+      backgroundColor: isDark ? "#080808" : "#ffffff",
       animationDuration: 900,
       tooltip: {
         trigger: "item",
         confine: true,
         backgroundColor: "#141414",
-        borderColor: "rgba(240,236,228,0.16)",
-        textStyle: { color: "#f0ece4", fontFamily: "JetBrains Mono", fontSize: 11 },
+        borderColor: isDark ? "rgba(240,236,228,0.16)" : "rgba(0,127,255,0.22)",
+        textStyle: { color: isDark ? "#f0ece4" : "#315f37", fontFamily: "JetBrains Mono", fontSize: 11 },
         formatter: (params) => {
           const data = params.data as Record<string, unknown>;
           if (params.dataType === "edge") {
@@ -288,7 +291,7 @@ function LeidenGraph({
           },
           label: {
             show: nodes.length <= 45,
-            color: "#f0ece4",
+            color: isDark ? "#f0ece4" : "#315f37",
             fontSize: 10,
             formatter: "{b}",
           },
@@ -310,7 +313,7 @@ function LeidenGraph({
               symbolSize: isSelected ? Math.max(28, Number(node.symbolSize ?? 18) + 10) : Number(node.symbolSize ?? Math.max(12, Math.min(38, 10 + Number(node.grau_ponderado ?? 0) / 20))),
               itemStyle: {
                 color,
-                borderColor: isSelected ? "#f0ece4" : "rgba(240,236,228,0.28)",
+                borderColor: isSelected ? (isDark ? "#f0ece4" : "#007fff") : isDark ? "rgba(240,236,228,0.28)" : "rgba(0,127,255,0.28)",
                 borderWidth: isSelected ? 3 : 1,
               },
               label: { show: isSelected || nodes.length <= 45 },
@@ -341,16 +344,17 @@ function LeidenGraph({
       window.removeEventListener("resize", resize);
       chart.dispose();
     };
-  }, [links, nodes, onSelectDeputy, selectedDeputy]);
+  }, [isDark, links, nodes, onSelectDeputy, selectedDeputy]);
 
   return (
-    <div className="border border-border" style={{ background: "#080808" }}>
+    <div className="border border-border" style={{ background: "var(--q8-graph-bg, #080808)" }}>
       <div ref={chartRef} className="h-[620px] w-full" />
     </div>
   );
 }
 
 export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: InfluenciaPageProps) {
+  const { theme } = useTheme();
   const [q8, setQ8] = useState<QuestionPayload | null>(null);
   const [q10, setQ10] = useState<QuestionPayload | null>(null);
   const [years, setYears] = useState<FilterChoice[]>([]);
@@ -369,6 +373,34 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   const [q8TableOpen, setQ8TableOpen] = useState(false);
   const [q10TableOpen, setQ10TableOpen] = useState(false);
   const [q10AnnualOpen, setQ10AnnualOpen] = useState(false);
+  const isDark = theme === "dark";
+  const q8LightVars = (!isDark
+    ? {
+        "--muted-foreground": "#0069ff",
+        "--foreground": "#315f37",
+        "--primary": "#007fff",
+        "--primary-rgb": "0, 127, 255",
+        "--border": "#d9e4f2",
+        "--q8-graph-bg": "#ffffff",
+        "--influence-heading-color": "#315f37",
+        "--influence-input-color": "#315f37",
+        "--influence-input-bg": "#ffffff",
+        "--influence-collapsible-bg": "#ffffff",
+        "--influence-panel-bg": "#ffffff",
+        "--influence-table-head-bg": "#eef6ff",
+      }
+    : {}) as CSSProperties;
+  const q8PanelStyle = {
+    background: isDark
+      ? "#111"
+      : "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,249,255,0.96) 100%)",
+    borderColor: isDark ? undefined : "#d9e4f2",
+    boxShadow: isDark ? undefined : "0 18px 48px rgba(15, 23, 42, 0.08)",
+  } as CSSProperties;
+  const q8SoftGridStyle = {
+    background: isDark ? "rgba(240,236,228,0.06)" : "rgba(0, 127, 255, 0.08)",
+    borderColor: isDark ? undefined : "#d9e4f2",
+  } as CSSProperties;
 
   useEffect(() => {
     let mounted = true;
@@ -541,7 +573,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
+      <div className="min-h-screen bg-background">
         <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>CARREGANDO DADOS...</div>
       </div>
@@ -549,7 +581,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a0a", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <PageHero
@@ -567,7 +599,15 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </section>
       ) : null}
 
-      <section className="border-b border-border px-6 py-14 md:px-14">
+      <section
+        className="border-b border-border px-6 py-14 md:px-14"
+        style={{
+          ...q8LightVars,
+          background: isDark
+            ? undefined
+            : "linear-gradient(180deg, #ffffff 0%, #f7fbff 46%, #ffffff 100%)",
+        }}
+      >
         <SectionHeader
           n="8"
           tag="COMUNIDADES"
@@ -575,7 +615,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           desc="A Q8 complementar detecta comunidades de comportamento a partir de votos comparaveis. Cada grupo abaixo representa deputados com padrao de voto parecido."
         />
 
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={q8SoftGridStyle}>
           {q8Summary.slice(0, 4).map((card) => (
             <StatCard key={card.id} label={card.label.toUpperCase()} value={card.value} unit={card.unit ?? undefined} />
           ))}
@@ -597,8 +637,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                     className="border px-3 py-1.5 text-xs font-bold"
                     style={{
                       fontFamily: MONO,
-                      borderColor: q8GraphTopLimit === option ? RED : "rgba(240,236,228,0.12)",
-                      color: q8GraphTopLimit === option ? RED : "var(--muted-foreground)",
+                      borderColor: q8GraphTopLimit === option ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2",
+                      color: q8GraphTopLimit === option ? (isDark ? RED : "#007fff") : "var(--muted-foreground)",
+                      background: q8GraphTopLimit === option && !isDark ? "rgba(0,127,255,0.08)" : "transparent",
                     }}
                   >
                     TOP {option}
@@ -619,9 +660,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   className="border px-3 py-2 text-left text-xs font-bold"
                   style={{
                     fontFamily: MONO,
-                    borderColor: q8SelectedCommunity === community.id ? community.color : "rgba(240,236,228,0.12)",
+                    borderColor: q8SelectedCommunity === community.id ? community.color : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2",
                     color: q8SelectedCommunity === community.id ? community.color : "var(--muted-foreground)",
-                    background: q8SelectedCommunity === community.id ? `${community.color}18` : "transparent",
+                    background: q8SelectedCommunity === community.id ? `${community.color}18` : isDark ? "transparent" : "#ffffff",
                   }}
                 >
                   {community.name.toUpperCase()} · {fmtNum(community.deputies)}
@@ -635,6 +676,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 links={visibleLeidenLinks}
                 selectedDeputy={selectedDeputy}
                 onSelectDeputy={setSelectedDeputy}
+                isDark={isDark}
               />
             ) : (
               <EmptyPanel text="Sem nos para a comunidade selecionada." />
@@ -643,17 +685,17 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
 
           <div className="grid content-start gap-3">
             {selectedCommunityMeta ? (
-              <div className="border border-border p-5" style={{ background: "#111", borderLeft: `3px solid ${selectedCommunityMeta.color}` }}>
+              <div className="border border-border p-5" style={{ ...q8PanelStyle, borderLeft: `3px solid ${selectedCommunityMeta.color}` }}>
                 <div className="mb-3 flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{selectedCommunityMeta.name}</h3>
+                    <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{selectedCommunityMeta.name}</h3>
                     <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
                       kappa medio {selectedCommunityMeta.kappa.toFixed(3)} · grau ponderado {selectedCommunityMeta.degree.toFixed(1)}
                     </p>
                   </div>
                   <span className="text-2xl font-black" style={{ fontFamily: SERIF, color: selectedCommunityMeta.color }}>{fmtNum(selectedCommunityMeta.deputies)}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
+                <div className="grid grid-cols-2 gap-px border border-border" style={q8SoftGridStyle}>
                   <StatCard label="NOS VISIVEIS" value={fmtNum(visibleLeidenNodes.length)} />
                   <StatCard label="ARESTAS" value={fmtNum(visibleLeidenLinks.length)} />
                 </div>
@@ -666,11 +708,11 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
               </div>
             ) : null}
 
-            <div className="border border-border p-5" style={{ background: "#111" }}>
+            <div className="border border-border p-5" style={q8PanelStyle}>
               <p className="mb-3 text-xs tracking-[0.25em] text-primary" style={{ fontFamily: MONO }}>DEPUTADO SELECIONADO</p>
               {selectedDeputy ? (
                 <div>
-                  <h3 className="text-2xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+                  <h3 className="text-2xl font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>
                     {String(selectedDeputy.nome ?? selectedDeputy.name ?? selectedDeputy.id)}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -679,7 +721,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                     {" · "}
                     comunidade {String(selectedDeputy.community ?? "")}
                   </p>
-                  <div className="mt-4 grid grid-cols-2 gap-px border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
+                  <div className="mt-4 grid grid-cols-2 gap-px border border-border" style={q8SoftGridStyle}>
                     <StatCard label="GRAU" value={formatDecimal(selectedDeputy.grau_ponderado, 1)} />
                     <StatCard label="CONEXOES" value={fmtNum(Number(selectedDeputy.qtd_conexoes ?? 0))} />
                   </div>
@@ -697,8 +739,10 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
       <section
         className="border-b border-border px-6 py-16 md:px-14"
         style={{
-          background:
-            "radial-gradient(circle at 12% 0%, rgba(196,18,48,0.12), transparent 46%), #0b0a0c",
+          ...q8LightVars,
+          background: isDark
+            ? "radial-gradient(circle at 12% 0%, rgba(196,18,48,0.12), transparent 46%), #0b0a0c"
+            : "radial-gradient(circle at 12% 0%, rgba(0,127,255,0.10), transparent 42%), linear-gradient(180deg, #ffffff 0%, #f7fbff 48%, #ffffff 100%)",
         }}
       >
         <SectionHeader
@@ -712,19 +756,19 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           <>
             <p
               className="mb-10 max-w-4xl text-2xl font-black leading-tight md:text-3xl"
-              style={{ fontFamily: SERIF, color: "#f0ece4" }}
+              style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}
             >
               {fmtNum(leidenSynthesis.totalDeputies)} deputados se dividiram em{" "}
-              <span style={{ color: RED }}>{leidenSynthesis.blocks.length} blocos de comportamento</span>
+              <span style={{ color: isDark ? RED : "#007fff" }}>{leidenSynthesis.blocks.length} blocos de comportamento</span>
               {" "}— e eles ignoram a fronteira partidaria.
             </p>
 
-            <div className="mb-12 grid gap-px border border-border lg:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+            <div className="mb-12 grid gap-px border border-border lg:grid-cols-3" style={q8SoftGridStyle}>
               {leidenSynthesis.blocks.map((block) => (
-                <div key={block.id} className="p-6" style={{ background: "#0d0d0d", borderTop: `3px solid ${block.color}` }}>
+                <div key={block.id} className="p-6" style={{ ...q8PanelStyle, borderTop: `3px solid ${block.color}` }}>
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{block.name}</h3>
+                      <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{block.name}</h3>
                       {block.selo ? (
                         <span className="mt-1 inline-block px-2 py-0.5 text-[10px] font-bold tracking-[0.18em]" style={{ fontFamily: MONO, color: block.color, background: `${block.color}1f` }}>
                           {block.selo}
@@ -737,7 +781,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                     </div>
                   </div>
 
-                  <div className="mb-4 grid grid-cols-2 gap-px border border-border" style={{ background: "rgba(240,236,228,0.06)" }}>
+                  <div className="mb-4 grid grid-cols-2 gap-px border border-border" style={q8SoftGridStyle}>
                     <div className="bg-background px-4 py-3">
                       <p className="text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>COESAO (κ)</p>
                       <p className="text-lg font-black text-primary" style={{ fontFamily: SERIF }}>{block.kappa.toFixed(3)}</p>
@@ -771,18 +815,18 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </>
         ) : null}
 
-        <div className="grid gap-px border border-border lg:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="grid gap-px border border-border lg:grid-cols-3" style={q8SoftGridStyle}>
           {LEIDEN_FINDINGS.map((finding) => (
-            <div key={finding.n} className="flex flex-col bg-background p-6">
+            <div key={finding.n} className="flex flex-col bg-background p-6" style={isDark ? undefined : q8PanelStyle}>
               <span className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.3)" }}>{finding.n}</span>
-              <h4 className="mb-3 text-lg font-black leading-tight" style={{ fontFamily: SERIF, color: "#f0ece4" }}>{finding.title}</h4>
+              <h4 className="mb-3 text-lg font-black leading-tight" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{finding.title}</h4>
               <p className="text-xs leading-relaxed text-muted-foreground">{finding.body}</p>
               {finding.chips.length ? (
                 <div className="mt-4">
                   <p className="mb-2 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{finding.chipsLabel}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {finding.chips.map((chip) => (
-                      <span key={chip} className="border px-2 py-0.5 text-[10px] font-bold" style={{ fontFamily: MONO, borderColor: "rgba(196,18,48,0.35)", color: "#f0ece4" }}>{chip}</span>
+                      <span key={chip} className="border px-2 py-0.5 text-[10px] font-bold" style={{ fontFamily: MONO, borderColor: isDark ? "rgba(196,18,48,0.35)" : "rgba(0,127,255,0.35)", color: isDark ? "#f0ece4" : "#007fff" }}>{chip}</span>
                     ))}
                   </div>
                 </div>
@@ -792,7 +836,13 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </div>
       </section>
 
-      <section className="border-b border-border px-6 py-14 md:px-14">
+      <section
+        className="border-b border-border px-6 py-14 md:px-14"
+        style={{
+          ...q8LightVars,
+          background: isDark ? undefined : "linear-gradient(180deg, #ffffff 0%, #f7fbff 48%, #ffffff 100%)",
+        }}
+      >
         <SectionHeader
           n="8"
           tag="RANKING ORIGINAL"
@@ -803,10 +853,10 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         <div className="mb-4 h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={q8FullRanking.slice(0, 15)} layout="vertical" margin={{ left: 40, right: 20, top: 0, bottom: 0 }}>
-              <XAxis type="number" tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="nome" width={135} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.12)", fontFamily: MONO, fontSize: 11 }} />
-              <Bar dataKey="pct_aprovadas" fill={RED} maxBarSize={18} />
+              <XAxis type="number" tick={{ fill: isDark ? "#888880" : "#0069ff", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="nome" width={135} tick={{ fill: isDark ? "#888880" : "#315f37", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ background: isDark ? "#141414" : "#ffffff", border: isDark ? "1px solid rgba(240,236,228,0.12)" : "1px solid #d9e4f2", color: isDark ? undefined : "#315f37", fontFamily: MONO, fontSize: 11 }} />
+              <Bar dataKey="pct_aprovadas" fill={isDark ? RED : "#007fff"} maxBarSize={18} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -824,7 +874,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         >
           <div className="overflow-x-auto" style={{ maxHeight: 520, overflowY: "auto" }}>
             <table className="min-w-full text-left text-sm">
-              <thead style={{ background: "#0a0a0a", position: "sticky", top: 0, zIndex: 1 }}>
+              <thead style={{ background: isDark ? "#0a0a0a" : "#eef6ff", position: "sticky", top: 0, zIndex: 1 }}>
                 <tr>
                   {["#", "Foto", "Deputado", "Autoria", "Aprovadas", "% Aprovadas"].map((col) => (
                     <th key={col} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{col}</th>
@@ -837,7 +887,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   const isFirst = rank === 1;
                   return (
                     <tr key={id || rank} className="border-t border-border hover:bg-white/[0.03]">
-                      <td className="px-4 py-2 font-bold" style={{ fontFamily: SERIF, color: isFirst ? RED : "rgba(240,236,228,0.4)" }}>
+                      <td className="px-4 py-2 font-bold" style={{ fontFamily: SERIF, color: isFirst ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.4)" : "#0069ff" }}>
                         {String(rank).padStart(2, "0")}
                       </td>
                       <td className="px-2 py-1">
@@ -849,10 +899,10 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                           onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
                         />
                       </td>
-                      <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "#f0ece4", fontFamily: SERIF }}>{text(row, "nome")}</td>
+                      <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: isDark ? "#f0ece4" : "#315f37", fontFamily: SERIF }}>{text(row, "nome")}</td>
                       <td className="px-4 py-2 text-muted-foreground">{fmtNum(raw(row, "proposicoes_autoria"))}</td>
                       <td className="px-4 py-2 text-muted-foreground">{fmtNum(raw(row, "proposicoes_aprovadas"))}</td>
-                      <td className="px-4 py-2 font-bold" style={{ color: isFirst ? RED : "#f0ece4" }}>{fmtPct(raw(row, "pct_aprovadas"))}</td>
+                      <td className="px-4 py-2 font-bold" style={{ color: isFirst ? (isDark ? RED : "#007fff") : isDark ? "#f0ece4" : "#315f37" }}>{fmtPct(raw(row, "pct_aprovadas"))}</td>
                     </tr>
                   );
                 })}
@@ -881,7 +931,15 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
 
       </section>
 
-      <section className="px-6 py-14 md:px-14" style={{ background: "#0e0e0e" }}>
+      <section
+        className="px-6 py-14 md:px-14"
+        style={{
+          ...q8LightVars,
+          background: isDark
+            ? "#0e0e0e"
+            : "linear-gradient(180deg, #ffffff 0%, #f7fbff 50%, #ffffff 100%)",
+        }}
+      >
         <SectionHeader
           n="10"
           tag="DISCIPLINA PARTIDARIA"
@@ -896,7 +954,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             type="button"
             onClick={() => setQ10Year("")}
             className="border px-3 py-1.5 text-xs font-bold"
-            style={{ fontFamily: MONO, borderColor: !q10Year ? RED : "rgba(240,236,228,0.12)", color: !q10Year ? RED : "var(--muted-foreground)" }}
+            style={{ fontFamily: MONO, borderColor: !q10Year ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2", color: !q10Year ? (isDark ? RED : "#007fff") : "var(--muted-foreground)", background: !q10Year && !isDark ? "rgba(0,127,255,0.08)" : "transparent" }}
           >
             TODOS
           </button>
@@ -906,7 +964,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
               type="button"
               onClick={() => setQ10Year(year.value)}
               className="border px-3 py-1.5 text-xs font-bold"
-              style={{ fontFamily: MONO, borderColor: q10Year === year.value ? RED : "rgba(240,236,228,0.12)", color: q10Year === year.value ? RED : "var(--muted-foreground)" }}
+              style={{ fontFamily: MONO, borderColor: q10Year === year.value ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2", color: q10Year === year.value ? (isDark ? RED : "#007fff") : "var(--muted-foreground)", background: q10Year === year.value && !isDark ? "rgba(0,127,255,0.08)" : "transparent" }}
             >
               {year.label}
             </button>
@@ -919,7 +977,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           <SearchInput value={q10PartySearch} onChange={setQ10PartySearch} placeholder="Pesquisar partido (ex: PT, PL, MDB)..." />
         </div>
 
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "rgba(240,236,228,0.06)" }}>
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={q8SoftGridStyle}>
           <StatCard label="PARTIDO MAIS ALINHADO" value={text(q10Rows[0], "sigla_partido") || "-"} sub={q10Rows[0] ? fmtPct(raw(q10Rows[0], "pct_alinhamento")) : undefined} />
           <StatCard label="VOTOS COM DIRETRIZ" value={fmtNum(q10Rows.reduce((sum, row) => sum + raw(row, q10VoteTotalKey), 0))} />
           <StatCard label="PARTIDOS NO RANKING" value={fmtNum(q10Rows.length)} />
@@ -937,15 +995,15 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         <div className="mb-10" style={{ height: Math.max(400, q10Rows.length * 34) }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={q10Rows} layout="vertical" margin={{ left: 0, right: 50, top: 0, bottom: 0 }}>
-              <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-              <YAxis type="category" dataKey="sigla_partido" width={72} tick={{ fill: "#888880", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fill: isDark ? "#888880" : "#0069ff", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+              <YAxis type="category" dataKey="sigla_partido" width={72} tick={{ fill: isDark ? "#888880" : "#315f37", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: "#141414", border: "1px solid rgba(240,236,228,0.12)", fontFamily: MONO, fontSize: 11, color: "#fff" }}
-                itemStyle={{ color: "#fff" }}
-                labelStyle={{ color: "#fff" }}
+                contentStyle={{ background: isDark ? "#141414" : "#ffffff", border: isDark ? "1px solid rgba(240,236,228,0.12)" : "1px solid #d9e4f2", fontFamily: MONO, fontSize: 11, color: isDark ? "#fff" : "#315f37" }}
+                itemStyle={{ color: isDark ? "#fff" : "#315f37" }}
+                labelStyle={{ color: isDark ? "#fff" : "#315f37" }}
                 formatter={(value, _name, props) => [`${value}%`, `${props.payload.sigla_partido} · ${props.payload.ideologia ?? ""}`]}
               />
-              <Bar dataKey="pct_alinhamento" maxBarSize={22} label={{ position: "right", fill: "#888880", fontSize: 10, fontFamily: MONO, formatter: (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` }}>
+              <Bar dataKey="pct_alinhamento" maxBarSize={22} label={{ position: "right", fill: isDark ? "#888880" : "#315f37", fontSize: 10, fontFamily: MONO, formatter: (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` }}>
                 {q10Rows.map((row) => (
                   <Cell key={text(row, "sigla_partido")} fill={IDEOLOGY_COLORS[text(row, "ideologia")] ?? "#555"} />
                 ))}
@@ -991,7 +1049,15 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         ) : null}
       </section>
 
-      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "#080808" }}>
+      <section
+        className="border-t border-border px-6 py-10 md:px-14"
+        style={{
+          ...q8LightVars,
+          background: isDark
+            ? "#080808"
+            : "radial-gradient(circle at 90% 0%, rgba(0,127,255,0.09), transparent 36%), #ffffff",
+        }}
+      >
         <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA — COMO CHEGAMOS AQUI</p>
 
         {/* Q8 Collapsible */}
@@ -1000,12 +1066,12 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             type="button"
             onClick={() => setMethQ8Open((v) => !v)}
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-            style={{ background: "#111" }}
+            style={{ background: isDark ? "#111" : "#ffffff" }}
           >
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>8</span>
               <div>
-                <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>INFLUENCIA LEGISLATIVA & COMUNIDADES DE COMPORTAMENTO</p>
+                <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>INFLUENCIA LEGISLATIVA & COMUNIDADES DE COMPORTAMENTO</p>
                 <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Como medimos quem mais influenciou e como agrupamos deputados por padrao de voto</p>
               </div>
             </div>
@@ -1013,7 +1079,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </button>
 
           {methQ8Open && (
-            <div className="border-t border-border px-5 py-7" style={{ background: "#0d0d0d" }}>
+            <div className="border-t border-border px-5 py-7" style={{ background: isDark ? "#0d0d0d" : "#f7fbff" }}>
               <div className="grid gap-10 lg:grid-cols-2">
 
                 <div>
@@ -1027,9 +1093,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                       { n: "04", title: "Ranquear e exibir", body: "Ordena-se do maior pct_aprovadas para o menor. Quem esta no topo entregou mais legislacao aprovada. Empates sao desfeitos pelo nome." },
                     ].map((step) => (
                       <li key={step.n} className="flex gap-4">
-                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
+                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: isDark ? RED : "#007fff" }}>{step.n}</span>
                         <div>
-                          <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>{step.title}</p>
+                          <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>{step.title}</p>
                           <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
                         </div>
                       </li>
@@ -1050,9 +1116,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                       { n: "06", title: "Detectar comunidades com Leiden", body: "O algoritmo Leiden agrupa nos com muitas conexoes fortes entre si e poucas com outros grupos. O resultado sao comunidades de comportamento que podem ultrapassar fronteiras partidarias." },
                     ].map((step) => (
                       <li key={step.n} className="flex gap-4">
-                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
+                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: isDark ? RED : "#007fff" }}>{step.n}</span>
                         <div>
-                          <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>{step.title}</p>
+                          <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>{step.title}</p>
                           <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
                         </div>
                       </li>
@@ -1071,12 +1137,12 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             type="button"
             onClick={() => setMethQ10Open((v) => !v)}
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-            style={{ background: "#111" }}
+            style={{ background: isDark ? "#111" : "#ffffff" }}
           >
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>10</span>
               <div>
-                <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "#f0ece4" }}>DISCIPLINA PARTIDARIA — ALINHAMENTO INTERNO</p>
+                <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>DISCIPLINA PARTIDARIA — ALINHAMENTO INTERNO</p>
                 <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Como medimos o quanto cada partido consegue alinhar seus deputados</p>
               </div>
             </div>
@@ -1084,7 +1150,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </button>
 
           {methQ10Open && (
-            <div className="border-t border-border px-5 py-7" style={{ background: "#0d0d0d" }}>
+            <div className="border-t border-border px-5 py-7" style={{ background: isDark ? "#0d0d0d" : "#f7fbff" }}>
               <p className="mb-6 max-w-2xl text-xs leading-relaxed text-muted-foreground">Objetivo: descobrir qual partido e mais disciplinado — qual consegue que seus deputados votem conforme a orientacao oficial na maior parte das vezes.</p>
               <ol className="grid gap-5 lg:grid-cols-2">
                 {[
@@ -1096,9 +1162,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   { n: "06", title: "Cruzar com ideologia", body: "Cada partido e cruzado com a tabela partidos_ideologia para categorizar o espectro politico. Isso permite observar se partidos de esquerda, centro ou direita tendem a ser mais disciplinados." },
                 ].map((step) => (
                   <li key={step.n} className="flex gap-4">
-                    <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
+                    <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: isDark ? RED : "#007fff" }}>{step.n}</span>
                     <div>
-                      <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "#f0ece4" }}>{step.title}</p>
+                      <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>{step.title}</p>
                       <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
                     </div>
                   </li>
