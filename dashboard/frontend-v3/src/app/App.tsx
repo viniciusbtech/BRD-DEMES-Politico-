@@ -65,6 +65,7 @@ const localDeputyImagePaths = [
   "92346.jpgmaior.jpg",
 ].map((fileName) => `/intro/deputados/${fileName}`);
 const localConsequenceImagePaths = Array.from({ length: 12 }, (_, index) => `/intro/problemas/problema-${String(index + 1).padStart(2, "0")}.jpg`);
+const localGastosImagePaths = Array.from({ length: 10 }, (_, index) => `/intro/gastos/gasto-${String(index + 1).padStart(2, "0")}.jpg`);
 
 const imageExists = (src: string) =>
   new Promise<boolean>((resolve) => {
@@ -302,8 +303,8 @@ const questionCards: QuestionCard[] = [
   {
     id: 4,
     title: "Gastos e problemas sociais",
-    image: "/perguntas/q04/cover.jpg",
-    fallbackImage: "/intro/problemas/principais-problemas-sociais.jpg",
+    image: "/fundorecortes/recorte4/recorte04.jpg",
+    fallbackImage: "/fundorecortes/recorte4/recorte04.jpg",
     description:
       "Conexão entre os gastos públicos analisados e problemas sociais como saúde, educação, insegurança, pobreza e infraestrutura precária.",
   },
@@ -347,21 +348,20 @@ const questionBlocks = questionCards.reduce<(typeof questionCards)[]>((blocks, i
   return blocks;
 }, []);
 
-const problemImages = [
-  "/intro/problemas/principais-problemas-sociais.jpg",
-  "/intro/problemas/saude publica.jpg",
-  "/intro/problemas/saude 2.jpg",
-  "/intro/problemas/images.jpg",
-  "/intro/problemas/images (1).jpg",
-  "/intro/problemas/images (2).jpg",
-  "/intro/problemas/images (3).jpg",
-  "/intro/problemas/images (4).jpg",
-  "/intro/problemas/images (5).jpg",
-  "/intro/problemas/images (6).jpg",
+const homeProblemaPaths = [
+  "/home/problemas/images.jpg",
+  "/home/problemas/images (1).jpg",
+  "/home/problemas/images (2).jpg",
+  "/home/problemas/images (3).jpg",
+  "/home/problemas/images (4).jpg",
+  "/home/problemas/images (5).jpg",
+  "/home/problemas/images (6).jpg",
+  "/home/problemas/principais-problemas-sociais.jpg",
 ];
 
 function ReferenceHome({
   deputies,
+  problemImages,
   onNavigatePanorama,
   onNavigateDeputado,
   onNavigateFornecedores,
@@ -372,6 +372,7 @@ function ReferenceHome({
   onNavigateEscolaridade,
 }: {
   deputies: Politician[];
+  problemImages: string[];
   onNavigatePanorama: () => void;
   onNavigateDeputado: () => void;
   onNavigateFornecedores: () => void;
@@ -559,14 +560,14 @@ function ReferenceHome({
         <div className="relative z-10 grid max-w-[1120px] items-center gap-8 lg:grid-cols-[minmax(0,760px)_minmax(250px,330px)]">
           <div>
             <p
-              className="mb-7 text-[11px] uppercase"
+              className="mb-7 text-[13px] font-bold uppercase"
               style={{
                 color: "#e00836",
                 fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.58em",
+                letterSpacing: "0.36em",
               }}
             >
-              ANÁLISE DE DADOS LEGISLATIVOS - BRASIL 2023-2026
+              ANÁLISE DE DADOS LEGISLATIVOS · BRASIL 2023-2026
             </p>
 
             <h1
@@ -585,19 +586,19 @@ function ReferenceHome({
             </h1>
 
             <p
-              className="max-w-[640px] text-[16px] leading-[1.5] sm:text-[18px]"
-              style={{ color: isDark ? "rgba(243,239,232,0.64)" : "rgba(15,23,42,0.7)" }}
+              className="max-w-[640px] text-[18px] leading-[1.55] sm:text-[21px]"
+              style={{ color: isDark ? "rgba(243,239,232,0.88)" : "rgba(15,23,42,0.82)" }}
             >
               Uma análise de dados legislativos para revelar contradições entre
               gastos, votos, proposições, ideologia e comportamento parlamentar.
             </p>
 
             <p
-              className="mt-4 text-[10px]"
+              className="mt-5 text-[13px] leading-relaxed"
               style={{
-                color: isDark ? "rgba(243,239,232,0.62)" : "rgba(15,23,42,0.58)",
+                color: isDark ? "rgba(243,239,232,0.72)" : "rgba(15,23,42,0.68)",
                 fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.16em",
+                letterSpacing: "0.12em",
               }}
             >
               — Pesquisa restrita a Deputados Federais. Não abrange senadores,
@@ -697,14 +698,15 @@ function ReferenceHome({
               >
                 {item.value}
               </p>
-              <h2 className="mt-1 text-[14px] font-black leading-tight text-foreground">
+              <h2 className="mt-2 text-[17px] font-black leading-tight text-foreground">
                 {item.title}
               </h2>
               <p
-                className="mt-1 text-[11px] text-muted-foreground"
+                className="mt-2 text-[13px]"
                 style={{
+                  color: isDark ? "rgba(243,239,232,0.72)" : "rgba(15,23,42,0.65)",
                   fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.08em",
+                  letterSpacing: "0.06em",
                 }}
               >
                 {item.detail}
@@ -724,7 +726,7 @@ function ReferenceHome({
         }}
       >
         <div
-          className="absolute inset-0 grid grid-cols-2 sm:grid-cols-5"
+          className="absolute inset-0 grid grid-cols-2 sm:grid-cols-4"
           style={{ opacity: isDark ? 0.4 : 0.18 }}
         >
           {problemImages.map((src, index) => (
@@ -774,11 +776,11 @@ function ReferenceHome({
           <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p
-                className="mb-4 text-[11px] uppercase"
+                className="mb-4 text-[13px] font-bold uppercase"
                 style={{
                   color: "#e00836",
                   fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.42em",
+                  letterSpacing: "0.36em",
                 }}
               >
                 O CUSTO DO ABANDONO
@@ -791,8 +793,9 @@ function ReferenceHome({
               </h2>
             </div>
             <p
-              className="max-w-[430px] text-[14px] leading-relaxed sm:text-[15px] text-muted-foreground"
+              className="max-w-[430px] text-[16px] leading-relaxed sm:text-[17px]"
               style={{
+                color: isDark ? "rgba(243,239,232,0.82)" : "rgba(15,23,42,0.75)",
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: "0.04em",
               }}
@@ -808,7 +811,7 @@ function ReferenceHome({
                 key={`problem-gallery-${src}`}
                 tabIndex={0}
                 className={`group relative m-0 min-h-[250px] overflow-hidden border ${
-                  index === 0 || index === 7 ? "lg:col-span-2" : ""
+                  index === 0 || index === 3 || index === 4 || index === 7 ? "lg:col-span-2" : ""
                 }`}
                 style={{
                   background: isDark ? "#000000" : "#ffffff",
@@ -881,11 +884,11 @@ function ReferenceHome({
           <div className="mb-10 flex flex-col justify-between gap-5 border-t pt-8 sm:flex-row sm:items-end">
             <div>
               <p
-                className="mb-3 text-[11px] uppercase"
+                className="mb-3 text-[13px] font-bold uppercase"
                 style={{
                   color: "#e00836",
                   fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.42em",
+                  letterSpacing: "0.36em",
                 }}
               >
                 ROTEIRO DE ANÁLISE
@@ -898,8 +901,9 @@ function ReferenceHome({
               </h2>
             </div>
             <p
-              className="max-w-[380px] text-[13px] leading-relaxed text-muted-foreground"
+              className="max-w-[380px] text-[15px] leading-relaxed sm:text-[16px]"
               style={{
+                color: isDark ? "rgba(243,239,232,0.78)" : "rgba(15,23,42,0.72)",
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: "0.04em",
               }}
@@ -967,13 +971,13 @@ function ReferenceHome({
                         src={item.image}
                         alt={`Análise ${item.id}`}
                         className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
-                          item.id !== 2 && item.fallbackImage.includes("/wordclouds/") ? "object-contain p-5" : "object-cover"
+                          item.id === 4 || item.id === 8 || (item.id !== 2 && item.fallbackImage.includes("/wordclouds/")) ? "object-contain" : "object-cover"
                         }`}
                         style={{
                           filter: item.id !== 2 && item.fallbackImage.includes("/wordclouds/")
                             ? "grayscale(35%) contrast(1.08) brightness(0.9)"
                             : "grayscale(72%) contrast(1.08) brightness(0.86)",
-                          background: item.id !== 2 && item.fallbackImage.includes("/wordclouds/") ? "#101010" : "transparent",
+                          background: item.id === 4 || item.id === 8 || (item.id !== 2 && item.fallbackImage.includes("/wordclouds/")) ? "#0a0a0a" : "transparent",
                         }}
                         onError={(event) => {
                           if (event.currentTarget.src.endsWith(item.fallbackImage)) return;
@@ -1037,6 +1041,8 @@ export default function App() {
   const [politicians, setPoliticians] = useState<Politician[]>(officialFallbackPoliticians);
   const [heroDeputies, setHeroDeputies] = useState<Politician[]>(officialFallbackPoliticians);
   const [consequences, setConsequences] = useState<ThemeImage[]>(consequenceImages);
+  const [gastos, setGastos] = useState<ThemeImage[]>(spendingImages);
+  const [homeProblemas, setHomeProblemas] = useState<string[]>([]);
 
   useEffect(() => {
     const handlePopState = () => setCurrentPath(window.location.pathname);
@@ -1154,6 +1160,37 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    loadExistingImages(homeProblemaPaths).then((existing) => {
+      if (!active || existing.length === 0) return;
+      setHomeProblemas(existing);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    loadExistingImages(localGastosImagePaths).then((localImages) => {
+      if (!active || localImages.length === 0) return;
+      setGastos(
+        localImages.map((img, index) => ({
+          img,
+          label: `Gasto público ${String(index + 1).padStart(2, "0")}`,
+        })),
+      );
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const handleClick = useCallback(() => {
     if (phase !== "intro") return;
     setFlash(true);
@@ -1163,7 +1200,7 @@ export default function App() {
     }, 120);
   }, [phase]);
 
-  const strip1 = [...spendingImages, ...spendingImages, ...spendingImages];
+  const strip1 = [...gastos, ...gastos, ...gastos];
   const strip2 = [...politicians, ...politicians].reverse();
   const strip3 = [...consequences, ...consequences, ...consequences];
 
@@ -1203,6 +1240,7 @@ export default function App() {
     return (
       <ReferenceHome
         deputies={heroDeputies}
+        problemImages={homeProblemas}
         onNavigatePanorama={() => navigateTo("/q/q1")}
         onNavigateDeputado={() => navigateTo("/q/q2")}
         onNavigateFornecedores={() => navigateTo("/q/q5")}
@@ -1255,9 +1293,12 @@ export default function App() {
           0%, 100% { transform: translateY(0); opacity: 0.9; }
           50%       { transform: translateY(7px); opacity: 0.5; }
         }
-        .strip-left  { animation: scroll-left  38s linear infinite; }
-        .strip-right { animation: scroll-right 36s linear infinite; }
-        .strip-left2 { animation: scroll-left  44s linear infinite; }
+        .strip-left  { animation: scroll-left  62s linear infinite; }
+        .strip-right { animation: scroll-right 78s linear infinite; }
+        .strip-left2 { animation: scroll-left  52s linear infinite; }
+        @media (max-width: 768px) {
+          .strip-left, .strip-right, .strip-left2 { animation-play-state: paused; }
+        }
         .intro-exit  { animation: intro-exit 0.6s ease-in forwards; }
         .home-enter  { animation: home-enter 0.7s ease-out forwards; }
         .flash       { animation: flash-in 0.22s ease-out forwards; }
@@ -1329,6 +1370,14 @@ export default function App() {
             }}
           />
 
+          {/* Global scrim — uniformizes brightness across all strip cards */}
+          <div
+            className="absolute inset-0 z-[15] pointer-events-none"
+            style={{
+              background: isDark ? "rgba(0,0,0,0.52)" : "rgba(248,250,252,0.56)",
+            }}
+          />
+
           {/* Top vignette */}
           <div
             className="absolute top-0 left-0 right-0 h-40 z-20 pointer-events-none"
@@ -1360,14 +1409,14 @@ export default function App() {
 
           {/* Scrolling strips — decorative, hidden from assistive technologies */}
           <div className="flex flex-col gap-3" aria-hidden="true">
-            {/* Strip 1 — left */}
-            <div className="overflow-hidden">
+            {/* Strip 1 — left | gastos públicos */}
+            <div className="overflow-hidden" style={{ opacity: 0.95 }}>
               <div className="strip-left flex gap-3" style={{ width: "max-content" }}>
                 {strip1.map((item, i) => (
-                  <div key={`${item.label}-${i}`} className="relative flex-shrink-0 w-40 h-48 overflow-hidden" style={{ filter: isDark ? "grayscale(75%) contrast(1.15)" : "grayscale(100%) contrast(1.2)" }}>
+                  <div key={`${item.label}-${i}`} className="relative flex-shrink-0 w-40 h-48 overflow-hidden" style={{ filter: "contrast(1.08) brightness(1.00)" }}>
                     <img
                       src={item.img}
-                      alt={item.label}
+                      alt=""
                       className="w-full h-full object-cover"
                       onError={(event) => {
                         event.currentTarget.style.display = "none";
@@ -1377,83 +1426,54 @@ export default function App() {
                       className="absolute inset-0"
                       style={{
                         background: isDark
-                          ? "linear-gradient(to top, rgba(5,5,5,0.72) 0%, rgba(196,18,48,0.18) 60%, rgba(5,5,5,0.28) 100%)"
-                          : "linear-gradient(to top, rgba(248,250,252,0.78) 0%, rgba(0,51,102,0.12) 60%, rgba(255,255,255,0.18) 100%)",
+                          ? "linear-gradient(to top, rgba(5,5,5,0.20) 0%, transparent 50%)"
+                          : "linear-gradient(to top, rgba(248,250,252,0.22) 0%, transparent 50%)",
                       }}
                     />
-                    <span
-                      className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em]"
-                      style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        color: isDark ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.82)",
-                        textShadow: isDark
-                          ? "0 1px 4px rgba(0,0,0,0.98), 0 0 10px rgba(0,0,0,0.9)"
-                          : "0 1px 3px rgba(255,255,255,0.98), 0 0 8px rgba(255,255,255,0.9)",
-                      }}
-                    >
-                      {item.label}
-                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Strip 2 — right */}
-            <div className="overflow-hidden">
+            {/* Strip 2 — right | atores políticos */}
+            <div className="overflow-hidden" style={{ opacity: 0.60, filter: "blur(4px)" }}>
               <div className="strip-right flex gap-3" style={{ width: "max-content" }}>
                 {strip2.map((p, i) => (
                   <div
                     key={`${p.id}-${i}`}
                     className="relative flex-shrink-0 w-44 h-56 md:w-48 md:h-64 overflow-hidden"
                     style={{
-                      filter: isDark ? "grayscale(65%) contrast(1.18)" : "grayscale(100%) contrast(1.25)",
-                      boxShadow: isDark ? "0 0 40px rgba(196,18,48,0.2)" : "0 0 30px rgba(0,51,102,0.12)",
+                      filter: "grayscale(70%) brightness(0.85) contrast(0.95)",
                     }}
                   >
-                    <img src={p.img} alt={p.name} className="w-full h-full object-cover" loading="eager" />
+                    <img src={p.img} alt="" className="w-full h-full object-cover" loading="eager" />
                     <div
                       className="absolute inset-0"
-                      style={{
-                        background: isDark
-                          ? "linear-gradient(to top, rgba(5,5,5,0.52), transparent)"
-                          : "linear-gradient(to top, rgba(248,250,252,0.38), transparent)",
-                      }}
+                      style={{ background: "rgba(0,0,0,0.18)" }}
                     />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Strip 3 — left */}
-            <div className="overflow-hidden">
+            {/* Strip 3 — left | problemas sociais */}
+            <div className="overflow-hidden" style={{ opacity: 0.92 }}>
               <div className="strip-left2 flex gap-3" style={{ width: "max-content" }}>
                 {strip3.map((item, i) => (
                   <div
                     key={`${item.label}-${i}`}
                     className="relative flex-shrink-0 w-40 h-48 overflow-hidden"
-                    style={{ filter: isDark ? "grayscale(88%) contrast(1.2) brightness(0.82)" : "grayscale(100%) contrast(1.3) brightness(0.88)" }}
+                    style={{ filter: "contrast(1.05) brightness(1.00)" }}
                   >
-                    <img src={item.img} alt={item.label} className="w-full h-full object-cover" />
+                    <img src={item.img} alt="" className="w-full h-full object-cover" />
                     <div
                       className="absolute inset-0"
                       style={{
                         background: isDark
-                          ? "linear-gradient(to top, rgba(5,5,5,0.82) 0%, rgba(196,18,48,0.14) 60%, rgba(5,5,5,0.32) 100%)"
-                          : "linear-gradient(to top, rgba(248,250,252,0.80) 0%, rgba(0,51,102,0.08) 60%, rgba(255,255,255,0.22) 100%)",
+                          ? "linear-gradient(to top, rgba(5,5,5,0.30) 0%, transparent 55%)"
+                          : "linear-gradient(to top, rgba(248,250,252,0.32) 0%, transparent 55%)",
                       }}
                     />
-                    <span
-                      className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em]"
-                      style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        color: isDark ? "rgba(255,255,255,0.90)" : "rgba(0,0,0,0.80)",
-                        textShadow: isDark
-                          ? "0 1px 4px rgba(0,0,0,0.98), 0 0 10px rgba(0,0,0,0.9)"
-                          : "0 1px 3px rgba(255,255,255,0.98), 0 0 8px rgba(255,255,255,0.9)",
-                      }}
-                    >
-                      {item.label}
-                    </span>
                   </div>
                 ))}
               </div>
