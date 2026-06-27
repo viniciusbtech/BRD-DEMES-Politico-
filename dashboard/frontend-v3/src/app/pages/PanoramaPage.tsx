@@ -10,6 +10,7 @@ type PanoramaPageProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 
 type SectionProps = {
@@ -288,7 +289,7 @@ const abrevCat = (s: string) =>
     .replace("CONSULTORIAS, PESQUISAS E TRABALHOS TÉCNICOS.", "Consultorias")
     .trim();
 
-export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PanoramaPageProps) {
+export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: PanoramaPageProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -433,7 +434,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
 
       <PageHero
         n="1"

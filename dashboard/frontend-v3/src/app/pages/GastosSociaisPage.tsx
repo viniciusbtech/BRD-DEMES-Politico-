@@ -17,6 +17,7 @@ type GastosSociaisPageProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 
 const MONO = "'JetBrains Mono', monospace";
@@ -45,7 +46,7 @@ function SectionProblemBg({ img }: { img: string }) {
   );
 }
 
-export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: GastosSociaisPageProps) {
+export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: GastosSociaisPageProps) {
   const { theme } = useTheme();
   const [savings, setSavings] = useState(50);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>(initialSliderValues);
@@ -87,6 +88,8 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
   );
 
   return (
+    <>
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
     <div
       className="min-h-screen overflow-x-hidden bg-background"
       style={{ fontFamily: "'Inter', sans-serif", ...lightModeColorOverrides }}
@@ -203,7 +206,6 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
       `}</style>
 
       <div className="gastos-scanline" />
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
 
       <div className="relative overflow-hidden border-b border-border px-6 pb-16 pt-20 md:px-14">
         <div className="absolute inset-0 grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
@@ -594,5 +596,6 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         </div>
       </section>
     </div>
+    </>
   );
 }

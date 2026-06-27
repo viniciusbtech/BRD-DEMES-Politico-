@@ -9,6 +9,7 @@ type Props = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 type Row = Record<string, unknown>;
 type DepStats = { id: string; lancamentos: number; total: number; partido: string; uf: string };
@@ -293,7 +294,7 @@ function MethodologySection() {
 }
 
 // ─── componente principal ─────────────────────────────────────────────────────
-export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: Props) {
+export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: Props) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -527,7 +528,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
   if (pageLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
           CARREGANDO DADOS…
         </div>
@@ -537,7 +538,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
 
       {/* ── HERO ── */}
       <div

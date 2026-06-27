@@ -19,6 +19,7 @@ type ViesPageProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 
 type Row = Record<string, unknown>;
@@ -201,7 +202,7 @@ function MethodSteps({ steps }: { steps: { n: string; title: string; body: strin
   );
 }
 
-export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: ViesPageProps) {
+export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: ViesPageProps) {
   const [q9, setQ9] = useState<QuestionPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -486,7 +487,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>CARREGANDO DADOS...</div>
       </div>
     );
@@ -494,7 +495,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
 
       <PageHero
         n="7"

@@ -389,6 +389,7 @@ function ReferenceHome({
     shufflePoliticians(deputies).slice(0, 40),
   );
   const currentShockDeputy = shockDeputies[shockIndex % Math.max(shockDeputies.length, 1)];
+  const nextShockDeputy = shockDeputies[(shockIndex + 1) % Math.max(shockDeputies.length, 1)];
 
   useEffect(() => {
     setShockDeputies(shufflePoliticians(deputies).slice(0, 40));
@@ -515,28 +516,43 @@ function ReferenceHome({
             QUEM<span className="text-primary">GOVERNA</span>
           </span>
         </div>
+
         <nav
-          className="hidden items-center gap-4 text-[11px] uppercase sm:flex text-muted-foreground"
+          className="hidden items-center gap-4 sm:flex"
           style={{
             fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.2em",
+            letterSpacing: "0.16em",
           }}
         >
-          <span>Transparência</span>
-          <span>·</span>
-          <span>Dados Públicos</span>
-          <span>·</span>
-          <span>57ª Legislatura</span>
+          <span className="text-[13px] font-medium uppercase text-muted-foreground">Transparência</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-[13px] font-medium uppercase text-muted-foreground">Dados Públicos</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-[13px] font-medium uppercase text-muted-foreground">57ª Legislatura</span>
         </nav>
-        <button
-          onClick={toggleTheme}
-          className="ml-2 flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-          aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-          title={theme === "dark" ? "Modo claro" : "Modo escuro"}
-          style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.85rem" }}
-        >
-          {theme === "dark" ? "☀" : "☾"}
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => document.getElementById("recortes")?.scrollIntoView({ behavior: "smooth" })}
+            className="hidden items-center gap-2 border px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.28em] transition-colors hover:border-primary hover:text-primary sm:flex"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              borderColor: isDark ? "rgba(243,239,232,0.28)" : "rgba(15,23,42,0.22)",
+              color: isDark ? "rgba(243,239,232,0.72)" : "rgba(15,23,42,0.68)",
+            }}
+          >
+            ROTEIRO DE ANÁLISE
+          </button>
+          <button
+            onClick={toggleTheme}
+            className="flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+            title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.85rem" }}
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
+        </div>
       </header>
 
       <section className="home-page relative z-10 flex min-h-[calc(100vh-56px)] flex-col justify-between px-6 pb-10 pt-20 sm:px-10 sm:pt-[88px]">
@@ -617,19 +633,36 @@ function ReferenceHome({
             }}
             aria-hidden="true"
           >
-            {currentShockDeputy ? (
+            {nextShockDeputy && (
               <img
-                key={currentShockDeputy.id}
-                src={currentShockDeputy.img}
+                key={`preload-${nextShockDeputy.id}`}
+                src={nextShockDeputy.img}
                 alt=""
-                className="h-full w-full object-cover object-top"
-                style={{ animation: "deputy-shock-cycle 2.6s ease-in-out both" }}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover object-top opacity-0"
                 onError={(event) => {
-                  event.currentTarget.src = getDeputyPhoto(currentShockDeputy.id);
+                  event.currentTarget.src = getDeputyPhoto(nextShockDeputy.id);
                 }}
               />
+            )}
+            {currentShockDeputy ? (
+              <div
+                className="absolute inset-0"
+                style={{ filter: "blur(5px)", opacity: 0.10 }}
+              >
+                <img
+                  key={currentShockDeputy.id}
+                  src={currentShockDeputy.img}
+                  alt=""
+                  className="h-full w-full object-cover object-top"
+                  style={{ animation: "deputy-shock-cycle 2.6s ease-in-out both" }}
+                  onError={(event) => {
+                    event.currentTarget.src = getDeputyPhoto(currentShockDeputy.id);
+                  }}
+                />
+              </div>
             ) : (
-              <div className="h-full w-full" style={{ background: isDark ? "#000000" : "#ffffff" }} />
+              <div className="h-full w-full" style={{ background: isDark ? "#000000" : "#0a0a0a" }} />
             )}
             <div
               className="pointer-events-none absolute inset-0"
@@ -641,24 +674,6 @@ function ReferenceHome({
                 opacity: isDark ? 0.34 : 0.26,
               }}
             />
-            <div
-              key={`full-x-${currentShockDeputy?.id ?? "empty"}`}
-              className="pointer-events-none absolute inset-0 z-10"
-              style={{ animation: "deputy-full-x-cycle 2.6s ease-in-out both" }}
-            >
-              <span
-                className="absolute left-1/2 top-1/2 block h-[8px] w-[145%] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#e00836] sm:h-[10px]"
-                style={{
-                  boxShadow: "0 0 14px rgba(224,8,54,0.72), 0 0 2px rgba(255,255,255,0.35)",
-                }}
-              />
-              <span
-                className="absolute left-1/2 top-1/2 block h-[8px] w-[145%] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#e00836] sm:h-[10px]"
-                style={{
-                  boxShadow: "0 0 14px rgba(224,8,54,0.72), 0 0 2px rgba(255,255,255,0.35)",
-                }}
-              />
-            </div>
             <div
               className="pointer-events-none absolute inset-0"
               style={{
@@ -913,117 +928,123 @@ function ReferenceHome({
             </p>
           </div>
 
-          <div className="space-y-5">
-            {questionBlocks.map((block, blockIndex) => (
-              <div
-                key={blockIndex}
-                className="grid gap-5 lg:grid-cols-3"
-              >
-                {block.map((item) => (
-                  <article
-                    key={item.id}
-                    role={item.id >= 1 && item.id <= 8 ? "button" : undefined}
-                    tabIndex={item.id >= 1 && item.id <= 8 ? 0 : undefined}
-                    onClick={
-                      item.id === 1
-                        ? onNavigatePanorama
-                        : item.id === 2
-                          ? onNavigateDeputado
-                          : item.id === 3
-                          ? onNavigatePartidos
-                          : item.id === 4
-                            ? onNavigateGastosSociais
-                            : item.id === 5
-                              ? onNavigateFornecedores
-                              : item.id === 6
-                                ? onNavigateInfluencia
-                                : item.id === 7
-                                  ? onNavigateIdeologia
-                                  : item.id === 8
-                                    ? onNavigateEscolaridade
-                                  : undefined
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 sm:-mx-10 sm:px-10" style={{ scrollbarWidth: "auto", scrollbarColor: isDark ? "rgba(224,8,54,0.85) rgba(255,255,255,0.06)" : "rgba(0,51,102,0.65) rgba(15,23,42,0.08)" }}>
+            {questionCards.map((item) => {
+              const navigateHandler =
+                item.id === 1 ? onNavigatePanorama
+                : item.id === 2 ? onNavigateDeputado
+                : item.id === 3 ? onNavigatePartidos
+                : item.id === 4 ? onNavigateGastosSociais
+                : item.id === 5 ? onNavigateFornecedores
+                : item.id === 6 ? onNavigateInfluencia
+                : item.id === 7 ? onNavigateIdeologia
+                : item.id === 8 ? onNavigateEscolaridade
+                : undefined;
+
+              return (
+                <article
+                  key={item.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={navigateHandler}
+                  onKeyDown={(event) => {
+                    if ((event.key === "Enter" || event.key === " ") && navigateHandler) {
+                      event.preventDefault();
+                      navigateHandler();
                     }
-                    onKeyDown={
-                      item.id >= 1 && item.id <= 8
-                        ? (event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              if (item.id === 1) onNavigatePanorama();
-                              if (item.id === 2) onNavigateDeputado();
-                              if (item.id === 3) onNavigatePartidos();
-                              if (item.id === 4) onNavigateGastosSociais();
-                              if (item.id === 5) onNavigateFornecedores();
-                              if (item.id === 6) onNavigateInfluencia();
-                              if (item.id === 7) onNavigateIdeologia();
-                              if (item.id === 8) onNavigateEscolaridade();
-                            }
-                          }
-                        : undefined
-                    }
-                    className="group grid min-h-[250px] overflow-hidden border md:grid-cols-[220px_1fr] lg:grid-cols-1 xl:grid-cols-[180px_1fr]"
-                    style={{
-                      background: "var(--card)",
-                      borderColor: "var(--border)",
-                    }}
-                  >
-                    <div className="relative h-[210px] overflow-hidden md:h-full">
-                      <img
-                        src={item.image}
-                        alt={`Análise ${item.id}`}
-                        className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
-                          item.id === 4 || item.id === 8 || (item.id !== 2 && item.fallbackImage.includes("/wordclouds/")) ? "object-contain" : "object-cover"
-                        }`}
-                        style={{
-                          filter: item.id !== 2 && item.fallbackImage.includes("/wordclouds/")
-                            ? "grayscale(35%) contrast(1.08) brightness(0.9)"
-                            : "grayscale(72%) contrast(1.08) brightness(0.86)",
-                          background: item.id === 4 || item.id === 8 || (item.id !== 2 && item.fallbackImage.includes("/wordclouds/")) ? "#0a0a0a" : "transparent",
-                        }}
-                        onError={(event) => {
-                          if (event.currentTarget.src.endsWith(item.fallbackImage)) return;
-                          event.currentTarget.src = item.fallbackImage;
-                        }}
-                      />
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          background:
-                            "linear-gradient(180deg, rgba(7,7,7,0) 0%, rgba(224,8,54,0.18) 100%)",
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between p-6 sm:p-7">
-                      <div>
-                        <span
-                          className="text-[58px] font-black leading-none"
-                          style={{
-                            color: "#e00836",
-                            fontFamily: "'Playfair Display', serif",
-                            letterSpacing: "-0.04em",
-                          }}
-                        >
-                          {item.id}
-                        </span>
-                        <h3
-                          className="mt-3 max-w-[430px] text-[24px] font-black leading-tight sm:text-[28px] text-foreground"
-                          style={{ fontFamily: "'Playfair Display', serif" }}
-                        >
-                          {item.title}
-                        </h3>
-                      </div>
+                  }}
+                  className="group flex flex-shrink-0 w-[260px] flex-col overflow-hidden border cursor-pointer"
+                  style={{
+                    background: "var(--card)",
+                    borderColor: "var(--border)",
+                  }}
+                >
+                  <div className="relative h-[160px] overflow-hidden flex-shrink-0">
+                    <img
+                      src={item.image}
+                      alt={`Análise ${item.id}`}
+                      className={`h-full w-full transition-transform duration-700 group-hover:scale-105 ${
+                        item.id === 4 || item.id === 8 || item.fallbackImage.includes("/wordclouds/") ? "object-contain" : "object-cover"
+                      }`}
+                      style={{
+                        filter: item.fallbackImage.includes("/wordclouds/")
+                          ? "grayscale(35%) contrast(1.08) brightness(0.9)"
+                          : "grayscale(72%) contrast(1.08) brightness(0.86)",
+                        background: item.id === 4 || item.id === 8 || item.fallbackImage.includes("/wordclouds/") ? "#0a0a0a" : "transparent",
+                      }}
+                      onError={(event) => {
+                        if (event.currentTarget.src.endsWith(item.fallbackImage)) return;
+                        event.currentTarget.src = item.fallbackImage;
+                      }}
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: "linear-gradient(180deg, rgba(7,7,7,0) 40%, rgba(7,7,7,0.55) 100%)" }}
+                    />
+                    <span
+                      className="absolute bottom-3 left-4 text-[42px] font-black leading-none"
+                      style={{
+                        color: "#e00836",
+                        fontFamily: "'Playfair Display', serif",
+                        letterSpacing: "-0.04em",
+                        textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                      }}
+                    >
+                      {item.id}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col flex-1 justify-between p-5">
+                    <div>
+                      <h3
+                        className="text-[17px] font-black leading-tight text-foreground"
+                        style={{ fontFamily: "'Playfair Display', serif" }}
+                      >
+                        {item.title}
+                      </h3>
                       <p
-                        className="mt-6 max-w-[430px] text-[15px] leading-relaxed sm:text-[16px] text-muted-foreground"
+                        className="mt-3 text-[15px] leading-relaxed"
+                        style={{
+                          color: isDark ? "rgba(243,239,232,0.86)" : "rgba(15,23,42,0.80)",
+                        }}
                       >
                         {item.description}
                       </p>
                     </div>
-                  </article>
-                ))}
-              </div>
-            ))}
+                    <div
+                      className="mt-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] transition-colors group-hover:text-primary"
+                      style={{
+                        color: isDark ? "rgba(243,239,232,0.45)" : "rgba(15,23,42,0.4)",
+                        fontFamily: "'JetBrains Mono', monospace",
+                      }}
+                    >
+                      <span>Acessar</span>
+                      <span>→</span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
+
+      <div className="relative z-10 flex justify-center border-t py-10" style={{ borderColor: "var(--border)" }}>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="flex items-center gap-3 border px-8 py-3 text-[13px] font-bold uppercase tracking-[0.3em] transition-colors hover:border-primary hover:text-primary"
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            borderColor: isDark ? "rgba(243,239,232,0.28)" : "rgba(15,23,42,0.22)",
+            color: isDark ? "rgba(243,239,232,0.72)" : "rgba(15,23,42,0.68)",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 13V3M8 3L3 8M8 3L13 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Voltar ao início
+        </button>
+      </div>
     </main>
   );
 }
@@ -1205,35 +1226,35 @@ export default function App() {
   const strip3 = [...consequences, ...consequences, ...consequences];
 
   if (["/q/q1", "/recortes/panorama", "/panorama"].includes(currentPath)) {
-    return <PanoramaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <PanoramaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q2", "/recortes/deputado", "/deputado"].includes(currentPath)) {
-    return <DeputadoPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} />;
+    return <DeputadoPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q3", "/recortes/partidos", "/partidos"].includes(currentPath)) {
-    return <PartidosPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <PartidosPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q4", "/recortes/gastos-sociais", "/gastos-sociais"].includes(currentPath)) {
-    return <GastosSociaisPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <GastosSociaisPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q5", "/recortes/fornecedores", "/fornecedores"].includes(currentPath)) {
-    return <FornecedoresPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <FornecedoresPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q6", "/recortes/influencia", "/influencia"].includes(currentPath)) {
-    return <InfluenciaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <InfluenciaPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q7", "/recortes/ideologia", "/ideologia", "/comportamento"].includes(currentPath)) {
-    return <ViesPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <ViesPage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (["/q/q8", "/recortes/escolaridade", "/escolaridade"].includes(currentPath)) {
-    return <EscolaridadePage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} />;
+    return <EscolaridadePage onNavigateHome={navigateHome} onNavigateRecortes={navigateRecortes} onNavigateDeputado={() => navigateTo("/q/q2")} onNavigateRecorte={(path) => navigateTo(path)} />;
   }
 
   if (phase === "home") {

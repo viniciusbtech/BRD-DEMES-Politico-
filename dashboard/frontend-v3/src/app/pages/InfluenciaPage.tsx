@@ -11,6 +11,7 @@ type InfluenciaPageProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 
 type Row = Record<string, unknown>;
@@ -353,7 +354,7 @@ function LeidenGraph({
   );
 }
 
-export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: InfluenciaPageProps) {
+export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: InfluenciaPageProps) {
   const { theme } = useTheme();
   const [q8, setQ8] = useState<QuestionPayload | null>(null);
   const [q10, setQ10] = useState<QuestionPayload | null>(null);
@@ -574,7 +575,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>CARREGANDO DADOS...</div>
       </div>
     );
@@ -582,7 +583,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
 
       <PageHero
         n="6"

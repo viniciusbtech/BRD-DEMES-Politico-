@@ -9,6 +9,7 @@ type PartidosPageProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 
 type Party = {
@@ -242,7 +243,7 @@ function EmptyPanel({ message }: { message: string }) {
 }
 
 
-export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: PartidosPageProps) {
+export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: PartidosPageProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [payload, setPayload] = useState<QuestionPayload | null>(null);
@@ -450,7 +451,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
 
       <PageHero
         n="3"

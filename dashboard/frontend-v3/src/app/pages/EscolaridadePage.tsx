@@ -19,6 +19,7 @@ type EscolaridadePageProps = {
   onNavigateHome: () => void;
   onNavigateRecortes: () => void;
   onNavigateDeputado: () => void;
+  onNavigateRecorte: (path: string) => void;
 };
 
 type Row = Record<string, unknown>;
@@ -218,7 +219,7 @@ function MethodSteps({ steps }: { steps: { n: string; title: string; body: strin
   );
 }
 
-export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado }: EscolaridadePageProps) {
+export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: EscolaridadePageProps) {
   const [q4, setQ4] = useState<QuestionPayload | null>(null);
   const [q6, setQ6] = useState<QuestionPayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -377,7 +378,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+        <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
         <div className="flex h-[60vh] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
           CARREGANDO DADOS...
         </div>
@@ -387,7 +388,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateDeputado={onNavigateDeputado} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
 
       <PageHero
         n="8"

@@ -14,8 +14,9 @@ import {
 import { fetchMeta, fetchQuestion } from "../api";
 import type { FilterCatalog, FilterChoice, MetaResponse, QuestionPayload } from "../types";
 import { useTheme } from "../../contexts/ThemeContext";
+import NavBar from "../components/NavBar";
 
-type DeputadoPageProps = { onNavigateHome: () => void; onNavigateRecortes: () => void };
+type DeputadoPageProps = { onNavigateHome: () => void; onNavigateRecortes: () => void; onNavigateRecorte: (path: string) => void };
 type DeputySelection = FilterChoice;
 type QuestionId = "q1" | "q13" | "q2" | "q3" | "q7";
 type ProfilePayloads = Partial<Record<QuestionId, QuestionPayload>>;
@@ -62,65 +63,6 @@ const aggregateSpendingByCategory = (rows: Array<Record<string, unknown>>): Spen
   return Array.from(grouped.values()).sort((a, b) => b.gasto - a.gasto);
 };
 
-function Header({ onNavigateHome, onNavigateRecortes }: DeputadoPageProps) {
-  const { theme, toggleTheme } = useTheme();
-
-  return (
-    <header
-      className="sticky top-0 z-50 flex h-14 items-center justify-between border-b px-6 sm:px-10"
-      style={{ borderColor: "var(--border)", background: "var(--surface-glass)", backdropFilter: "blur(12px)" }}
-    >
-      <button
-        type="button"
-        onClick={onNavigateHome}
-        className="text-[11px] uppercase transition-colors hover:text-white"
-        style={{ color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.2em" }}
-      >
-        Voltar a Home
-      </button>
-      <button type="button" onClick={onNavigateHome} className="flex items-center gap-3">
-        <span className="block h-[22px] w-1 bg-[#e00836]" />
-        <span className="text-[16px] font-black tracking-[0.04em]" style={{ fontFamily: "'Playfair Display', serif", color: "var(--foreground)" }}>
-          QUEM<span className="text-[#e00836]">GOVERNA</span>
-        </span>
-      </button>
-      <div className="hidden items-center gap-2 sm:flex">
-        <button
-          type="button"
-          onClick={onNavigateHome}
-          className="border px-3 py-1.5 text-[10px] uppercase transition-colors hover:border-[#e00836] hover:text-[#e00836]"
-          style={{ borderColor: "var(--border)", color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.14em" }}
-        >
-          Home
-        </button>
-        <button
-          type="button"
-          onClick={onNavigateRecortes}
-          className="border px-3 py-1.5 text-[10px] uppercase transition-colors hover:border-[#e00836] hover:text-[#e00836]"
-          style={{ borderColor: "var(--border)", color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.14em" }}
-        >
-          Recortes
-        </button>
-        <span
-          className="text-[10px] uppercase"
-          style={{ color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em" }}
-        >
-          Recorte 02
-        </span>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="ml-1 flex h-8 w-8 items-center justify-center border text-[13px] transition-colors hover:border-[#e00836] hover:text-[#e00836]"
-          style={{ borderColor: "var(--border)", color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace" }}
-          aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-          title={theme === "dark" ? "Modo claro" : "Modo escuro"}
-        >
-          {theme === "dark" ? "☀" : "☾"}
-        </button>
-      </div>
-    </header>
-  );
-}
 
 function EmptyPanel({ message }: { message: string }) {
   return (
@@ -1185,7 +1127,7 @@ function MethodologySection() {
   );
 }
 
-export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: DeputadoPageProps) {
+export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNavigateRecorte }: DeputadoPageProps) {
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [selectedDeputy, setSelectedDeputy] = useState<DeputySelection | null>(null);
   const [query, setQuery] = useState("");
@@ -1276,7 +1218,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes }: Dep
 
   return (
     <main className="min-h-screen bg-background text-foreground" style={{ fontFamily: "Inter, sans-serif" }}>
-      <Header onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} />
+      <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
       <SearchHero query={query} selected={selectedDeputy} options={filters.deputados} onQueryChange={handleQueryChange} onSelect={handleSelectDeputy} />
 
       {loadingMeta ? (
