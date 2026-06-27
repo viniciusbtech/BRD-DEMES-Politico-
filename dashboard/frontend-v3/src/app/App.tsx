@@ -1027,7 +1027,7 @@ function ReferenceHome({
 type Phase = "intro" | "transitioning" | "home";
 
 export default function App() {
-  const { theme } = useContext(ThemeContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const isDark = theme === "dark";
 
   const [phase, setPhase] = useState<Phase>("intro");
@@ -1243,6 +1243,18 @@ export default function App() {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0.3; }
         }
+        @keyframes title-reveal {
+          0%   { opacity: 0; transform: translateY(28px) skewY(1.5deg); }
+          100% { opacity: 1; transform: translateY(0) skewY(0deg); }
+        }
+        @keyframes tagline-reveal {
+          0%   { opacity: 0; transform: translateY(12px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes chevron-bob {
+          0%, 100% { transform: translateY(0); opacity: 0.9; }
+          50%       { transform: translateY(7px); opacity: 0.5; }
+        }
         .strip-left  { animation: scroll-left  38s linear infinite; }
         .strip-right { animation: scroll-right 36s linear infinite; }
         .strip-left2 { animation: scroll-left  44s linear infinite; }
@@ -1250,6 +1262,18 @@ export default function App() {
         .home-enter  { animation: home-enter 0.7s ease-out forwards; }
         .flash       { animation: flash-in 0.22s ease-out forwards; }
         .click-hint  { animation: pulse-text 2s ease-in-out infinite; }
+        .title-line-1 { animation: title-reveal 0.72s cubic-bezier(0.22,1,0.36,1) 0.18s both; }
+        .title-line-2 { animation: title-reveal 0.72s cubic-bezier(0.22,1,0.36,1) 0.42s both; }
+        .intro-tagline { animation: tagline-reveal 0.6s ease-out 0.88s both; }
+        .intro-divider { animation: tagline-reveal 0.5s ease-out 0.72s both; }
+        .chevron-cta   { animation: chevron-bob 1.6s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .strip-left, .strip-right, .strip-left2 { animation: none !important; }
+          .chevron-cta { animation: none !important; }
+          .title-line-1, .title-line-2 { animation: none !important; opacity: 1; transform: none; }
+          .intro-tagline, .intro-divider { animation: none !important; opacity: 1; transform: none; }
+          .intro-exit, .home-enter { animation: none !important; }
+        }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(196,18,48,0.4); border-radius: 2px; }
@@ -1271,8 +1295,30 @@ export default function App() {
       {phase !== "home" && (
         <div
           onClick={handleClick}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(); } }}
+          role="button"
+          tabIndex={0}
+          aria-label="Tela de entrada. Pressione Enter ou clique para acessar o painel Quem Governa."
           className={`fixed inset-0 z-40 flex flex-col justify-center cursor-pointer select-none overflow-hidden bg-background ${phase === "transitioning" ? "intro-exit" : ""}`}
         >
+          {/* Theme toggle — top right, stops propagation so it doesn't enter the app */}
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
+            className="absolute top-4 right-4 z-50 flex h-9 w-9 items-center justify-center border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.9rem",
+              color: isDark ? "rgba(243,239,232,0.88)" : "rgba(15,23,42,0.88)",
+              borderColor: isDark ? "rgba(243,239,232,0.55)" : "rgba(15,23,42,0.55)",
+              background: isDark ? "rgba(10,10,10,0.70)" : "rgba(255,255,255,0.80)",
+              backdropFilter: "blur(6px)",
+              outlineColor: isDark ? "#f0ece4" : "#003366",
+            }}
+          >
+            {isDark ? "☀" : "☾"}
+          </button>
+
           {/* Grain overlay */}
           <div
             className="absolute inset-0 pointer-events-none z-10"
@@ -1293,18 +1339,27 @@ export default function App() {
             className="absolute bottom-0 left-0 right-0 h-40 z-20 pointer-events-none"
             style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
           />
-          {/* Center mask */}
+          {/* Outer edge mask — darkens/lightens the periphery */}
           <div
             className="absolute inset-0 z-20 pointer-events-none"
             style={{
               background: isDark
-                ? "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(10,10,10,0.7) 100%)"
-                : "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 30%, rgba(255,255,255,0.7) 100%)",
+                ? "radial-gradient(ellipse 65% 55% at 50% 50%, transparent 28%, rgba(5,5,5,0.82) 100%)"
+                : "radial-gradient(ellipse 65% 55% at 50% 50%, transparent 28%, rgba(248,250,252,0.88) 100%)",
+            }}
+          />
+          {/* Central text scrim — reading bubble behind the title (WCAG contrast layer) */}
+          <div
+            className="absolute inset-0 z-[25] pointer-events-none"
+            style={{
+              background: isDark
+                ? "radial-gradient(ellipse 52% 44% at 50% 50%, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.44) 52%, transparent 72%)"
+                : "radial-gradient(ellipse 52% 44% at 50% 50%, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.58) 54%, transparent 74%)",
             }}
           />
 
-          {/* Scrolling strips */}
-          <div className="flex flex-col gap-3">
+          {/* Scrolling strips — decorative, hidden from assistive technologies */}
+          <div className="flex flex-col gap-3" aria-hidden="true">
             {/* Strip 1 — left */}
             <div className="overflow-hidden">
               <div className="strip-left flex gap-3" style={{ width: "max-content" }}>
@@ -1322,15 +1377,18 @@ export default function App() {
                       className="absolute inset-0"
                       style={{
                         background: isDark
-                          ? "linear-gradient(to top, rgba(196,18,48,0.34), rgba(10,10,10,0.08))"
-                          : "linear-gradient(to top, rgba(0,51,102,0.30), rgba(0,0,0,0.04))",
+                          ? "linear-gradient(to top, rgba(5,5,5,0.72) 0%, rgba(196,18,48,0.18) 60%, rgba(5,5,5,0.28) 100%)"
+                          : "linear-gradient(to top, rgba(248,250,252,0.78) 0%, rgba(0,51,102,0.12) 60%, rgba(255,255,255,0.18) 100%)",
                       }}
                     />
                     <span
                       className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em]"
                       style={{
                         fontFamily: "'JetBrains Mono', monospace",
-                        color: isDark ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.75)",
+                        color: isDark ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.82)",
+                        textShadow: isDark
+                          ? "0 1px 4px rgba(0,0,0,0.98), 0 0 10px rgba(0,0,0,0.9)"
+                          : "0 1px 3px rgba(255,255,255,0.98), 0 0 8px rgba(255,255,255,0.9)",
                       }}
                     >
                       {item.label}
@@ -1357,8 +1415,8 @@ export default function App() {
                       className="absolute inset-0"
                       style={{
                         background: isDark
-                          ? "linear-gradient(to top, rgba(10,10,10,0.3), transparent)"
-                          : "linear-gradient(to top, rgba(0,0,0,0.12), transparent)",
+                          ? "linear-gradient(to top, rgba(5,5,5,0.52), transparent)"
+                          : "linear-gradient(to top, rgba(248,250,252,0.38), transparent)",
                       }}
                     />
                   </div>
@@ -1380,15 +1438,18 @@ export default function App() {
                       className="absolute inset-0"
                       style={{
                         background: isDark
-                          ? "linear-gradient(to top, rgba(10,10,10,0.7), rgba(196,18,48,0.16))"
-                          : "linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,51,102,0.12))",
+                          ? "linear-gradient(to top, rgba(5,5,5,0.82) 0%, rgba(196,18,48,0.14) 60%, rgba(5,5,5,0.32) 100%)"
+                          : "linear-gradient(to top, rgba(248,250,252,0.80) 0%, rgba(0,51,102,0.08) 60%, rgba(255,255,255,0.22) 100%)",
                       }}
                     />
                     <span
                       className="absolute bottom-2 left-2 right-2 text-[10px] uppercase tracking-[0.18em]"
                       style={{
                         fontFamily: "'JetBrains Mono', monospace",
-                        color: isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.72)",
+                        color: isDark ? "rgba(255,255,255,0.90)" : "rgba(0,0,0,0.80)",
+                        textShadow: isDark
+                          ? "0 1px 4px rgba(0,0,0,0.98), 0 0 10px rgba(0,0,0,0.9)"
+                          : "0 1px 3px rgba(255,255,255,0.98), 0 0 8px rgba(255,255,255,0.9)",
                       }}
                     >
                       {item.label}
@@ -1402,61 +1463,97 @@ export default function App() {
           {/* Center text */}
           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none">
             <p
-              className="text-xs tracking-[0.35em] mb-4 px-3 py-1"
+              className="text-sm tracking-[0.35em] mb-6 px-3 py-1"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                color: isDark ? "#fff7e8" : "#000000",
-                background: isDark ? "rgba(10,10,10,0.38)" : "rgba(0,0,0,0.06)",
+                color: isDark ? "#fff7e8" : "#0a1628",
+                background: isDark ? "rgba(5,5,5,0.55)" : "rgba(255,255,255,0.72)",
+                border: isDark ? "1px solid rgba(243,239,232,0.12)" : "1px solid rgba(15,23,42,0.10)",
+                backdropFilter: "blur(4px)",
                 textShadow: isDark
-                  ? "0 2px 14px rgba(0,0,0,0.95), 0 0 18px rgba(196,18,48,0.55)"
-                  : "0 1px 6px rgba(0,0,0,0.12)",
+                  ? "0 1px 6px rgba(0,0,0,0.98), 0 0 18px rgba(196,18,48,0.4)"
+                  : "none",
               }}
             >
               REPÚBLICA FEDERATIVA DO BRASIL
             </p>
             <h1
-              className="text-6xl md:text-8xl font-black text-center leading-none mb-2"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                color: isDark ? "#f0ece4" : "#000000",
-                textShadow: isDark
-                  ? "0 0 80px rgba(196,18,48,0.6)"
-                  : "0 0 40px rgba(0,51,102,0.15)",
-              }}
-            >
-              QUEM
-            </h1>
-            <h1
+              aria-label="Quem Governa?"
               className="text-6xl md:text-8xl font-black text-center leading-none"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                color: isDark ? "#c41230" : "#003366",
-                textShadow: isDark
-                  ? "0 0 80px rgba(196,18,48,0.8)"
-                  : "0 0 40px rgba(0,51,102,0.35)",
-              }}
+              style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              GOVERNA?
+              <div style={{ overflow: "hidden" }}>
+                <span
+                  aria-hidden="true"
+                  className="title-line-1 block mb-1"
+                  style={{
+                    color: isDark ? "#f0ece4" : "#0a1628",
+                    textShadow: isDark
+                      ? "0 2px 8px rgba(0,0,0,1), 0 4px 28px rgba(0,0,0,0.96), 0 0 80px rgba(196,18,48,0.55)"
+                      : "0 0 24px rgba(255,255,255,1), 0 2px 14px rgba(255,255,255,0.96), 0 4px 32px rgba(255,255,255,0.88)",
+                  }}
+                >
+                  QUEM
+                </span>
+              </div>
+              <div style={{ overflow: "hidden" }}>
+                <span
+                  aria-hidden="true"
+                  className="title-line-2 block"
+                  style={{
+                    color: isDark ? "#c41230" : "#003366",
+                    textShadow: isDark
+                      ? "0 2px 8px rgba(0,0,0,1), 0 4px 28px rgba(0,0,0,0.94), 0 0 80px rgba(196,18,48,0.72)"
+                      : "0 0 22px rgba(255,255,255,1), 0 2px 14px rgba(255,255,255,0.95), 0 4px 32px rgba(255,255,255,0.84)",
+                  }}
+                >
+                  GOVERNA?
+                </span>
+              </div>
             </h1>
-            <div className="mt-3 h-px w-24 bg-primary opacity-60" />
-          </div>
-
-          {/* Click hint */}
-          <div className="absolute bottom-10 left-0 right-0 z-30 flex flex-col items-center pointer-events-none">
+            <div className="intro-divider mt-5 h-px w-24 bg-primary opacity-60" />
             <p
-              className="click-hint text-xs tracking-[0.3em] px-4 py-2"
+              className="intro-tagline mt-4 text-[13px] font-bold tracking-[0.24em] text-center"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
-                color: isDark ? "#fff2d6" : "#000000",
-                background: isDark ? "rgba(10,10,10,0.5)" : "rgba(0,0,0,0.06)",
-                border: isDark ? "1px solid rgba(240,236,228,0.28)" : "1px solid rgba(0,0,0,0.20)",
+                color: isDark ? "rgba(243,239,232,0.78)" : "#1a2a40",
                 textShadow: isDark
-                  ? "0 2px 12px rgba(0,0,0,0.95), 0 0 16px rgba(196,18,48,0.7)"
-                  : "0 1px 4px rgba(0,0,0,0.12)",
+                  ? "0 1px 6px rgba(0,0,0,0.96)"
+                  : "0 1px 4px rgba(255,255,255,0.98)",
               }}
             >
-              {cursorVisible ? "▶  CLIQUE PARA ENTRAR  ◀" : "   CLIQUE PARA ENTRAR   "}
+              DADOS LEGISLATIVOS · 57ª LEGISLATURA · 2023–2026
             </p>
+          </div>
+
+          {/* Click hint — accessible CTA with high-contrast backdrop */}
+          <div className="absolute bottom-16 left-0 right-0 z-30 flex flex-col items-center gap-3 pointer-events-none">
+            <div
+              className="chevron-cta flex flex-col items-center gap-1"
+              style={{ color: isDark ? "#e00836" : "#003366" }}
+            >
+              <svg width="28" height="28" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <path
+                  d="M4 8l7 7 7-7"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <span
+              className="px-7 py-2.5 text-[13px] font-bold tracking-[0.42em]"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                color: isDark ? "rgba(243,239,232,0.92)" : "rgba(10,22,40,0.92)",
+                background: isDark ? "rgba(5,5,5,0.72)" : "rgba(255,255,255,0.84)",
+                border: isDark ? "1px solid rgba(243,239,232,0.38)" : "1px solid rgba(10,22,40,0.38)",
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              ENTRAR
+            </span>
           </div>
         </div>
       )}
