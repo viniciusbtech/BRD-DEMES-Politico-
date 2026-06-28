@@ -97,13 +97,28 @@ const normalizeText = (s: string) =>
 
 function SectionHeader({ tag, n, title, desc }: { tag: string; n: string; title: string; desc: string }) {
   return (
-    <div className="mb-8">
-      <div className="mb-2 flex items-baseline gap-4">
-        <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.22)" }}>{n}</span>
-        <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
+    <div className="mb-10">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span
+          className="text-5xl font-black leading-none md:text-6xl"
+          style={{ fontFamily: SERIF, color: RED, textShadow: "0 0 18px rgba(196,18,48,0.22)" }}
+        >
+          {n}
+        </span>
+        <span
+          className="text-sm font-black uppercase tracking-[0.3em] md:text-base"
+          style={{ fontFamily: MONO, color: "var(--foreground)" }}
+        >
+          {tag}
+        </span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "var(--influence-heading-color, #f0ece4)" }}>{title}</h2>
-      <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
+      <h2 className="mb-3 text-3xl font-black leading-tight md:text-5xl" style={{ fontFamily: SERIF, color: "var(--influence-heading-color, var(--foreground))" }}>{title}</h2>
+      <p
+        className="max-w-[980px] text-[13px] font-bold uppercase leading-relaxed tracking-[0.18em] md:text-sm"
+        style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 }}
+      >
+        {desc}
+      </p>
     </div>
   );
 }
@@ -111,9 +126,9 @@ function SectionHeader({ tag, n, title, desc }: { tag: string; n: string; title:
 function StatCard({ label, value, sub, unit }: { label: string; value: string; sub?: string; unit?: string }) {
   return (
     <div className="bg-background px-6 py-6">
-      <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{label}</p>
+      <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{label}</p>
       <p className="text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>{value}{unit ? <span className="ml-1 text-lg">{unit}</span> : null}</p>
-      {sub ? <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p> : null}
+      {sub ? <p className="mt-1 text-[13px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{sub}</p> : null}
     </div>
   );
 }
@@ -134,7 +149,7 @@ function SimpleTable({ rows, columns, empty }: { rows: Row[]; columns: string[];
         <thead style={{ background: "var(--influence-table-head-bg, #0a0a0a)" }}>
           <tr>
             {columns.map((column) => (
-              <th key={column} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>
+              <th key={column} className="whitespace-nowrap px-4 py-3 text-[13px] font-bold uppercase" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                 {column.replaceAll("_", " ")}
               </th>
             ))}
@@ -193,8 +208,8 @@ function CollapsibleSection({ title, open, onToggle, children }: { title: string
         onClick={onToggle}
         className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
       >
-        <span className="text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>{title}</span>
-        <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{open ? "▲ OCULTAR" : "▼ MOSTRAR"}</span>
+        <span className="text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{title}</span>
+        <span className="ml-6 shrink-0 text-[13px] font-bold" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{open ? "▲ OCULTAR" : "▼ MOSTRAR"}</span>
       </button>
       {open ? <div className="border-t border-border p-4">{children}</div> : null}
     </div>
@@ -572,6 +587,10 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
     };
   }, [graphCommunities, voteGraph]);
 
+  type InfluenciaSection = "influencia" | "voto-revelou" | "ranking" | "disciplina" | "metodologia";
+  const [activeSection, setActiveSection] = useState<InfluenciaSection>("influencia");
+  const RED = "#e00836";
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -600,6 +619,39 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </section>
       ) : null}
 
+      {/* ── NAV DE SEÇÕES ── */}
+      <div
+        className="sticky top-[56px] z-30 flex flex-wrap gap-3 border-b px-6 py-3 md:px-14"
+        style={{ background: "var(--background)", borderColor: "var(--border)" }}
+      >
+        <button type="button" onClick={() => setActiveSection("influencia")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "influencia" ? RED : "transparent", color: activeSection === "influencia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "influencia" ? RED : "var(--border)" }}>
+          Influência
+        </button>
+        <button type="button" onClick={() => setActiveSection("voto-revelou")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "voto-revelou" ? RED : "transparent", color: activeSection === "voto-revelou" ? "#fff" : "var(--foreground)", borderColor: activeSection === "voto-revelou" ? RED : "var(--border)" }}>
+          O que o voto revelou
+        </button>
+        <button type="button" onClick={() => setActiveSection("ranking")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "ranking" ? RED : "transparent", color: activeSection === "ranking" ? "#fff" : "var(--foreground)", borderColor: activeSection === "ranking" ? RED : "var(--border)" }}>
+          Ranking
+        </button>
+        <button type="button" onClick={() => setActiveSection("disciplina")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "disciplina" ? RED : "transparent", color: activeSection === "disciplina" ? "#fff" : "var(--foreground)", borderColor: activeSection === "disciplina" ? RED : "var(--border)" }}>
+          Disciplina
+        </button>
+        <button type="button" onClick={() => setActiveSection("metodologia")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "metodologia" ? RED : "transparent", color: activeSection === "metodologia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "metodologia" ? RED : "var(--border)" }}>
+          Metodologia
+        </button>
+      </div>
+
+      {activeSection === "influencia" && (
       <section
         className="border-b border-border px-6 py-14 md:px-14"
         style={{
@@ -610,7 +662,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         }}
       >
         <SectionHeader
-          n="8"
+          n="06A"
           tag="COMUNIDADES"
           title="Como os grupos se influenciam?"
           desc="A Q8 complementar detecta comunidades de comportamento a partir de votos comparaveis. Cada grupo abaixo representa deputados com padrao de voto parecido."
@@ -625,7 +677,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         <div className="mb-10 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
           <div>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>GRAFO LEIDEN INTERATIVO</p>
+              <p className="text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>GRAFO LEIDEN INTERATIVO</p>
               <div className="flex flex-wrap gap-2">
                 {q8GraphTopOptions.map((option) => (
                   <button
@@ -690,7 +742,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 <div className="mb-3 flex items-start justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{selectedCommunityMeta.name}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                    <p className="mt-1 text-[13px] font-semibold" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                       kappa medio {selectedCommunityMeta.kappa.toFixed(3)} · grau ponderado {selectedCommunityMeta.degree.toFixed(1)}
                     </p>
                   </div>
@@ -702,7 +754,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 </div>
                 {selectedCommunityMeta.parties ? (
                   <>
-                    <p className="mb-2 mt-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>PARTIDOS PRESENTES</p>
+                    <p className="mb-2 mt-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>PARTIDOS PRESENTES</p>
                     <p className="text-xs leading-relaxed text-foreground">{selectedCommunityMeta.parties}</p>
                   </>
                 ) : null}
@@ -710,13 +762,13 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             ) : null}
 
             <div className="border border-border p-5" style={q8PanelStyle}>
-              <p className="mb-3 text-xs tracking-[0.25em] text-primary" style={{ fontFamily: MONO }}>DEPUTADO SELECIONADO</p>
+              <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>DEPUTADO SELECIONADO</p>
               {selectedDeputy ? (
                 <div>
                   <h3 className="text-2xl font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>
                     {String(selectedDeputy.nome ?? selectedDeputy.name ?? selectedDeputy.id)}
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="mt-1 text-[13px] font-semibold" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                     {String(selectedDeputy.partido ?? selectedDeputy.sigla_partido ?? "")}
                     {selectedDeputy.uf || selectedDeputy.sigla_uf ? `-${String(selectedDeputy.uf ?? selectedDeputy.sigla_uf)}` : ""}
                     {" · "}
@@ -736,7 +788,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </div>
         </div>
       </section>
+      )}
 
+      {activeSection === "voto-revelou" && (
       <section
         className="border-b border-border px-6 py-16 md:px-14"
         style={{
@@ -747,7 +801,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         }}
       >
         <SectionHeader
-          n="8"
+          n="06B"
           tag="SINTESE · DESCOBERTAS"
           title="O que o voto revelou"
           desc="Resumo das principais descobertas do algoritmo Leiden: como os deputados se dividem em blocos de comportamento e o que esses grupos dizem sobre a relacao entre voto e partido."
@@ -836,7 +890,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           ))}
         </div>
       </section>
+      )}
 
+      {activeSection === "ranking" && (
       <section
         className="border-b border-border px-6 py-14 md:px-14"
         style={{
@@ -845,7 +901,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         }}
       >
         <SectionHeader
-          n="8"
+          n="06C"
           tag="RANKING ORIGINAL"
           title="Deputados com maior participacao nas proposicoes aprovadas"
           desc="Tabela baseada na resposta original da Q8. Ela mostra autoria, aprovacao e participacao no total global aprovado."
@@ -878,7 +934,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
               <thead style={{ background: isDark ? "#0a0a0a" : "#eef6ff", position: "sticky", top: 0, zIndex: 1 }}>
                 <tr>
                   {["#", "Foto", "Deputado", "Autoria", "Aprovadas", "% Aprovadas"].map((col) => (
-                    <th key={col} className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground" style={{ fontFamily: MONO }}>{col}</th>
+                    <th key={col} className="whitespace-nowrap px-4 py-3 text-[13px] font-bold uppercase" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{col}</th>
                   ))}
                 </tr>
               </thead>
@@ -931,7 +987,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </CollapsibleSection>
 
       </section>
+      )}
 
+      {activeSection === "disciplina" && (
       <section
         className="px-6 py-14 md:px-14"
         style={{
@@ -942,14 +1000,14 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         }}
       >
         <SectionHeader
-          n="10"
+          n="06D"
           tag="DISCIPLINA PARTIDARIA"
           title="Qual partido convence mais seus deputados?"
           desc="A Q10 ordena os partidos pelo alinhamento interno: votos alinhados com a orientacao partidaria dividido pelo total de votos com diretriz."
         />
 
         {/* Filtro por ANO */}
-        <p className="mb-2 text-[10px] tracking-[0.28em] text-muted-foreground" style={{ fontFamily: MONO }}>FILTRAR POR ANO</p>
+        <p className="mb-2 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>FILTRAR POR ANO</p>
         <div className="mb-5 flex flex-wrap gap-2">
           <button
             type="button"
@@ -973,7 +1031,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </div>
 
         {/* Filtro por PARTIDO */}
-        <p className="mb-2 text-[10px] tracking-[0.28em] text-muted-foreground" style={{ fontFamily: MONO }}>FILTRAR POR PARTIDO</p>
+        <p className="mb-2 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>FILTRAR POR PARTIDO</p>
         <div className="mb-6">
           <SearchInput value={q10PartySearch} onChange={setQ10PartySearch} placeholder="Pesquisar partido (ex: PT, PL, MDB)..." />
         </div>
@@ -1029,7 +1087,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         {!q10Year && q10AnnualRows.length ? (
           <div className="mt-10">
             <SectionHeader
-              n="10"
+              n="06D"
               tag="SERIE ANUAL"
               title="Alinhamento interno por ano"
               desc="Tabela complementar da Q10 para comparar a disciplina partidaria ano a ano."
@@ -1049,7 +1107,9 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           </div>
         ) : null}
       </section>
+      )}
 
+      {activeSection === "metodologia" && (
       <section
         className="border-t border-border px-6 py-10 md:px-14"
         style={{
@@ -1059,7 +1119,14 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             : "radial-gradient(circle at 90% 0%, rgba(0,127,255,0.09), transparent 36%), #ffffff",
         }}
       >
-        <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA — COMO CHEGAMOS AQUI</p>
+        <p className="sr-only">METODOLOGIA</p>
+
+        <SectionHeader
+          n="06E"
+          tag="METODOLOGIA"
+          title="Como chegamos aqui?"
+          desc="Transparencia analitica - Como medimos influencia, comunidades de comportamento e disciplina partidaria."
+        />
 
         {/* Q8 Collapsible */}
         <div className="mb-3 border border-border">
@@ -1176,6 +1243,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </div>
 
       </section>
+      )}
 
     </div>
   );

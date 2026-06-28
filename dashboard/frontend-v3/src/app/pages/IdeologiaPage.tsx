@@ -22,6 +22,7 @@ type IdeologiaPageProps = {
 
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
+const RED = "#e00836";
 
 const voteColor: Record<DeputyVote, string> = {
   Sim: "#4a7c59",
@@ -35,6 +36,32 @@ const resultColor: Record<ProposalResult, { bg: string; text: string }> = {
   Rejeitado: { bg: "rgba(196,18,48,0.15)", text: "#c41230" },
   "Em votação": { bg: "rgba(212,132,26,0.15)", text: "#d4841a" },
 };
+
+function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title: string; desc?: string }) {
+  return (
+    <div className="mb-10">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span
+          className="text-5xl font-black leading-none md:text-6xl"
+          style={{ fontFamily: SERIF, color: RED, textShadow: "0 0 18px rgba(224,8,54,0.22)" }}
+        >
+          {n}
+        </span>
+        <span className="text-sm font-black uppercase tracking-[0.3em] md:text-base" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
+          {tag}
+        </span>
+      </div>
+      <h2 className="mb-3 text-3xl font-black leading-tight md:text-5xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
+        {title}
+      </h2>
+      {desc ? (
+        <p className="max-w-[980px] text-[13px] font-bold uppercase leading-relaxed tracking-[0.18em] md:text-sm" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 }}>
+          {desc}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 function BiasBar({
   score,
@@ -184,7 +211,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
       <div className="border-b border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+            <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
               BUSCAR DEPUTADO
             </p>
             <div className="relative">
@@ -249,7 +276,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
           </div>
 
           <div>
-            <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+            <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
               BUSCAR PARTIDO
             </p>
             <div className="relative">
@@ -316,17 +343,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
       </div>
 
       <section className="border-b border-border px-6 py-16 md:px-14">
-        <div className="mb-2 flex items-baseline gap-4">
-          <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-            01
-          </span>
-          <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-            ESPECTRO IDEOLÓGICO
-          </p>
-        </div>
-        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
-          O deputado vota como se declara?
-        </h2>
+        <SectionHeader n="07A" tag="ESPECTRO IDEOLOGICO" title="O deputado vota como se declara?" />
 
         {!bias ? (
           <p className="text-sm text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -360,7 +377,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
 
             <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "var(--secondary)" }}>
               <div className="bg-background px-6 py-6">
-                <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                   CONSISTÊNCIA
                 </p>
                 <p className="text-4xl font-black" style={{ fontFamily: SERIF, color: bias.consistency >= 80 ? "#4a7c59" : "#d4841a" }}>
@@ -368,7 +385,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                 </p>
               </div>
               <div className="bg-background px-6 py-6">
-                <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                   DISCREPÂNCIA
                 </p>
                 <p className="text-4xl font-black" style={{ fontFamily: SERIF, color: discrepancy > 20 ? "#c41230" : "#4a7c59" }}>
@@ -386,17 +403,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
       </section>
 
       <section className="border-b border-border px-6 py-16 md:px-14">
-        <div className="mb-2 flex items-baseline gap-4">
-          <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-            02
-          </span>
-          <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-            PARTIDO
-          </p>
-        </div>
-        <h2 className="mb-10 text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
-          Qual o viés real do partido?
-        </h2>
+        <SectionHeader n="07B" tag="PARTIDO" title="Qual o vies real do partido?" />
 
         {!activeParty ? (
           <p className="text-sm text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -418,7 +425,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
 
             {bias ? (
               <div>
-                <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                   COMPARAÇÃO DEPUTADO x PARTIDO
                 </p>
                 <div className="relative h-12" style={{ background: "var(--secondary)" }}>
@@ -442,7 +449,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
 
             <div className="grid grid-cols-2 gap-px border border-border" style={{ background: "var(--secondary)" }}>
               <div className="bg-background px-6 py-6">
-                <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                   COESÃO INTERNA
                 </p>
                 <p className="text-4xl font-black" style={{ fontFamily: SERIF, color: activeParty.color }}>
@@ -450,7 +457,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
                 </p>
               </div>
               <div className="bg-background px-6 py-6">
-                <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                   BANCADA
                 </p>
                 <p className="text-4xl font-black" style={{ fontFamily: SERIF, color: activeParty.color }}>
@@ -460,7 +467,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
             </div>
 
             <div>
-              <p className="mb-5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              <p className="mb-5 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                 MAPA COMPARATIVO DOS PARTIDOS
               </p>
               <div className="flex flex-col gap-3">
@@ -486,20 +493,12 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
       </section>
 
       <section className="px-6 py-16 md:px-14">
-        <div className="mb-2 flex items-baseline gap-4">
-          <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
-            03
-          </span>
-          <p className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-            VOTAÇÕES
-          </p>
-        </div>
-        <h2 className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
-          Como votou em propostas específicas?
-        </h2>
-        <p className="mb-8 max-w-lg text-sm text-muted-foreground">
-          Filtre propostas por tema, número ou título. Ao selecionar um deputado, a última coluna mostra seu voto mockado.
-        </p>
+        <SectionHeader
+          n="07C"
+          tag="VOTACOES"
+          title="Como votou em propostas especificas?"
+          desc="Filtre propostas por tema, numero ou titulo. Ao selecionar um deputado, a ultima coluna mostra seu voto mockado."
+        />
 
         <div className="relative mb-8 max-w-xl">
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
@@ -532,7 +531,7 @@ export default function IdeologiaPage({ onNavigateHome, onNavigateRecortes, onNa
         <div className="flex flex-col gap-px overflow-x-auto border border-border" style={{ background: "var(--secondary)" }}>
           <div className="grid min-w-[820px] gap-4 bg-background px-6 py-3" style={{ gridTemplateColumns: "120px 1fr 110px 120px 110px" }}>
             {["Nº / DATA", "PROPOSTA", "TEMA", "RESULTADO", "VOTO"].map((heading) => (
-              <span key={heading} className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              <span key={heading} className="text-[13px] font-bold uppercase" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                 {heading}
               </span>
             ))}

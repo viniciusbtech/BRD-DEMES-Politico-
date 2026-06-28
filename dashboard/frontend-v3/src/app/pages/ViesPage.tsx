@@ -484,6 +484,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
     labelStyle: { color: "var(--chart-tooltip-text)" },
   };
 
+  type ViesSection = "classificacao" | "correlacao" | "votacoes-polarizadas" | "vies-deputado" | "voto-cada" | "observar-proposta" | "metodologia";
+  const [activeSection, setActiveSection] = useState<ViesSection>("classificacao");
+  const RED = "#e00836";
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -508,7 +512,50 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
 
       {error ? <section className="px-6 py-10 md:px-14"><EmptyPanel text={error} /></section> : null}
 
+      {/* ── NAV DE SEÇÕES ── */}
+      <div
+        className="sticky top-[56px] z-30 flex flex-wrap gap-3 border-b px-6 py-3 md:px-14"
+        style={{ background: "var(--background)", borderColor: "var(--border)" }}
+      >
+        <button type="button" onClick={() => setActiveSection("classificacao")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "classificacao" ? RED : "transparent", color: activeSection === "classificacao" ? "#fff" : "var(--foreground)", borderColor: activeSection === "classificacao" ? RED : "var(--border)" }}>
+          Classificação
+        </button>
+        <button type="button" onClick={() => setActiveSection("correlacao")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "correlacao" ? RED : "transparent", color: activeSection === "correlacao" ? "#fff" : "var(--foreground)", borderColor: activeSection === "correlacao" ? RED : "var(--border)" }}>
+          Correlação
+        </button>
+        <button type="button" onClick={() => setActiveSection("votacoes-polarizadas")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "votacoes-polarizadas" ? RED : "transparent", color: activeSection === "votacoes-polarizadas" ? "#fff" : "var(--foreground)", borderColor: activeSection === "votacoes-polarizadas" ? RED : "var(--border)" }}>
+          Votações Polarizadas
+        </button>
+        <button type="button" onClick={() => setActiveSection("vies-deputado")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "vies-deputado" ? RED : "transparent", color: activeSection === "vies-deputado" ? "#fff" : "var(--foreground)", borderColor: activeSection === "vies-deputado" ? RED : "var(--border)" }}>
+          Viés do Deputado
+        </button>
+        <button type="button" onClick={() => setActiveSection("voto-cada")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "voto-cada" ? RED : "transparent", color: activeSection === "voto-cada" ? "#fff" : "var(--foreground)", borderColor: activeSection === "voto-cada" ? RED : "var(--border)" }}>
+          Voto de Cada
+        </button>
+        <button type="button" onClick={() => setActiveSection("observar-proposta")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "observar-proposta" ? RED : "transparent", color: activeSection === "observar-proposta" ? "#fff" : "var(--foreground)", borderColor: activeSection === "observar-proposta" ? RED : "var(--border)" }}>
+          Observar Proposta
+        </button>
+        <button type="button" onClick={() => setActiveSection("metodologia")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "metodologia" ? RED : "transparent", color: activeSection === "metodologia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "metodologia" ? RED : "var(--border)" }}>
+          Metodologia
+        </button>
+      </div>
+
       {/* ── SEÇÃO 1: VIÉS DO DEPUTADO (pergunta principal) ── */}
+      {activeSection === "vies-deputado" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
           n="9"
@@ -644,8 +691,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           );
         })()}
       </section>
+      )}
 
       {/* ── Q9.1 CLASSIFICAÇÃO ── */}
+      {activeSection === "classificacao" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader n="9.1" tag="CLASSIFICACAO DOS PARTIDOS" title="Qual o vies de cada partido?" desc="Cada partido foi classificado por espectro ideologico. O grafico mostra a distribuicao dos partidos por campo politico e lista os integrantes de cada grupo." />
 
@@ -695,8 +744,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           <SimpleTable rows={q91Rows} columns={["sigla_partido", "ideologia"]} empty="Sem dados de classificacao." />
         </div>
       </section>
+      )}
 
       {/* ── Q9.2 CORRELAÇÃO ── */}
+      {activeSection === "correlacao" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader n="9.2" tag="CORRELACAO PARTIDO X PROPOSTA" title="Qual campo vota mais Sim?" desc="Para cada votacao, calculamos o percentual de votos Sim por campo ideologico. O resumo exibe a media de apoio de cada campo ao longo de todo o periodo." />
 
@@ -838,8 +889,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           </div>
         ) : null}
       </section>
+      )}
 
       {/* ── Q9.4 VOTAÇÕES POLARIZADAS ── */}
+      {activeSection === "votacoes-polarizadas" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
           n="9.4"
@@ -895,8 +948,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           <EmptyPanel text="Dados de votacoes polarizadas ainda nao disponíveis. Execute o SQL atualizado da Q9." />
         )}
       </section>
+      )}
 
       {/* ── Q9.5 SCORE DE VIÉS ── */}
+      {activeSection === "vies-deputado" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="9.5"
@@ -1092,8 +1147,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           <EmptyPanel text={`Nenhum deputado encontrado para "${search}".`} />
         )}
       </section>
+      )}
 
       {/* ── Q9.3 ADESÃO ── */}
+      {activeSection === "voto-cada" && (
       <section className="px-6 py-14 md:px-14">
         <SectionHeader n="9.3" tag="VOTO DE CADA DEPUTADO" title="Quem segue o partido — e quem contraria?" desc="Percentual de votos em que o deputado seguiu a orientacao oficial do partido nas votacoes em que havia diretriz explicita registrada." />
 
@@ -1127,8 +1184,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           </>
         ) : <EmptyPanel text="Sem dados de aderencia por deputado." />}
       </section>
+      )}
 
       {/* ── 9.6 OBSERVAR UMA PROPOSTA -> VOTO DE CADA DEPUTADO ── */}
+      {activeSection === "observar-proposta" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
           n="9.6"
@@ -1263,8 +1322,10 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           </>
         )}
       </section>
+      )}
 
       {/* ── METODOLOGIA ── */}
+      {activeSection === "metodologia" && (
       <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
         <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA — COMO CHEGAMOS AQUI</p>
 
@@ -1315,6 +1376,7 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
           ]} />
         </CollapsibleMethod>
       </section>
+      )}
     </div>
   );
 }

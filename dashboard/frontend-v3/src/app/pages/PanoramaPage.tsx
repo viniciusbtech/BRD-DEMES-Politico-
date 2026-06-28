@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
@@ -240,19 +240,28 @@ function PosicaoFinder({ rows, query, onQuery, metricLabel, metric, rounded }: P
 function Section({ n, tag, title, sub, children }: SectionProps) {
   return (
     <section className="border-b border-border px-6 py-16 md:px-14">
-      <div className="mb-2 flex items-baseline gap-4">
-        <span className="text-4xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.25)" }}>
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span
+          className="text-5xl font-black leading-none md:text-6xl"
+          style={{ fontFamily: SERIF, color: RED, textShadow: "0 0 18px rgba(196,18,48,0.22)" }}
+        >
           {n}
         </span>
-        <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+        <span
+          className="text-sm font-black uppercase tracking-[0.3em] md:text-base"
+          style={{ fontFamily: MONO, color: "var(--foreground)" }}
+        >
           {tag}
         </span>
       </div>
-      <h2 className="mb-2 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
+      <h2 className="mb-3 text-3xl font-black leading-tight md:text-5xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>
         {title}
       </h2>
       {sub ? (
-        <p className="mb-10 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+        <p
+          className="mb-10 max-w-[980px] text-[13px] font-bold uppercase leading-relaxed tracking-[0.18em] md:text-sm"
+          style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 }}
+        >
           {sub}
         </p>
       ) : (
@@ -306,6 +315,35 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   const [tableTotal, setTableTotal] = useState(0);
   const [tableLoading, setTableLoading] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
+  // Filtros da seção 01
+  const [partidoFilter, setPartidoFilter] = useState("");
+  const [ufFilter, setUfFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState<"mais" | "menos">("mais");
+  const [filterTablePage, setFilterTablePage] = useState(1);
+
+  const filteredGasto = useMemo(() => {
+    if (!gastoAllRows.length) return [];
+    let rows = [...gastoAllRows];
+    if (partidoFilter) rows = rows.filter((r) => str(r, "sigla_partido") === partidoFilter);
+    if (ufFilter) rows = rows.filter((r) => str(r, "sigla_uf") === ufFilter);
+    if (sortOrder === "menos") rows.reverse();
+    return rows;
+  }, [gastoAllRows, partidoFilter, ufFilter, sortOrder]);
+
+  const hasGastoFilter = !!(partidoFilter || ufFilter || sortOrder === "menos");
+  const displayTop10 = filteredGasto.length > 0 ? filteredGasto.slice(0, 10) : top10;
+
+  const partidoOptions = useMemo(() => {
+    const set = new Set<string>();
+    gastoAllRows.forEach((r) => { const v = str(r, "sigla_partido"); if (v) set.add(v); });
+    return Array.from(set).sort();
+  }, [gastoAllRows]);
+
+  const ufOptions = useMemo(() => {
+    const set = new Set<string>();
+    gastoAllRows.forEach((r) => { const v = str(r, "sigla_uf"); if (v) set.add(v); });
+    return Array.from(set).sort();
+  }, [gastoAllRows]);
 
   // Seção 01B — Categorias globais de gasto
   const CAT_PAGE_SIZE = 10;
@@ -314,6 +352,17 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   const [catTableOpen, setCatTableOpen] = useState(false);
   const [catTablePage, setCatTablePage] = useState(1);
   const catTableRef = useRef<HTMLDivElement>(null);
+  const [catSearch, setCatSearch] = useState("");
+  const [catSearchPage, setCatSearchPage] = useState(1);
+
+  const catOptions = useMemo(() => catAllRows.map((r) => str(r, "descricao_despesa")).filter(Boolean), [catAllRows]);
+
+  const catFilteredRows = useMemo(() => {
+    if (!catSearch) return catAllRows;
+    return catAllRows.filter((r) => str(r, "descricao_despesa") === catSearch);
+  }, [catAllRows, catSearch]);
+
+  useEffect(() => { setCatSearchPage(1); }, [catSearch]);
 
   // Seção 01C — Eixos de atuação (temas legislativos)
   const EIXO_PAGE_SIZE = 10;
@@ -322,6 +371,17 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   const [eixoTableOpen, setEixoTableOpen] = useState(false);
   const [eixoTablePage, setEixoTablePage] = useState(1);
   const eixoTableRef = useRef<HTMLDivElement>(null);
+  const [eixoSearch, setEixoSearch] = useState("");
+  const [eixoSearchPage, setEixoSearchPage] = useState(1);
+
+  const eixoOptions = useMemo(() => eixoAllRows.map((r) => str(r, "tema")).filter(Boolean), [eixoAllRows]);
+
+  const eixoFilteredRows = useMemo(() => {
+    if (!eixoSearch) return eixoAllRows;
+    return eixoAllRows.filter((r) => str(r, "tema") === eixoSearch);
+  }, [eixoAllRows, eixoSearch]);
+
+  useEffect(() => { setEixoSearchPage(1); }, [eixoSearch]);
 
   // Seção 01D — Custo-benefício
   const CB_PAGE_SIZE = 15;
@@ -501,9 +561,73 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           metric={(r) => fmtCurrency(raw(r, "gasto_total"))}
         />
 
+        {/* ── Filtros: partido, UF, ordem ── */}
+        <div className="mb-6 flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Partido</label>
+            <select
+              value={partidoFilter}
+              onChange={(e) => { setPartidoFilter(e.target.value); setFilterTablePage(1); }}
+              className="h-9 border bg-transparent px-3 text-[13px] outline-none"
+              style={{ fontFamily: MONO, borderColor: partidoFilter ? RED : "var(--border)", color: partidoFilter ? "var(--foreground)" : "var(--muted-foreground)", background: "var(--card)", minWidth: 130 }}
+            >
+              <option value="">Todos</option>
+              {partidoOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Estado (UF)</label>
+            <select
+              value={ufFilter}
+              onChange={(e) => { setUfFilter(e.target.value); setFilterTablePage(1); }}
+              className="h-9 border bg-transparent px-3 text-[13px] outline-none"
+              style={{ fontFamily: MONO, borderColor: ufFilter ? RED : "var(--border)", color: ufFilter ? "var(--foreground)" : "var(--muted-foreground)", background: "var(--card)", minWidth: 130 }}
+            >
+              <option value="">Todos</option>
+              {ufOptions.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Ordem</label>
+            <div className="flex h-9">
+              <button
+                type="button"
+                onClick={() => { setSortOrder("mais"); setFilterTablePage(1); }}
+                className="border px-4 text-[12px] font-bold uppercase transition-colors"
+                style={{ fontFamily: MONO, background: sortOrder === "mais" ? RED : "transparent", color: sortOrder === "mais" ? "#fff" : "var(--foreground)", borderColor: sortOrder === "mais" ? RED : "var(--border)" }}
+              >
+                Mais gastam
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSortOrder("menos"); setFilterTablePage(1); }}
+                className="border-y border-r px-4 text-[12px] font-bold uppercase transition-colors"
+                style={{ fontFamily: MONO, background: sortOrder === "menos" ? RED : "transparent", color: sortOrder === "menos" ? "#fff" : "var(--foreground)", borderColor: sortOrder === "menos" ? RED : "var(--border)" }}
+              >
+                Menos gastam
+              </button>
+            </div>
+          </div>
+          {hasGastoFilter && (
+            <button
+              type="button"
+              onClick={() => { setPartidoFilter(""); setUfFilter(""); setSortOrder("mais"); setFilterTablePage(1); }}
+              className="h-9 border px-4 text-[12px] font-bold uppercase transition-colors"
+              style={{ fontFamily: MONO, borderColor: "var(--border)", color: "var(--muted-foreground)", background: "transparent" }}
+            >
+              ✕ Limpar
+            </button>
+          )}
+          {hasGastoFilter && (
+            <span className="text-[11px] text-muted-foreground" style={{ fontFamily: MONO }}>
+              {filteredGasto.length} deputados encontrados
+            </span>
+          )}
+        </div>
+
         {/* ── Ranking com fotos ── */}
         <div className="mb-10 flex flex-col gap-0 border border-border" style={{ background: "var(--card)" }}>
-          {top10.map((dep, idx) => {
+          {displayTop10.map((dep, idx) => {
             const id = str(dep, "id_deputado");
             const nome = str(dep, "nome");
             const partido = str(dep, "sigla_partido");
@@ -511,7 +635,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             const total = raw(dep, "gasto_total");
             const isFirst = idx === 0;
             const rankColor = isDark ? (isFirst ? RED : idx < 3 ? "#d4841a" : "rgba(240,236,228,0.18)") : RED;
-            const barPct = top10[0] ? (total / raw(top10[0], "gasto_total")) * 100 : 0;
+            const barPct = displayTop10[0] ? (total / raw(displayTop10[0], "gasto_total")) * 100 : 0;
 
             return (
               <div
@@ -583,23 +707,22 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             );
           })}
 
-          {top10.length === 0 && (
+          {displayTop10.length === 0 && (
             <div className="flex h-24 items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
-              CARREGANDO...
+              {hasGastoFilter ? "NENHUM DEPUTADO ENCONTRADO" : "CARREGANDO..."}
             </div>
           )}
         </div>
 
         {/* ── Tabela colapsável com paginação ── */}
         <div className="border border-border" style={{ background: "var(--card)" }}>
-          {/* Cabeçalho colapsável */}
           <button
             type="button"
             onClick={handleToggleTable}
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
           >
             <span className="text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
-              TABELA COMPLETA{tableTotal > 0 ? ` · ${tableTotal} DEPUTADOS` : ""}
+              TABELA COMPLETA{hasGastoFilter ? ` · ${filteredGasto.length} DEPUTADOS` : tableTotal > 0 ? ` · ${tableTotal} DEPUTADOS` : ""}
             </span>
             <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
               {tableOpen ? "▲ FECHAR" : "▼ EXPANDIR"}
@@ -611,59 +734,55 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             style={{ maxHeight: tableOpen ? 560 : 0, overflow: "hidden", transition: "max-height 0.35s ease" }}
           >
             <div className="border-t border-border">
-              {/* Tabela */}
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Foto", "Deputado", "Partido", "UF", "Total Gasto"].map((col) => (
-                        <th
-                          key={col}
-                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
-                          style={col === "#" && !isDark ? { color: RED } : undefined}
-                        >
-                          {col}
-                        </th>
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}>{col}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {tableLoading ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">CARREGANDO...</td>
-                      </tr>
+                    {hasGastoFilter ? (
+                      filteredGasto.slice((filterTablePage - 1) * PAGE_SIZE, filterTablePage * PAGE_SIZE).map((dep, idx) => {
+                        const id = str(dep, "id_deputado");
+                        const globalIdx = (filterTablePage - 1) * PAGE_SIZE + idx;
+                        const isFirst = globalIdx === 0;
+                        return (
+                          <tr key={id} className="border-t border-border hover:bg-white/[0.03]">
+                            <td className="px-4 py-2 font-bold" style={{ color: isDark ? (isFirst ? RED : "rgba(240,236,228,0.35)") : RED, fontFamily: SERIF }}>
+                              {String(globalIdx + 1).padStart(2, "0")}
+                            </td>
+                            <td className="px-2 py-1">
+                              <img src={depPhoto(id)} alt="" className="h-9 w-7 object-cover object-top" style={{ filter: "grayscale(50%)" }} onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
+                            </td>
+                            <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "var(--foreground)", fontFamily: SERIF }}>{str(dep, "nome")}</td>
+                            <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_partido")}</td>
+                            <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_uf")}</td>
+                            <td className="px-4 py-2 text-right font-bold" style={{ color: isFirst ? RED : "var(--foreground)" }}>{fmtCurrency(raw(dep, "gasto_total"))}</td>
+                          </tr>
+                        );
+                      })
+                    ) : tableLoading ? (
+                      <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">CARREGANDO...</td></tr>
                     ) : tableRows.map((dep, idx) => {
                       const id = str(dep, "id_deputado");
                       const globalIdx = (tablePage - 1) * PAGE_SIZE + idx;
                       const isFirst = globalIdx === 0;
                       return (
                         <tr key={id} className="border-t border-border hover:bg-white/[0.03]">
-                          <td
-                            className="px-4 py-2 font-bold"
-                            style={{
-                              color: isDark ? (isFirst ? RED : "rgba(240,236,228,0.35)") : RED,
-                              fontFamily: SERIF,
-                            }}
-                          >
+                          <td className="px-4 py-2 font-bold" style={{ color: isDark ? (isFirst ? RED : "rgba(240,236,228,0.35)") : RED, fontFamily: SERIF }}>
                             {String(globalIdx + 1).padStart(2, "0")}
                           </td>
                           <td className="px-2 py-1">
-                            <img
-                              src={depPhoto(id)}
-                              alt=""
-                              className="h-9 w-7 object-cover object-top"
-                              style={{ filter: "grayscale(50%)" }}
-                              onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
-                            />
+                            <img src={depPhoto(id)} alt="" className="h-9 w-7 object-cover object-top" style={{ filter: "grayscale(50%)" }} onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
                           </td>
-                          <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "var(--foreground)", fontFamily: SERIF }}>
-                            {str(dep, "nome")}
-                          </td>
+                          <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "var(--foreground)", fontFamily: SERIF }}>{str(dep, "nome")}</td>
                           <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_partido")}</td>
                           <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_uf")}</td>
-                          <td className="px-4 py-2 text-right font-bold" style={{ color: isFirst ? RED : "var(--foreground)" }}>
-                            {fmtCurrency(raw(dep, "gasto_total"))}
-                          </td>
+                          <td className="px-4 py-2 text-right font-bold" style={{ color: isFirst ? RED : "var(--foreground)" }}>{fmtCurrency(raw(dep, "gasto_total"))}</td>
                         </tr>
                       );
                     })}
@@ -672,48 +791,42 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
               </div>
 
               {/* Paginação */}
-              {tableTotal > PAGE_SIZE && (
-                <div
-                  className="flex items-center justify-between border-t px-5 py-4"
-                  style={{ borderColor: "var(--border)", background: "var(--card)" }}
-                >
-                  <button
-                    type="button"
-                    disabled={tablePage <= 1 || tableLoading}
-                    onClick={() => fetchTablePage(tablePage - 1)}
-                    className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{
-                      fontFamily: MONO,
-                      border: "1px solid var(--border)",
-                      color: "var(--foreground)",
-                      background: "transparent",
-                    }}
-                  >
-                    ← ANTERIOR
-                  </button>
-
-                  <span
-                    className="text-xs font-bold tracking-widest"
-                    style={{ fontFamily: MONO, color: "var(--foreground)" }}
-                  >
-                    {(tablePage - 1) * PAGE_SIZE + 1}–{Math.min(tablePage * PAGE_SIZE, tableTotal)}&nbsp;&nbsp;/&nbsp;&nbsp;{tableTotal} DEPUTADOS
-                  </span>
-
-                  <button
-                    type="button"
-                    disabled={tablePage * PAGE_SIZE >= tableTotal || tableLoading}
-                    onClick={() => fetchTablePage(tablePage + 1)}
-                    className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{
-                      fontFamily: MONO,
-                      border: "1px solid var(--border)",
-                      color: "var(--foreground)",
-                      background: "transparent",
-                    }}
-                  >
-                    PRÓXIMA →
-                  </button>
-                </div>
+              {hasGastoFilter ? (
+                filteredGasto.length > PAGE_SIZE && (
+                  <div className="flex items-center justify-between border-t px-5 py-4" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+                    <button type="button" disabled={filterTablePage <= 1} onClick={() => setFilterTablePage((p) => Math.max(1, p - 1))}
+                      className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
+                      style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
+                      ← ANTERIOR
+                    </button>
+                    <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
+                      {(filterTablePage - 1) * PAGE_SIZE + 1}–{Math.min(filterTablePage * PAGE_SIZE, filteredGasto.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{filteredGasto.length} DEPUTADOS
+                    </span>
+                    <button type="button" disabled={filterTablePage * PAGE_SIZE >= filteredGasto.length} onClick={() => setFilterTablePage((p) => p + 1)}
+                      className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
+                      style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
+                      PRÓXIMA →
+                    </button>
+                  </div>
+                )
+              ) : (
+                tableTotal > PAGE_SIZE && (
+                  <div className="flex items-center justify-between border-t px-5 py-4" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+                    <button type="button" disabled={tablePage <= 1 || tableLoading} onClick={() => fetchTablePage(tablePage - 1)}
+                      className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
+                      style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
+                      ← ANTERIOR
+                    </button>
+                    <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
+                      {(tablePage - 1) * PAGE_SIZE + 1}–{Math.min(tablePage * PAGE_SIZE, tableTotal)}&nbsp;&nbsp;/&nbsp;&nbsp;{tableTotal} DEPUTADOS
+                    </span>
+                    <button type="button" disabled={tablePage * PAGE_SIZE >= tableTotal || tableLoading} onClick={() => fetchTablePage(tablePage + 1)}
+                      className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
+                      style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
+                      PRÓXIMA →
+                    </button>
+                  </div>
+                )
               )}
             </div>
           </div>
@@ -824,6 +937,29 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         )}
 
+        {/* Filtro de categorias */}
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Filtrar categoria</label>
+            <select
+              value={catSearch}
+              onChange={(e) => setCatSearch(e.target.value)}
+              className="h-9 border px-3 text-[13px] outline-none"
+              style={{ fontFamily: MONO, borderColor: catSearch ? RED : "var(--border)", color: catSearch ? "var(--foreground)" : "var(--muted-foreground)", background: "var(--card)", minWidth: 320 }}
+            >
+              <option value="">Todas as categorias</option>
+              {catOptions.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          {catSearch && (
+            <button type="button" onClick={() => setCatSearch("")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase transition-colors"
+              style={{ fontFamily: MONO, borderColor: "var(--border)", color: "var(--muted-foreground)", background: "transparent" }}>
+              ✕ Limpar
+            </button>
+          )}
+        </div>
+
         {/* Tabela colapsável — todas as categorias */}
         <div className="border border-border" style={{ background: "var(--card)" }}>
           <button
@@ -832,7 +968,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
           >
             <span className="text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
-              TODAS AS CATEGORIAS ({catAllRows.length} no total)
+              {catSearch ? `CATEGORIAS FILTRADAS (${catFilteredRows.length})` : `TODAS AS CATEGORIAS (${catAllRows.length} no total)`}
             </span>
             <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
               {catTableOpen ? "▲ FECHAR" : "▼ EXPANDIR"}
@@ -844,93 +980,72 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             style={{ maxHeight: catTableOpen ? 560 : 0, overflow: "hidden", transition: "max-height 0.35s ease" }}
           >
             <div className="border-t border-border">
-              {/* Tabela com scroll interno — igual à seção de deputados */}
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
                 <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Categoria", "Total Gasto", "Lançamentos", "% Total"].map((col) => (
-                        <th
-                          key={col}
-                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
-                          style={col === "#" && !isDark ? { color: RED } : undefined}
-                        >
-                          {col}
-                        </th>
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}>{col}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {catAllRows
-                      .slice((catTablePage - 1) * CAT_PAGE_SIZE, catTablePage * CAT_PAGE_SIZE)
-                      .map((r) => {
-                        const globalIdx = catAllRows.indexOf(r);
-                        const isTop = globalIdx === 0;
-                        const nome = str(r, "descricao_despesa");
-                        const total = raw(r, "total_gasto");
-                        const pct = raw(r, "pct_total");
-                        const lances = raw(r, "qtd_lancamentos");
-                        return (
-                          <tr key={globalIdx} className="border-t border-border hover:bg-white/[0.03]">
-                            <td
-                              className="px-4 py-2.5 font-bold"
-                              style={{
-                                color: isDark ? (isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED,
-                                fontFamily: SERIF,
-                              }}
-                            >
-                              {String(globalIdx + 1).padStart(2, "0")}
-                            </td>
-                            <td className="px-4 py-2.5" style={{ color: "var(--foreground)", maxWidth: 360 }}>
-                              <span className="block leading-tight">{abrevCat(nome)}</span>
-                              <span className="mt-0.5 block text-[10px] text-muted-foreground">{nome}</span>
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
-                              {fmtCurrency(total)}
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
-                              {lances.toLocaleString("pt-BR")}
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <div className="flex items-center gap-2">
-                                <div className="h-1.5 flex-1 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)", maxWidth: 80 }}>
-                                  <div style={{ width: `${Math.min(pct, 100)}%`, background: isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%" }} />
+                    {catFilteredRows.length === 0 ? (
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">NENHUMA CATEGORIA ENCONTRADA</td></tr>
+                    ) : catFilteredRows
+                        .slice((catSearchPage - 1) * CAT_PAGE_SIZE, catSearchPage * CAT_PAGE_SIZE)
+                        .map((r, localIdx) => {
+                          const globalIdx = catSearch ? localIdx + (catSearchPage - 1) * CAT_PAGE_SIZE : catAllRows.indexOf(r);
+                          const isTop = globalIdx === 0;
+                          const nome = str(r, "descricao_despesa");
+                          const total = raw(r, "total_gasto");
+                          const pct = raw(r, "pct_total");
+                          const lances = raw(r, "qtd_lancamentos");
+                          return (
+                            <tr key={globalIdx} className="border-t border-border hover:bg-white/[0.03]">
+                              <td className="px-4 py-2.5 font-bold"
+                                style={{ color: isDark ? (isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED, fontFamily: SERIF }}>
+                                {String(globalIdx + 1).padStart(2, "0")}
+                              </td>
+                              <td className="px-4 py-2.5" style={{ color: "var(--foreground)", maxWidth: 360 }}>
+                                <span className="block leading-tight">{abrevCat(nome)}</span>
+                                <span className="mt-0.5 block text-[10px] text-muted-foreground">{nome}</span>
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
+                                {fmtCurrency(total)}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
+                                {lances.toLocaleString("pt-BR")}
+                              </td>
+                              <td className="px-4 py-2.5">
+                                <div className="flex items-center gap-2">
+                                  <div className="h-1.5 flex-1 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)", maxWidth: 80 }}>
+                                    <div style={{ width: `${Math.min(pct, 100)}%`, background: isTop ? RED : globalIdx < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%" }} />
+                                  </div>
+                                  <span style={{ color: isTop ? RED : "var(--foreground)", minWidth: 40 }}>{pct.toFixed(1)}%</span>
                                 </div>
-                                <span style={{ color: isTop ? RED : "var(--foreground)", minWidth: 40 }}>{pct.toFixed(1)}%</span>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              </td>
+                            </tr>
+                          );
+                        })}
                   </tbody>
                 </table>
               </div>
 
-              {/* Rodapé de paginação — idêntico ao da seção de deputados */}
-              {catAllRows.length > CAT_PAGE_SIZE && (
-                <div
-                  className="flex items-center justify-between border-t px-5 py-4"
-                  style={{ borderColor: "var(--border)", background: "var(--card)" }}
-                >
-                  <button
-                    type="button"
-                    disabled={catTablePage === 1}
-                    onClick={() => setCatTablePage((p) => Math.max(1, p - 1))}
+              {catFilteredRows.length > CAT_PAGE_SIZE && (
+                <div className="flex items-center justify-between border-t px-5 py-4" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+                  <button type="button" disabled={catSearchPage === 1} onClick={() => setCatSearchPage((p) => Math.max(1, p - 1))}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
-                  >
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
                     ← ANTERIOR
                   </button>
                   <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
-                    {(catTablePage - 1) * CAT_PAGE_SIZE + 1}–{Math.min(catTablePage * CAT_PAGE_SIZE, catAllRows.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{catAllRows.length} CATEGORIAS
+                    {(catSearchPage - 1) * CAT_PAGE_SIZE + 1}–{Math.min(catSearchPage * CAT_PAGE_SIZE, catFilteredRows.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{catFilteredRows.length} CATEGORIAS
                   </span>
-                  <button
-                    type="button"
-                    disabled={catTablePage * CAT_PAGE_SIZE >= catAllRows.length}
-                    onClick={() => setCatTablePage((p) => p + 1)}
+                  <button type="button" disabled={catSearchPage * CAT_PAGE_SIZE >= catFilteredRows.length} onClick={() => setCatSearchPage((p) => p + 1)}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
-                  >
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
                     PRÓXIMA →
                   </button>
                 </div>
@@ -1044,6 +1159,29 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         )}
 
+        {/* Filtro de eixos */}
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Filtrar eixo temático</label>
+            <select
+              value={eixoSearch}
+              onChange={(e) => setEixoSearch(e.target.value)}
+              className="h-9 border px-3 text-[13px] outline-none"
+              style={{ fontFamily: MONO, borderColor: eixoSearch ? RED : "var(--border)", color: eixoSearch ? "var(--foreground)" : "var(--muted-foreground)", background: "var(--card)", minWidth: 320 }}
+            >
+              <option value="">Todos os eixos</option>
+              {eixoOptions.map((e) => <option key={e} value={e}>{e}</option>)}
+            </select>
+          </div>
+          {eixoSearch && (
+            <button type="button" onClick={() => setEixoSearch("")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase transition-colors"
+              style={{ fontFamily: MONO, borderColor: "var(--border)", color: "var(--muted-foreground)", background: "transparent" }}>
+              ✕ Limpar
+            </button>
+          )}
+        </div>
+
         {/* Tabela colapsável — todos os eixos */}
         <div className="border border-border" style={{ background: "var(--card)" }}>
           <button
@@ -1052,7 +1190,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
           >
             <span className="text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
-              TODOS OS EIXOS ({eixoAllRows.length} no total)
+              {eixoSearch ? `EIXOS FILTRADOS (${eixoFilteredRows.length})` : `TODOS OS EIXOS (${eixoAllRows.length} no total)`}
             </span>
             <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
               {eixoTableOpen ? "▲ FECHAR" : "▼ EXPANDIR"}
@@ -1069,84 +1207,65 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Eixo Temático", "Proposições", "Aprovadas", "% Total"].map((col) => (
-                        <th
-                          key={col}
-                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
-                          style={col === "#" && !isDark ? { color: RED } : undefined}
-                        >
-                          {col}
-                        </th>
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          style={col === "#" && !isDark ? { color: RED } : undefined}>{col}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {eixoAllRows
-                      .slice((eixoTablePage - 1) * EIXO_PAGE_SIZE, eixoTablePage * EIXO_PAGE_SIZE)
-                      .map((r) => {
-                        const gi = eixoAllRows.indexOf(r);
-                        const isTop = gi === 0;
-                        const total = raw(r, "qtd_proposicoes");
-                        const aprov = raw(r, "proposicoes_aprovadas");
-                        const pct = raw(r, "pct_total");
-                        return (
-                          <tr key={gi} className="border-t border-border hover:bg-white/[0.03]">
-                            <td
-                              className="px-4 py-2.5 font-bold"
-                              style={{
-                                color: isDark ? (isTop ? RED : gi < 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED,
-                                fontFamily: SERIF,
-                              }}
-                            >
-                              {String(gi + 1).padStart(2, "0")}
-                            </td>
-                            <td className="px-4 py-2.5 font-medium" style={{ color: "var(--foreground)" }}>
-                              {str(r, "tema")}
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
-                              {total.toLocaleString("pt-BR")}
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
-                              {aprov.toLocaleString("pt-BR")}
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <div className="flex items-center gap-2">
-                                <div className="h-1.5 flex-1 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)", maxWidth: 80 }}>
-                                  <div style={{ width: `${Math.min(pct / (raw(eixoAllRows[0], "pct_total") || 1) * 100, 100)}%`, background: isTop ? RED : gi < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%" }} />
+                    {eixoFilteredRows.length === 0 ? (
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">NENHUM EIXO ENCONTRADO</td></tr>
+                    ) : eixoFilteredRows
+                        .slice((eixoSearchPage - 1) * EIXO_PAGE_SIZE, eixoSearchPage * EIXO_PAGE_SIZE)
+                        .map((r, localIdx) => {
+                          const gi = eixoSearch ? localIdx + (eixoSearchPage - 1) * EIXO_PAGE_SIZE : eixoAllRows.indexOf(r);
+                          const isTop = gi === 0;
+                          const total = raw(r, "qtd_proposicoes");
+                          const aprov = raw(r, "proposicoes_aprovadas");
+                          const pct = raw(r, "pct_total");
+                          return (
+                            <tr key={gi} className="border-t border-border hover:bg-white/[0.03]">
+                              <td className="px-4 py-2.5 font-bold"
+                                style={{ color: isDark ? (isTop ? RED : gi < 3 ? "#d4841a" : "rgba(240,236,228,0.3)") : RED, fontFamily: SERIF }}>
+                                {String(gi + 1).padStart(2, "0")}
+                              </td>
+                              <td className="px-4 py-2.5 font-medium" style={{ color: "var(--foreground)" }}>
+                                {str(r, "tema")}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
+                                {total.toLocaleString("pt-BR")}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
+                                {aprov.toLocaleString("pt-BR")}
+                              </td>
+                              <td className="px-4 py-2.5">
+                                <div className="flex items-center gap-2">
+                                  <div className="h-1.5 flex-1 overflow-hidden" style={{ background: "rgba(240,236,228,0.07)", maxWidth: 80 }}>
+                                    <div style={{ width: `${Math.min(pct / (raw(eixoAllRows[0], "pct_total") || 1) * 100, 100)}%`, background: isTop ? RED : gi < 3 ? "#d4841a" : "rgba(196,18,48,0.4)", height: "100%" }} />
+                                  </div>
+                                  <span style={{ color: isTop ? RED : "var(--foreground)", minWidth: 40 }}>{pct.toFixed(1)}%</span>
                                 </div>
-                                <span style={{ color: isTop ? RED : "var(--foreground)", minWidth: 40 }}>{pct.toFixed(1)}%</span>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              </td>
+                            </tr>
+                          );
+                        })}
                   </tbody>
                 </table>
               </div>
 
-              {eixoAllRows.length > EIXO_PAGE_SIZE && (
-                <div
-                  className="flex items-center justify-between border-t px-5 py-4"
-                  style={{ borderColor: "var(--border)", background: "var(--card)" }}
-                >
-                  <button
-                    type="button"
-                    disabled={eixoTablePage === 1}
-                    onClick={() => setEixoTablePage((p) => Math.max(1, p - 1))}
+              {eixoFilteredRows.length > EIXO_PAGE_SIZE && (
+                <div className="flex items-center justify-between border-t px-5 py-4" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+                  <button type="button" disabled={eixoSearchPage === 1} onClick={() => setEixoSearchPage((p) => Math.max(1, p - 1))}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
-                  >
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
                     ← ANTERIOR
                   </button>
                   <span className="text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
-                    {(eixoTablePage - 1) * EIXO_PAGE_SIZE + 1}–{Math.min(eixoTablePage * EIXO_PAGE_SIZE, eixoAllRows.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{eixoAllRows.length} EIXOS
+                    {(eixoSearchPage - 1) * EIXO_PAGE_SIZE + 1}–{Math.min(eixoSearchPage * EIXO_PAGE_SIZE, eixoFilteredRows.length)}&nbsp;&nbsp;/&nbsp;&nbsp;{eixoFilteredRows.length} EIXOS
                   </span>
-                  <button
-                    type="button"
-                    disabled={eixoTablePage * EIXO_PAGE_SIZE >= eixoAllRows.length}
-                    onClick={() => setEixoTablePage((p) => p + 1)}
+                  <button type="button" disabled={eixoSearchPage * EIXO_PAGE_SIZE >= eixoFilteredRows.length} onClick={() => setEixoSearchPage((p) => p + 1)}
                     className="px-5 py-2 text-xs font-semibold tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-25"
-                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}
-                  >
+                    style={{ fontFamily: MONO, border: "1px solid var(--border)", color: "var(--foreground)", background: "transparent" }}>
                     PRÓXIMA →
                   </button>
                 </div>

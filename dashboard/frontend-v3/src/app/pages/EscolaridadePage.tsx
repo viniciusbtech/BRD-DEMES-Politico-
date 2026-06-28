@@ -112,13 +112,18 @@ const TOOLTIP = {
 
 function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title: string; desc: string }) {
   return (
-    <div className="mb-8">
-      <div className="mb-2 flex items-baseline gap-4">
-        <span className="text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.22)" }}>{n}</span>
-        <span className="text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
+    <div className="mb-10">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span
+          className="text-5xl font-black leading-none md:text-6xl"
+          style={{ fontFamily: SERIF, color: "#e00836", textShadow: "0 0 18px rgba(224,8,54,0.22)" }}
+        >
+          {n}
+        </span>
+        <span className="text-sm font-black uppercase tracking-[0.3em] md:text-base" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{tag}</span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight md:text-4xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
-      <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
+      <h2 className="mb-3 text-3xl font-black leading-tight md:text-5xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
+      <p className="max-w-[980px] text-[13px] font-bold uppercase leading-relaxed tracking-[0.18em] md:text-sm" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 }}>{desc}</p>
     </div>
   );
 }
@@ -126,9 +131,9 @@ function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title:
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div className="bg-background px-6 py-6">
-      <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{label}</p>
+      <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{label}</p>
       <p className="text-3xl font-black" style={{ fontFamily: SERIF, color: color ?? RED }}>{value}</p>
-      {sub ? <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p> : null}
+      {sub ? <p className="mt-1 text-[13px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{sub}</p> : null}
     </div>
   );
 }
@@ -375,6 +380,10 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
     [q6MainRows]
   );
 
+  type EscolaridadeSection = "distribuicao" | "consulta" | "gastos" | "fidelidade" | "producao" | "presenca-eventos" | "presenca-plenario" | "evolucao" | "eta" | "metodologia";
+  const [activeSection, setActiveSection] = useState<EscolaridadeSection>("distribuicao");
+  const RED = "#e00836";
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -403,7 +412,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
         <section className="px-6 py-10 md:px-14"><EmptyPanel text={error} /></section>
       ) : null}
 
-      {/* ── CARDS DE RESUMO ── */}
+      {/* ── CARDS DE RESUMO (sempre visíveis) ── */}
       <section className="border-b border-border px-6 py-8 md:px-14">
         <div className="grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={{ background: "rgba(240,236,228,0.06)" }}>
           <StatCard label="DEPUTADOS MAPEADOS" value={fmtNum(totalDeputados)} sub="57ª legislatura" />
@@ -413,10 +422,68 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
         </div>
       </section>
 
+      {/* ── NAV DE SEÇÕES ── */}
+      <div
+        className="sticky top-[56px] z-30 flex flex-wrap gap-3 border-b px-6 py-3 md:px-14"
+        style={{ background: "var(--background)", borderColor: "var(--border)" }}
+      >
+        <button type="button" onClick={() => setActiveSection("distribuicao")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "distribuicao" ? RED : "transparent", color: activeSection === "distribuicao" ? "#fff" : "var(--foreground)", borderColor: activeSection === "distribuicao" ? RED : "var(--border)" }}>
+          Distribuição
+        </button>
+        <button type="button" onClick={() => setActiveSection("consulta")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "consulta" ? RED : "transparent", color: activeSection === "consulta" ? "#fff" : "var(--foreground)", borderColor: activeSection === "consulta" ? RED : "var(--border)" }}>
+          Consulta
+        </button>
+        <button type="button" onClick={() => setActiveSection("gastos")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "gastos" ? RED : "transparent", color: activeSection === "gastos" ? "#fff" : "var(--foreground)", borderColor: activeSection === "gastos" ? RED : "var(--border)" }}>
+          Gastos
+        </button>
+        <button type="button" onClick={() => setActiveSection("fidelidade")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "fidelidade" ? RED : "transparent", color: activeSection === "fidelidade" ? "#fff" : "var(--foreground)", borderColor: activeSection === "fidelidade" ? RED : "var(--border)" }}>
+          Fidelidade
+        </button>
+        <button type="button" onClick={() => setActiveSection("producao")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "producao" ? RED : "transparent", color: activeSection === "producao" ? "#fff" : "var(--foreground)", borderColor: activeSection === "producao" ? RED : "var(--border)" }}>
+          Produção
+        </button>
+        <button type="button" onClick={() => setActiveSection("presenca-eventos")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "presenca-eventos" ? RED : "transparent", color: activeSection === "presenca-eventos" ? "#fff" : "var(--foreground)", borderColor: activeSection === "presenca-eventos" ? RED : "var(--border)" }}>
+          Eventos
+        </button>
+        <button type="button" onClick={() => setActiveSection("presenca-plenario")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "presenca-plenario" ? RED : "transparent", color: activeSection === "presenca-plenario" ? "#fff" : "var(--foreground)", borderColor: activeSection === "presenca-plenario" ? RED : "var(--border)" }}>
+          Plenário
+        </button>
+        <button type="button" onClick={() => setActiveSection("evolucao")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "evolucao" ? RED : "transparent", color: activeSection === "evolucao" ? "#fff" : "var(--foreground)", borderColor: activeSection === "evolucao" ? RED : "var(--border)" }}>
+          Evolução
+        </button>
+        <button type="button" onClick={() => setActiveSection("eta")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "eta" ? RED : "transparent", color: activeSection === "eta" ? "#fff" : "var(--foreground)", borderColor: activeSection === "eta" ? RED : "var(--border)" }}>
+          Eta²
+        </button>
+        <button type="button" onClick={() => setActiveSection("metodologia")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "metodologia" ? RED : "transparent", color: activeSection === "metodologia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "metodologia" ? RED : "var(--border)" }}>
+          Metodologia
+        </button>
+      </div>
+
       {/* ── 4.1 DISTRIBUIÇÃO ── */}
+      {activeSection === "distribuicao" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
-          n="4"
+          n="08A"
           tag="DISTRIBUICAO POR ESCOLARIDADE"
           title="Quantos deputados têm cada nível de instrução?"
           desc="Distribuição dos 640 deputados únicos da 57ª legislatura por nível de escolaridade declarado."
@@ -425,7 +492,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
         <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
           {/* Donut */}
           <div>
-            <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>DISTRIBUICAO PERCENTUAL</p>
+            <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>DISTRIBUICAO PERCENTUAL</p>
             {pieData.length ? (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -447,7 +514,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
 
           {/* Barra horizontal */}
           <div>
-            <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>QUANTIDADE POR NIVEL</p>
+            <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>QUANTIDADE POR NIVEL</p>
             <HBar
               rows={q4Rows}
               dataKey="qtd_deputados"
@@ -470,11 +537,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           ))}
         </div>
       </section>
+      )}
 
       {/* ── 4.1 CONSULTA INDIVIDUAL ── */}
+      {activeSection === "consulta" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="4.1"
+          n="08B"
           tag="CONSULTA INDIVIDUAL"
           title="Qual é a escolaridade do seu deputado?"
           desc={`Pesquise pelo nome. Dados de ${q4DeputyRows.length} deputados da 57ª legislatura, incluindo titulares e suplentes que exerceram o mandato.`}
@@ -611,11 +680,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           )}
         </div>
       </section>
+      )}
 
       {/* ── 6a GASTOS ── */}
+      {activeSection === "gastos" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
-          n="6a"
+          n="08C"
           tag="ESCOLARIDADE × GASTOS"
           title="Deputados mais escolarizados gastam mais?"
           desc="Media de gasto total com verba indenizatória (CEAP) por nivel de escolaridade, considerando todos os anos do periodo."
@@ -633,11 +704,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           * Media calculada sobre todos os deputados do nivel no periodo 2023-2026.
         </p>
       </section>
+      )}
 
       {/* ── 6b FIDELIDADE ── */}
+      {activeSection === "fidelidade" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="6b"
+          n="08D"
           tag="ESCOLARIDADE × FIDELIDADE PARTIDARIA"
           title="Formação influencia a disciplina de voto?"
           desc="Media do percentual de votos alinhados com a orientacao do partido por nivel de instrucao. Exclui votacoes sem orientacao registrada."
@@ -651,11 +724,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           empty="Sem dados de fidelidade por escolaridade."
         />
       </section>
+      )}
 
       {/* ── 6c PROPOSIÇÕES ── */}
+      {activeSection === "producao" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
-          n="6c"
+          n="08E"
           tag="ESCOLARIDADE × PRODUCAO LEGISLATIVA"
           title="Quem apresenta mais proposições?"
           desc="Media de proposicoes apresentadas por deputado por nivel de instrucao. Mede o volume de producao legislativa."
@@ -669,11 +744,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           empty="Sem dados de proposicoes por escolaridade."
         />
       </section>
+      )}
 
       {/* ── 6d PRESENÇA EM EVENTOS ── */}
+      {activeSection === "presenca-eventos" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="6d"
+          n="08F"
           tag="ESCOLARIDADE × PRESENCA EM EVENTOS"
           title="Quem aparece mais nas comissões e eventos?"
           desc="Media de presenças em eventos parlamentares (reunioes de comissao, audiencias, etc.) por nivel de instrucao."
@@ -687,11 +764,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           empty="Sem dados de presenca em eventos."
         />
       </section>
+      )}
 
       {/* ── 6e PRESENÇA NO PLENÁRIO ── */}
+      {activeSection === "presenca-plenario" && (
       <section className="border-b border-border px-6 py-14 md:px-14">
         <SectionHeader
-          n="6e"
+          n="08G"
           tag="ESCOLARIDADE × PRESENCA NO PLENARIO"
           title="Quem frequenta mais o plenário?"
           desc="Media de presenças em votacoes no plenario por nivel de instrucao. Exclui ausencias e outros registros nao binarios."
@@ -705,11 +784,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           empty="Sem dados de presenca no plenario."
         />
       </section>
+      )}
 
       {/* ── EVOLUÇÃO POR ANO ── */}
+      {activeSection === "evolucao" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="6f"
+          n="08H"
           tag="EVOLUCAO ANUAL"
           title="Como os indicadores evoluíram ao longo dos anos?"
           desc={`Dados para os anos ${anos.join(", ")} — comparacao interanual dos principais indicadores por nivel de instrucao.`}
@@ -721,7 +802,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
               <thead style={{ background: "var(--secondary)" }}>
                 <tr>
                   {["Ano", "Escolaridade", "Qtd Dep", "Media Gasto", "Media Fidelidade", "Media Proposicoes", "Presenca Eventos", "Presenca Plenario"].map((col) => (
-                    <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                      <th key={col} className="whitespace-nowrap px-4 py-3 text-[13px] font-bold uppercase" style={{ color: "var(--foreground)", opacity: 0.78 }}>{col}</th>
                   ))}
                 </tr>
               </thead>
@@ -748,11 +829,13 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           </div>
         ) : <EmptyPanel text="Sem dados de evolucao anual." />}
       </section>
+      )}
 
       {/* ── ETA COMPLEMENTAR ── */}
+      {activeSection === "eta" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="η²"
+          n="08I"
           tag="ETA COMPLEMENTAR"
           title="Qual a força real da associação entre escolaridade e desempenho?"
           desc="O η² (eta quadrado) mede quanto da variação em cada indicador parlamentar é explicada pela escolaridade. Escolaridade é variável categórica; os indicadores são numéricos."
@@ -778,7 +861,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
             <div className="space-y-8">
               {/* Gráfico */}
               <div className="border border-border p-6" style={{ background: "var(--card)" }}>
-                <p className="mb-4 text-xs tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
                   η² POR INDICADOR — quanto da variação é explicada pela escolaridade
                 </p>
                 <ResponsiveContainer width="100%" height={220}>
@@ -839,7 +922,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
                   <thead style={{ background: "var(--secondary)" }}>
                     <tr>
                       {["Indicador", "Registros válidos", "Grupos", "η²", "Interpretação"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground">{col}</th>
+                        <th key={col} className="whitespace-nowrap px-4 py-3 text-[13px] font-bold uppercase" style={{ color: "var(--foreground)", opacity: 0.78 }}>{col}</th>
                       ))}
                     </tr>
                   </thead>
@@ -873,10 +956,19 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           );
         })() : <EmptyPanel text="Dados de eta quadrado nao disponíveis. Verifique o arquivo q6_eta_complementar.txt." />}
       </section>
+      )}
 
       {/* ── METODOLOGIA ── */}
+      {activeSection === "metodologia" && (
       <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
-        <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA</p>
+        <p className="sr-only">METODOLOGIA</p>
+
+        <SectionHeader
+          n="08J"
+          tag="METODOLOGIA"
+          title="Como os indicadores foram calculados?"
+          desc="Transparencia analitica - Fonte dos dados, criterios de agrupamento, medias por escolaridade e forca da associacao estatistica."
+        />
 
         <CollapsibleMethod n="4" title="DISTRIBUICAO POR ESCOLARIDADE" sub="Como classificamos o nivel de instrucao de cada deputado"
           open={!!methOpen["4"]} onToggle={() => toggleMeth("4")}>
@@ -933,6 +1025,7 @@ export default function EscolaridadePage({ onNavigateHome, onNavigateRecortes, o
           ]} />
         </CollapsibleMethod>
       </section>
+      )}
     </div>
   );
 }

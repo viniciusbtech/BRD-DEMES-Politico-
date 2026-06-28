@@ -110,13 +110,28 @@ function DeputyAvatar({
 // ─── sub-componentes de layout ────────────────────────────────────────────────
 function SectionHeader({ n, tag, title, desc }: { n: string; tag: string; title: string; desc: string }) {
   return (
-    <div className="mb-8">
-      <div className="mb-2 flex items-baseline gap-4">
-        <span className="select-none text-5xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.18)" }}>{n}</span>
-        <span className="text-xs tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>{tag}</span>
+    <div className="mb-10">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span
+          className="select-none text-5xl font-black leading-none md:text-6xl"
+          style={{ fontFamily: SERIF, color: "#e00836", textShadow: "0 0 18px rgba(224,8,54,0.22)" }}
+        >
+          {n}
+        </span>
+        <span
+          className="text-sm font-black uppercase tracking-[0.3em] md:text-base"
+          style={{ fontFamily: MONO, color: "var(--foreground)" }}
+        >
+          {tag}
+        </span>
       </div>
-      <h2 className="mb-2 text-3xl font-black leading-tight" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
-      <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{desc}</p>
+      <h2 className="mb-3 text-3xl font-black leading-tight md:text-5xl" style={{ fontFamily: SERIF, color: "var(--foreground)" }}>{title}</h2>
+      <p
+        className="max-w-[980px] text-[13px] font-bold uppercase leading-relaxed tracking-[0.18em] md:text-sm"
+        style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 }}
+      >
+        {desc}
+      </p>
     </div>
   );
 }
@@ -166,9 +181,9 @@ function EmptyMsg({ text }: { text: string }) {
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-background px-6 py-6">
-      <p className="mb-1.5 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{label}</p>
+      <p className="mb-1.5 text-[13px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{label}</p>
       <p className="text-2xl font-black text-primary" style={{ fontFamily: SERIF }}>{value}</p>
-      {sub ? <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p> : null}
+      {sub ? <p className="mt-1 text-[13px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>{sub}</p> : null}
     </div>
   );
 }
@@ -245,7 +260,7 @@ function MethodologySection() {
   return (
     <section className="border-t border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
       <SectionHeader
-        n="03"
+        n="05C"
         tag="METODOLOGIA"
         title="Como os indicadores foram calculados?"
         desc="Transparência analítica · Clique em cada método para expandir e ver a fórmula, os passos e como interpretar."
@@ -524,6 +539,10 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
     setFornecedorSearch(""); // reinicia o filtro de fornecedor ao trocar de deputado
   };
 
+  type FornecedoresSection = "ranking" | "por-deputado" | "metodologia";
+  const [activeSection, setActiveSection] = useState<FornecedoresSection>("ranking");
+  const RED = "#e00836";
+
   // ─────────────────────────────────────────────────────────────────────────────
   if (pageLoading) {
     return (
@@ -568,12 +587,35 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
         </p>
       </div>
 
+      {/* ── NAV DE SEÇÕES ── */}
+      <div
+        className="sticky top-[56px] z-30 flex flex-wrap gap-3 border-b px-6 py-3 md:px-14"
+        style={{ background: "var(--background)", borderColor: "var(--border)" }}
+      >
+        <button type="button" onClick={() => setActiveSection("ranking")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: "monospace", background: activeSection === "ranking" ? RED : "transparent", color: activeSection === "ranking" ? "#fff" : "var(--foreground)", borderColor: activeSection === "ranking" ? RED : "var(--border)" }}>
+          Ranking
+        </button>
+        <button type="button" onClick={() => setActiveSection("por-deputado")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: "monospace", background: activeSection === "por-deputado" ? RED : "transparent", color: activeSection === "por-deputado" ? "#fff" : "var(--foreground)", borderColor: activeSection === "por-deputado" ? RED : "var(--border)" }}>
+          Por Deputado
+        </button>
+        <button type="button" onClick={() => setActiveSection("metodologia")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: "monospace", background: activeSection === "metodologia" ? RED : "transparent", color: activeSection === "metodologia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "metodologia" ? RED : "var(--border)" }}>
+          Metodologia
+        </button>
+      </div>
+
       {/* ══════════════════════════════════════════════════════════
           SEÇÃO 01 — FORNECEDORES POR VALOR  (Q5)
       ══════════════════════════════════════════════════════════ */}
+      {activeSection === "ranking" && (
       <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="01"
+          n="05A"
           tag="FORNECEDORES POR VALOR"
           title="Ordenados pelo total recebido da cota parlamentar"
           desc="Ranking dos maiores fornecedores. Filtre por ano ou pesquise um fornecedor específico. Clique em qualquer linha para ver o detalhamento por ano."
@@ -624,8 +666,8 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
               {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
                 <span
                   key={h}
-                  className="text-xs text-muted-foreground"
-                  style={{ fontFamily: MONO, ...(h === "POS." && !isDark ? { color: RED } : {}) }}
+                  className="text-[13px] font-bold uppercase"
+                  style={{ fontFamily: MONO, color: h === "POS." && !isDark ? RED : "var(--foreground)", opacity: 0.78 }}
                 >
                   {h}
                 </span>
@@ -734,8 +776,8 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                           {["ANO", "POS", "FORNECEDOR", "LANÇ.", "TOTAL", "% ANO"].map((h) => (
                             <th
                               key={h}
-                              className="whitespace-nowrap px-4 py-3 text-xs font-normal uppercase text-muted-foreground"
-                              style={{ fontFamily: MONO, ...(h === "POS" && !isDark ? { color: RED } : {}) }}
+                              className="whitespace-nowrap px-4 py-3 text-[13px] font-bold uppercase"
+                              style={{ fontFamily: MONO, color: h === "POS" && !isDark ? RED : "var(--foreground)", opacity: 0.78 }}
                             >
                               {h}
                             </th>
@@ -816,13 +858,15 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
           ) : null}
         </div>
       </section>
+      )}
 
       {/* ══════════════════════════════════════════════════════════
           SEÇÃO 02 — DEPUTADO × FORNECEDORES  (Q12)
       ══════════════════════════════════════════════════════════ */}
+      {activeSection === "por-deputado" && (
       <section className="px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
         <SectionHeader
-          n="02"
+          n="05B"
           tag="DEPUTADO × FORNECEDORES"
           title="Com quais fornecedores esse deputado gastou?"
           desc="Veja os maiores gastadores com fornecedores ou pesquise um deputado específico para ver todos os fornecedores com quem ele realizou gastos da cota parlamentar."
@@ -831,7 +875,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
         {/* TOP 10 DEPUTADOS */}
         {top10Deputies.length > 0 ? (
           <div className="mb-10">
-            <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+            <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
               TOP 10 — MAIORES GASTOS COM FORNECEDORES (dados disponíveis)
             </p>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
@@ -886,7 +930,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
         {/* DIVIDER */}
         <div className="mb-8 flex items-center gap-4">
           <div className="flex-1 border-t border-border" />
-          <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>OU PESQUISE UM DEPUTADO</span>
+          <span className="text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>OU PESQUISE UM DEPUTADO</span>
           <div className="flex-1 border-t border-border" />
         </div>
 
@@ -894,7 +938,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
         <div className="mb-6 flex flex-wrap items-start gap-4">
           {/* Busca — estilo Recorte 2 */}
           <div className="w-full max-w-xl">
-        <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+        <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
               SELECIONE UM DEPUTADO
             </p>
             <div
@@ -1000,7 +1044,7 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
               <>
                 {/* 2º filtro: pesquisar um fornecedor específico desse deputado */}
                 <div className="mb-6">
-                  <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                     FILTRAR POR FORNECEDOR (OPCIONAL)
                   </p>
                   <div className="relative w-full max-w-xl">
@@ -1041,8 +1085,8 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
                       {["POS.", "FORNECEDOR", "LANÇ.", "TOTAL"].map((h) => (
                         <span
                           key={h}
-                          className="text-xs text-muted-foreground"
-                          style={{ fontFamily: MONO, ...(h === "POS." && !isDark ? { color: RED } : {}) }}
+                          className="text-[13px] font-bold uppercase"
+                          style={{ fontFamily: MONO, color: h === "POS." && !isDark ? RED : "var(--foreground)", opacity: 0.78 }}
                         >
                           {h}
                         </span>
@@ -1099,11 +1143,12 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
           </div>
         )}
       </section>
+      )}
 
       {/* ══════════════════════════════════════════════════════════
           SEÇÃO 03 — METODOLOGIA  (Q5 + Q12) · mesmo estilo dos recortes 1 e 2
       ══════════════════════════════════════════════════════════ */}
-      <MethodologySection />
+      {activeSection === "metodologia" && <MethodologySection />}
     </div>
   );
 }

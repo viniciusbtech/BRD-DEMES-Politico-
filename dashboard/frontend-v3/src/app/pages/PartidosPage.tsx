@@ -449,6 +449,38 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
   );
   const presenceRank = selected ? sortedParties.findIndex((party) => party.id === selected.id) + 1 : 0;
 
+  type PartidosSection = "frequencia" | "proposicoes" | "gastos" | "nuvem" | "metodologia";
+  const [activeSection, setActiveSection] = useState<PartidosSection>("frequencia");
+  const RED = "#e00836";
+  const sectionMetaStyle = { fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 };
+  const contrastMutedStyle = { fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 };
+  const SectionHeader = ({ n, tag, title, sub }: { n: string; tag: string; title: string; sub?: string }) => (
+    <div className="mb-10">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span
+          className="text-5xl font-black leading-none md:text-6xl"
+          style={{ fontFamily: SERIF, color: RED, textShadow: "0 0 18px rgba(224,8,54,0.22)" }}
+        >
+          {n}
+        </span>
+        <span
+          className="text-sm font-black uppercase tracking-[0.3em] md:text-base"
+          style={{ fontFamily: MONO, color: "var(--foreground)" }}
+        >
+          {tag}
+        </span>
+      </div>
+      <h3 className="mb-3 text-3xl font-black leading-tight md:text-5xl" style={sectionTitleStyle}>
+        {title}
+      </h3>
+      {sub ? (
+        <p className="max-w-[980px] text-[13px] font-bold uppercase leading-relaxed tracking-[0.18em] md:text-sm" style={sectionMetaStyle}>
+          {tag === "METODOLOGIA" ? "Transparencia analitica - Clique em cada metodo para expandir" : sub}
+        </p>
+      ) : null}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter', sans-serif" }}>
       <NavBar onNavigateHome={onNavigateHome} onNavigateRecortes={onNavigateRecortes} onNavigateRecorte={onNavigateRecorte} />
@@ -495,7 +527,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               ) : null}
 
               {showPartyDrop ? (
-                <div className="absolute left-0 right-0 top-full z-20 max-h-80 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
+                <div className="absolute left-0 right-0 top-full z-50 max-h-80 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
                   {filteredParties.length ? (
                     filteredParties.map((party) => (
                       <button
@@ -607,13 +639,41 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             </div>
           </div>
 
+          {/* ── NAV DE SEÇÕES ── */}
+          <div
+            className="sticky top-[56px] z-30 flex flex-wrap gap-3 border-b px-6 py-3 md:px-14"
+            style={{ background: "var(--background)", borderColor: "var(--border)" }}
+          >
+            <button type="button" onClick={() => setActiveSection("frequencia")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+              style={{ fontFamily: MONO, background: activeSection === "frequencia" ? RED : "transparent", color: activeSection === "frequencia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "frequencia" ? RED : "var(--border)" }}>
+              Frequência
+            </button>
+            <button type="button" onClick={() => setActiveSection("proposicoes")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+              style={{ fontFamily: MONO, background: activeSection === "proposicoes" ? RED : "transparent", color: activeSection === "proposicoes" ? "#fff" : "var(--foreground)", borderColor: activeSection === "proposicoes" ? RED : "var(--border)" }}>
+              Proposições
+            </button>
+            <button type="button" onClick={() => setActiveSection("gastos")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+              style={{ fontFamily: MONO, background: activeSection === "gastos" ? RED : "transparent", color: activeSection === "gastos" ? "#fff" : "var(--foreground)", borderColor: activeSection === "gastos" ? RED : "var(--border)" }}>
+              Gastos
+            </button>
+            <button type="button" onClick={() => setActiveSection("nuvem")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+              style={{ fontFamily: MONO, background: activeSection === "nuvem" ? RED : "transparent", color: activeSection === "nuvem" ? "#fff" : "var(--foreground)", borderColor: activeSection === "nuvem" ? RED : "var(--border)" }}>
+              Nuvem
+            </button>
+            <button type="button" onClick={() => setActiveSection("metodologia")}
+              className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+              style={{ fontFamily: MONO, background: activeSection === "metodologia" ? RED : "transparent", color: activeSection === "metodologia" ? "#fff" : "var(--foreground)", borderColor: activeSection === "metodologia" ? RED : "var(--border)" }}>
+              Metodologia
+            </button>
+          </div>
+
+          {activeSection === "frequencia" && (
           <section className="border-b border-border px-6 py-14 md:px-14">
-            <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              1. FREQUENCIA
-            </p>
-            <h3 className="mb-10 text-3xl font-black" style={sectionTitleStyle}>
-              Frequencia do partido nas votacoes
-            </h3>
+            <SectionHeader n="03A" tag="FREQUENCIA" title="Frequencia do partido nas votacoes" />
 
             <div className="grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={{ background: "var(--secondary)" }}>
               {[
@@ -622,13 +682,13 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 { label: "TOTAL DE VOTOS", value: formatNumber(selected.totalVotes), note: "votos registrados pela bancada" },
               ].map((item) => (
                 <div key={item.label} className="bg-background px-8 py-8">
-                  <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>
                     {item.label}
                   </p>
                   <p className="mb-1 text-4xl font-black text-primary" style={{ fontFamily: SERIF }}>
                     {item.value}
                   </p>
-                  <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="text-[13px]" style={contrastMutedStyle}>
                     {item.note}
                   </p>
                 </div>
@@ -637,19 +697,19 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
 
             <div className="mt-8 max-w-2xl">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>MENOR MEDIA</span>
-                <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>MAIOR MEDIA</span>
+                <span className="text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>MENOR MEDIA</span>
+                <span className="text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>MAIOR MEDIA</span>
               </div>
               <div className="h-4 overflow-hidden" style={{ background: "var(--secondary)" }}>
                 <div style={{ width: `${selected.presence}%`, background: selected.color, height: "100%" }} />
               </div>
-              <p className="mt-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              <p className="mt-2 text-[13px] font-semibold" style={contrastMutedStyle}>
                 {presenceRank}o lugar em media de votos por votacao entre os partidos listados
               </p>
             </div>
 
             <div className="mt-10">
-              <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+              <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={contrastMutedStyle}>
                 COMPARATIVO DE MEDIA DE VOTOS POR VOTACAO
               </p>
               <div className="flex flex-col gap-2">
@@ -712,30 +772,27 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               </div>
             </div>
           </section>
+          )}
 
+          {activeSection === "proposicoes" && (
           <section className="border-b border-border px-6 py-14 md:px-14">
-            <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              2. PROPOSICOES
-            </p>
-            <h3 className="mb-10 text-3xl font-black" style={sectionTitleStyle}>
-              Numero de proposicoes desse partido
-            </h3>
+            <SectionHeader n="03B" tag="PROPOSICOES" title="Numero de proposicoes desse partido" />
 
             <div className="grid gap-10 lg:grid-cols-[380px_minmax(0,1fr)]">
               <div className="border border-border bg-background px-8 py-8">
-                <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>
                   TOTAL DE PROPOSICOES
                 </p>
                 <p className="text-5xl font-black text-primary" style={{ fontFamily: SERIF }}>
                   {formatNumber(selected.proposals)}
                 </p>
-                <p className="mt-3 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mt-3 text-[13px] font-semibold" style={contrastMutedStyle}>
                   Ranking #{selected.proposalRank || "-"} {selectedYear ? `em ${selectedYear}` : "no periodo consolidado"}
                 </p>
               </div>
 
               <div>
-                <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={contrastMutedStyle}>
                   COMPARATIVO DE PROPOSICOES - PARTIDOS
                 </p>
                 <div className="flex flex-col gap-2">
@@ -781,14 +838,11 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             </div>
 
           </section>
+          )}
 
+          {activeSection === "gastos" && (
           <section className="border-b border-border px-6 py-14 md:px-14">
-            <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              3. GASTOS
-            </p>
-            <h3 className="mb-10 text-3xl font-black" style={sectionTitleStyle}>
-              Como esse partido gastou?
-            </h3>
+            <SectionHeader n="03C" tag="GASTOS" title="Como esse partido gastou?" />
 
             {selected.spending > 0 ? (
               <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
@@ -801,26 +855,26 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                       { label: "DEPUTADOS NO PARTIDO", value: formatNumber(selected.seats), note: "deputados com gastos" },
                     ].map((item) => (
                       <div key={item.label} className="bg-background px-6 py-6">
-                        <p className="mb-2 text-xs tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                        <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>
                           {item.label}
                         </p>
                         <p className="mb-1 text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
                           {item.value}
                         </p>
-                        <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                        <p className="text-[13px]" style={contrastMutedStyle}>
                           {item.note}
                         </p>
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="text-[13px] font-semibold leading-relaxed" style={contrastMutedStyle}>
                     Ranking de gastos: #{selected.spendingRank || "-"} entre os partidos listados na Q11.c. Use os anos no topo para alternar entre todos os anos e um ano especifico.
                   </p>
                 </div>
 
                 <div>
                   <div>
-                    <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                    <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={contrastMutedStyle}>
                       GASTO DO PARTIDO POR ANO
                     </p>
                     <div className="flex flex-col gap-2">
@@ -844,7 +898,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                   </div>
 
                   <div className="mt-8">
-                    <p className="mb-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                    <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={contrastMutedStyle}>
                       COMPARATIVO DE GASTO TOTAL - PARTIDOS
                     </p>
                     <div className="flex flex-col gap-2">
@@ -876,23 +930,22 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               <EmptyPanel message="Sem gastos para este partido e ano." />
             )}
           </section>
+          )}
 
+          {activeSection === "nuvem" && (
           <section className="border-b border-border px-6 py-14 md:px-14">
-            <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-              4. NUVEM
-            </p>
-            <h3 className="mb-4 text-3xl font-black" style={sectionTitleStyle}>
-              Temas mais atuantes do partido
-            </h3>
-            <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-              Temas legislativos com mais proposicoes de autoria deste partido. Cada proposicao e contada uma unica vez (COUNT DISTINCT). Tamanho proporcional ao numero de proposicoes registradas.
-            </p>
+            <SectionHeader
+              n="03D"
+              tag="NUVEM"
+              title="Temas mais atuantes do partido"
+              sub="Temas legislativos com mais proposicoes de autoria deste partido. Cada proposicao e contada uma unica vez (COUNT DISTINCT). Tamanho proporcional ao numero de proposicoes registradas."
+            />
 
             {partyThemes.length > 0 ? (
               <>
                 {/* Filtro de tema */}
                 <div className="mb-6">
-                  <p className="mb-3 text-xs tracking-[0.3em] text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={contrastMutedStyle}>
                     FILTRAR TEMA
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -971,7 +1024,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
 
                 {/* Ranking de barras */}
                 <div className="mt-8 flex flex-col gap-2">
-                  <p className="mb-3 text-xs tracking-[0.3em] text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={contrastMutedStyle}>
                     {selectedTema ? `TEMA SELECIONADO — ${selectedTema.toUpperCase()}` : "TOP TEMAS — PROPOSICOES DISTINTAS"}
                   </p>
                   {(() => {
@@ -1017,11 +1070,20 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               <EmptyPanel message="Carregando temas do partido..." />
             )}
           </section>
+          )}
 
           {/* ════════════════════════════════════════════════════════
               METODOLOGIA — colapsavel, mesmo estilo dos recortes 1 e 2
           ════════════════════════════════════════════════════════ */}
+          {activeSection === "metodologia" && (
           <section className="border-b border-border px-6 py-14 md:px-14">
+            <SectionHeader
+              n="03E"
+              tag="METODOLOGIA"
+              title="Como os indicadores foram calculados?"
+              sub="Transparencia analitica - Clique em cada metodo para expandir"
+            />
+            <div className="sr-only">
             <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
               5. METODOLOGIA
             </p>
@@ -1031,6 +1093,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             <p className="mb-10 text-xs uppercase tracking-[0.24em] text-muted-foreground" style={{ fontFamily: MONO }}>
               Transparencia analitica · Clique em cada metodo para expandir
             </p>
+            </div>
 
             {METODOS.map((m) => (
               <div key={m.id} className="mb-2 border border-border" style={{ background: "var(--card)" }}>
@@ -1071,6 +1134,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               </div>
             ))}
           </section>
+          )}
 
         </>
       )}

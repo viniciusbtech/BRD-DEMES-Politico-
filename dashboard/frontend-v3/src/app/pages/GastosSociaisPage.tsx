@@ -48,6 +48,9 @@ function SectionProblemBg({ img }: { img: string }) {
 
 export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: GastosSociaisPageProps) {
   const { theme } = useTheme();
+  type GastosSection = "painel-economico" | "achados" | "categorias";
+  const [activeSection, setActiveSection] = useState<GastosSection>("painel-economico");
+  const RED = "#e00836";
   const [savings, setSavings] = useState(50);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>(initialSliderValues);
   const [glitch, setGlitch] = useState(false);
@@ -292,6 +295,29 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         </div>
       </div>
 
+      {/* ── NAV DE SEÇÕES ── */}
+      <div
+        className="sticky top-[56px] z-30 flex flex-wrap gap-3 border-b px-6 py-3 md:px-14"
+        style={{ background: "var(--background)", borderColor: "var(--border)" }}
+      >
+        <button type="button" onClick={() => setActiveSection("painel-economico")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: "monospace", background: activeSection === "painel-economico" ? RED : "transparent", color: activeSection === "painel-economico" ? "#fff" : "var(--foreground)", borderColor: activeSection === "painel-economico" ? RED : "var(--border)" }}>
+          Painel Econômico
+        </button>
+        <button type="button" onClick={() => setActiveSection("achados")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: "monospace", background: activeSection === "achados" ? RED : "transparent", color: activeSection === "achados" ? "#fff" : "var(--foreground)", borderColor: activeSection === "achados" ? RED : "var(--border)" }}>
+          Achados
+        </button>
+        <button type="button" onClick={() => setActiveSection("categorias")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: "monospace", background: activeSection === "categorias" ? RED : "transparent", color: activeSection === "categorias" ? "#fff" : "var(--foreground)", borderColor: activeSection === "categorias" ? RED : "var(--border)" }}>
+          Categorias
+        </button>
+      </div>
+
+      {activeSection === "painel-economico" && (
       <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
         <SectionProblemBg img="/intro/problemas/principais-problemas-sociais.jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
@@ -371,7 +397,9 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           <p className="text-base leading-relaxed text-foreground">{opportunity.description}</p>
         </div>
       </section>
+      )}
 
+      {activeSection === "achados" && (
       <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
         <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
@@ -417,7 +445,9 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           ))}
         </div>
       </section>
+      )}
 
+      {activeSection === "categorias" && (
       <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
         <SectionProblemBg img="/intro/problemas/images (3).jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
@@ -513,7 +543,9 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           </div>
         </div>
       </section>
+      )}
 
+      {activeSection === "categorias" && (
       <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
         <SectionProblemBg img="/intro/problemas/images (1).jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
@@ -564,7 +596,9 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           ))}
         </div>
       </section>
+      )}
 
+      {activeSection === "categorias" && (
       <section className="relative overflow-hidden px-6 py-20 md:px-14" style={{ background: "#0d0000" }}>
         <div
           className="pointer-events-none absolute inset-0"
@@ -595,6 +629,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           ))}
         </div>
       </section>
+      )}
     </div>
     </>
   );
