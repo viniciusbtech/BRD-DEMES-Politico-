@@ -289,9 +289,12 @@ const abrevCat = (s: string) =>
     .replace("CONSULTORIAS, PESQUISAS E TRABALHOS TÉCNICOS.", "Consultorias")
     .trim();
 
+type PanoramaSection = "deputados" | "categorias" | "eixos" | "custo-beneficio" | "metodologia";
+
 export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: PanoramaPageProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [activeSection, setActiveSection] = useState<PanoramaSection>("deputados");
 
   // Seção 01 — Top deputados
   const [top10, setTop10] = useState<Row[]>([]);
@@ -451,6 +454,42 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         ]}
       />
 
+      {/* ── Navegação entre seções ────────────────────────── */}
+      <div
+        className="sticky top-[56px] z-30 flex flex-wrap gap-2 border-b px-6 py-3 md:px-14"
+        style={{ background: "var(--background)", borderColor: "var(--border)" }}
+      >
+        {(
+          [
+            ["deputados",      "Deputados"],
+            ["categorias",     "Categorias"],
+            ["eixos",          "Eixos de atuação"],
+            ["custo-beneficio","Custo-benefício"],
+            ["metodologia",    "Metodologia"],
+          ] as [PanoramaSection, string][]
+        ).map(([key, label]) => {
+          const active = activeSection === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setActiveSection(key)}
+              className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+              style={{
+                fontFamily: MONO,
+                background: active ? RED : "transparent",
+                color: active ? "#fff" : "var(--foreground)",
+                borderColor: active ? RED : "var(--border)",
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Seção 01 — Deputados ─────────────────────────── */}
+      {activeSection === "deputados" && (
       <Section n="01" tag="DEPUTADOS" title="Top 10 que mais gastam" sub="CEAP ACUMULADA 2023-2026 · TODOS OS DEPUTADOS FEDERAIS">
 
         {/* ── Filtro: pesquisar posição de um deputado no ranking de gastos ── */}
@@ -680,10 +719,10 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         </div>
       </Section>
+      )}
 
-      {/* ════════════════════════════════════════════════════════
-          SEÇÃO 01-B  CATEGORIAS GLOBAIS DE GASTO
-      ════════════════════════════════════════════════════════ */}
+      {/* ── Seção 01B — Categorias ───────────────────────── */}
+      {activeSection === "categorias" && (
       <Section n="01B" tag="CATEGORIAS" title="No geral, onde os deputados mais gastam?" sub="CEAP CONSOLIDADA 2023-2026 · TODAS AS CATEGORIAS DE DESPESA · TOP 10">
 
         {/* Gráfico horizontal */}
@@ -900,10 +939,10 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         </div>
       </Section>
+      )}
 
-      {/* ════════════════════════════════════════════════════════
-          SEÇÃO 01C  EIXOS DE ATUAÇÃO — TEMAS LEGISLATIVOS
-      ════════════════════════════════════════════════════════ */}
+      {/* ── Seção 01C — Eixos de atuação ─────────────────── */}
+      {activeSection === "eixos" && (
       <Section n="01C" tag="EIXOS DE ATUAÇÃO" title="Quais os principais temas de atuação dos deputados?" sub="PRODUÇÃO LEGISLATIVA 2023-2026 · TODOS OS DEPUTADOS E PARTIDOS · TOP 10 EIXOS">
 
         {/* Gráfico de barras horizontal */}
@@ -1116,10 +1155,10 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         </div>
       </Section>
+      )}
 
-      {/* ════════════════════════════════════════════════════════
-          SEÇÃO 01D  CUSTO-BENEFÍCIO DOS DEPUTADOS
-      ════════════════════════════════════════════════════════ */}
+      {/* ── Seção 01D — Custo-benefício ──────────────────── */}
+      {activeSection === "custo-beneficio" && (
       <Section n="01D" tag="CUSTO-BENEFÍCIO" title="Quem entrega mais por menos?" sub="RANKING GLOBAL 2023-2026 · BENEFÍCIO ÷ GASTO TOTAL · TOP 10 DEPUTADOS">
 
         {/* ── Filtro: pesquisar posição de um deputado no ranking de custo-benefício ── */}
@@ -1296,10 +1335,10 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         </div>
       </Section>
+      )}
 
-      {/* ════════════════════════════════════════════════════════
-          METODOLOGIA — colapsável, não poluente
-      ════════════════════════════════════════════════════════ */}
+      {/* ── Seção Metodologia ────────────────────────────── */}
+      {activeSection === "metodologia" && (
       <Section n="MET" tag="METODOLOGIA" title="Como os indicadores foram calculados?" sub="TRANSPARÊNCIA ANALÍTICA · CLIQUE EM CADA MÉTODO PARA EXPANDIR">
         {([
           {
@@ -1393,6 +1432,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           </div>
         ))}
       </Section>
+      )}
     </div>
   );
 }

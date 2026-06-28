@@ -18,6 +18,7 @@ import NavBar from "../components/NavBar";
 
 type DeputadoPageProps = { onNavigateHome: () => void; onNavigateRecortes: () => void; onNavigateRecorte: (path: string) => void };
 type DeputySelection = FilterChoice;
+type DeputadoSection = "gastos" | "eixos" | "votacoes" | "custo-beneficio" | "metodologia";
 type QuestionId = "q1" | "q13" | "q2" | "q3" | "q7";
 type ProfilePayloads = Partial<Record<QuestionId, QuestionPayload>>;
 type SpendingRow = {
@@ -1150,6 +1151,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
   const [selectedDeputy, setSelectedDeputy] = useState<DeputySelection | null>(null);
   const [query, setQuery] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
+  const [activeSection, setActiveSection] = useState<DeputadoSection>("gastos");
   const [payloads, setPayloads] = useState<ProfilePayloads>({});
   const [annualPayloads, setAnnualPayloads] = useState<Record<string, QuestionPayload>>({});
   const [loadingMeta, setLoadingMeta] = useState(true);
@@ -1227,6 +1229,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
   const handleSelectDeputy = (deputy: DeputySelection) => {
     setSelectedDeputy(deputy);
     setQuery(deputy.label);
+    setActiveSection("gastos");
   };
 
   const handleQueryChange = (value: string) => {
@@ -1244,23 +1247,70 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
       ) : error ? (
         <div className="px-6 py-16 sm:px-10"><div className="mx-auto max-w-[1434px]"><EmptyPanel message={error} /></div></div>
       ) : !selectedDeputy ? (
-        null
+        <div className="px-6 py-16 sm:px-10">
+          <div className="mx-auto max-w-[1434px]">
+            <p
+              className="text-[15px]"
+              style={{ color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              Selecione um deputado para visualizar as seções de análise.
+            </p>
+          </div>
+        </div>
       ) : loadingData ? (
         <div className="px-6 py-16 sm:px-10"><div className="mx-auto max-w-[1434px]"><EmptyPanel message="Carregando dados do deputado..." /></div></div>
       ) : (
         <>
           <ProfileBanner deputy={selectedDeputy} />
-          <SpendingSection
-            payloads={payloads}
-            annualPayloads={annualPayloads}
-            years={filters.anos}
-            selectedYear={selectedYear}
-            onYearChange={setSelectedYear}
-          />
-          <AxesSection payloads={payloads} />
-          <VotesSection payloads={payloads} />
-          <CostBenefitSection payloads={payloads} />
-          <MethodologySection />
+
+          {/* ── Navegação entre seções ──────────────────────── */}
+          <div
+            className="sticky top-[56px] z-30 flex flex-wrap gap-2 border-b px-6 py-3 sm:px-10"
+            style={{ background: "var(--background)", borderColor: "var(--border)" }}
+          >
+            {(
+              [
+                ["gastos",          "Gastos parlamentares"],
+                ["eixos",           "Eixos de atuação"],
+                ["votacoes",        "Votações"],
+                ["custo-beneficio", "Custo-benefício"],
+                ["metodologia",     "Metodologia"],
+              ] as [DeputadoSection, string][]
+            ).map(([key, label]) => {
+              const active = activeSection === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActiveSection(key)}
+                  className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    background: active ? "#e00836" : "transparent",
+                    color: active ? "#fff" : "var(--foreground)",
+                    borderColor: active ? "#e00836" : "var(--border)",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Seções condicionais ─────────────────────────── */}
+          {activeSection === "gastos" && (
+            <SpendingSection
+              payloads={payloads}
+              annualPayloads={annualPayloads}
+              years={filters.anos}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+            />
+          )}
+          {activeSection === "eixos" && <AxesSection payloads={payloads} />}
+          {activeSection === "votacoes" && <VotesSection payloads={payloads} />}
+          {activeSection === "custo-beneficio" && <CostBenefitSection payloads={payloads} />}
+          {activeSection === "metodologia" && <MethodologySection />}
         </>
       )}
     </main>
