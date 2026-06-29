@@ -253,6 +253,69 @@ const METODOS: MetodoItem[] = [
   },
 ];
 
+const METODOS_DETALHADOS: MetodoItem[] = [
+  {
+    id: "ranking_forn_detalhado",
+    titulo: "Ranking de Fornecedores",
+    origem: "Q5 - Fornecedores por Valor",
+    formula: "Total pago ao fornecedor = soma dos valores liquidos positivos de todas as notas CEAP associadas ao mesmo fornecedor.",
+    passos: [
+      "1. Partimos da tabela de gastos da CEAP, que registra cada despesa reembolsada aos deputados. Cada linha traz ano, deputado, fornecedor, categoria da despesa e valor liquido.",
+      "2. Mantemos apenas despesas de deputados vinculados a 57a Legislatura e removemos registros sem fornecedor identificado. Para o ranking de valores efetivos, tambem filtramos valor_liquido > 0, evitando que estornos, glosas ou lancamentos negativos distorcam o total recebido.",
+      "3. Padronizamos o nome exibido do fornecedor, substituindo caracteres problematicos como barras verticais e travessoes especiais. Isso melhora a leitura no painel e reduz duplicacoes visuais causadas por nomes quase iguais.",
+      "4. Agrupamos as despesas por ano e fornecedor. Para cada grupo, calculamos duas medidas: quantidade de lancamentos e soma total paga.",
+      "5. Dentro de cada ano, ordenamos os fornecedores do maior para o menor total pago e aplicamos ranking. O painel usa esse resultado para mostrar os maiores fornecedores anuais e tambem um ranking global consolidando todos os anos disponiveis da legislatura.",
+    ],
+    interpretacao: "O ranking responde a pergunta: quem mais recebeu recursos da cota parlamentar? Ele nao deve ser lido automaticamente como indicio de irregularidade. Alguns mercados concentram valores altos por natureza, como passagens aereas, divulgacao parlamentar, locacao de veiculos e servicos recorrentes de escritorio. A utilidade da metrica e mostrar concentracao de gasto, fornecedores dominantes e mudancas de padrao entre anos. Um fornecedor muito alto vira um ponto de atencao analitica: vale investigar categoria, deputados associados, quantidade de notas e recorrencia, mas o valor isolado nao prova problema.",
+  },
+  {
+    id: "concentracao_detalhada",
+    titulo: "Concentracao, Participacao no Total e Top 30",
+    origem: "Q5 - Percentual do Total, Top 30 e Top por Categoria",
+    formula: "% do fornecedor = total pago ao fornecedor / total pago a todos os fornecedores no mesmo recorte de ano.",
+    passos: [
+      "1. Depois de calcular o total pago a cada fornecedor, calculamos tambem o total geral pago a todos os fornecedores dentro de cada ano.",
+      "2. Para cada fornecedor, dividimos seu total pelo total geral daquele ano. O resultado e o percentual de participacao no gasto anual da CEAP.",
+      "3. Ordenamos os fornecedores por valor e destacamos os 30 maiores de cada ano. Em seguida, somamos a participacao desses 30 para medir o quanto o gasto ficou concentrado nos primeiros colocados.",
+      "4. O painel tambem usa uma leitura visual relativa: a barra de cada fornecedor compara seu total com o maior total do ranking selecionado. Assim, o usuario entende rapidamente a distancia entre o primeiro colocado e os demais.",
+      "5. A consulta complementar separa os fornecedores por categoria de despesa e mostra os cinco maiores em cada categoria e ano. Isso evita comparar mercados muito diferentes no mesmo bloco, por exemplo passagens aereas contra alimentacao ou combustivel.",
+      "6. Quando o usuario filtra por ano, a participacao e recalculada dentro daquele ano. Quando olha o ranking global, os valores sao consolidados para a legislatura inteira.",
+    ],
+    interpretacao: "Essa metodologia ajuda a diferenciar volume absoluto de concentracao. Um fornecedor pode estar em primeiro lugar, mas representar uma fatia pequena se o mercado for muito pulverizado. Por outro lado, poucos fornecedores podem absorver uma parcela grande do gasto anual, indicando dependencia de um conjunto restrito de empresas ou servicos. A leitura por categoria e importante porque alguns tipos de despesa naturalmente concentram em poucos fornecedores nacionais, enquanto outros sao locais e fragmentados. O percentual do total e o Top 30 mostram a estrutura do gasto, nao apenas quem aparece no topo.",
+  },
+  {
+    id: "dep_forn_detalhado",
+    titulo: "Deputado x Fornecedores",
+    origem: "Q12 - Pares Deputado-Fornecedor",
+    formula: "Total do par deputado-fornecedor = soma dos valores liquidos das despesas em que aquele deputado usou aquele fornecedor.",
+    passos: [
+      "1. A base de gastos permite ligar cada lancamento a um deputado e a um fornecedor. Essa relacao e a unidade central da Q12.",
+      "2. Criamos uma tabela intermediaria em que cada linha representa um par deputado-fornecedor dentro de um ano. Para cada par, somamos o valor liquido e contamos quantas notas/lancamentos existem.",
+      "3. Tambem associamos UF e partido ao deputado. Como essas informacoes podem variar em registros diferentes, a consulta escolhe o perfil mais frequente por deputado e ano; no consolidado global, usa o perfil mais frequente do deputado no conjunto completo.",
+      "4. Para a visao anual, ranqueamos os pares dentro de cada ano pelo total pago. Isso mostra quais combinacoes deputado-fornecedor movimentaram mais dinheiro naquele periodo.",
+      "5. Para a visao por deputado no painel, quando o usuario seleciona um parlamentar, filtramos os pares daquele deputado e ordenamos os fornecedores pelo total recebido.",
+      "6. O mesmo criterio tambem alimenta a leitura global: todos os anos sao somados para revelar relacoes recorrentes entre deputados e fornecedores ao longo da legislatura.",
+    ],
+    interpretacao: "Essa metrica responde a pergunta: com quem cada deputado gastou? Ela permite analisar dependencia, recorrencia e concentracao individual. Se um deputado concentra grande parte da cota em poucos fornecedores, isso pode indicar contratacao recorrente, preferencia operacional, disponibilidade regional ou uma relacao que merece exame mais detalhado. A interpretacao correta exige olhar valor total, quantidade de lancamentos, categoria da despesa e comparacao com outros deputados. Um par alto nao e uma acusacao; e uma trilha para entender o padrao de gasto daquele parlamentar.",
+  },
+  {
+    id: "universo_detalhado",
+    titulo: "Universo e Filtros dos Dados",
+    origem: "Q5 e Q12 - CEAP / 57a Legislatura",
+    formula: "Base analisada = despesas da CEAP vinculadas a deputados da 57a Legislatura, organizadas por ano, fornecedor, deputado e valor liquido.",
+    passos: [
+      "1. O recorte trabalha com a CEAP, isto e, despesas da cota parlamentar. Ele nao representa todo o orcamento da Camara, salarios, emendas, contratos administrativos gerais ou gasto partidario externo.",
+      "2. A filtragem principal e legislatura: usamos deputados cuja legislatura final e a 57a. Isso evita misturar gastos de mandatos anteriores com a composicao parlamentar atual analisada pelo dashboard.",
+      "3. Em Q5, usamos apenas valor_liquido positivo para calcular ranking de fornecedores. Esse cuidado remove estornos e glosas do calculo de dinheiro efetivamente pago.",
+      "4. Em Q12, a consulta agrupa deputado e fornecedor e soma o valor liquido dos lancamentos associados. A leitura principal do painel segue esse agrupamento para explicar relacoes de gasto entre parlamentar e fornecedor.",
+      "5. Os fornecedores com nome ausente sao retirados porque nao permitem identificar quem recebeu o recurso. Nomes com caracteres que quebram a exportacao ou a leitura sao normalizados para exibicao.",
+      "6. Os resultados sao apresentados em duas escalas: anual, para comparar mudancas ao longo do tempo, e global, para consolidar o comportamento da legislatura.",
+      "7. Quantidade de lancamentos e total pago devem ser lidos juntos. Muitos lancamentos pequenos indicam uso recorrente; poucos lancamentos muito altos indicam compras ou servicos de maior valor unitario.",
+    ],
+    interpretacao: "A metodologia delimita claramente o que o recorte mostra: fluxo de dinheiro da cota parlamentar para fornecedores, dentro da legislatura analisada. Diferencas em relacao a outras fontes podem surgir por periodo de extracao, tratamento de estornos, filtros de legislatura, nomes de fornecedores ou atualizacoes posteriores dos dados. Por isso, a leitura mais segura e comparativa: quem aparece mais, em que categoria, em qual ano, com quantos lancamentos e ligado a quais deputados.",
+  },
+];
+
 function MethodologySection() {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -266,7 +329,7 @@ function MethodologySection() {
         desc="Transparência analítica · Clique em cada método para expandir e ver a fórmula, os passos e como interpretar."
       />
 
-      {METODOS.map((m) => (
+      {METODOS_DETALHADOS.map((m) => (
         <div key={m.id} className="mb-2 border border-border" style={{ background: "var(--card)" }}>
           <button
             type="button"
@@ -287,18 +350,18 @@ function MethodologySection() {
               {/* Fórmula */}
               <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: RED }}>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Fórmula</p>
-                <p className="mt-1 text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
+                <p className="mt-1 text-sm font-bold leading-relaxed" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
               </div>
               {/* Passos */}
               <div className="mb-4 flex flex-col gap-2">
                 {m.passos.map((p, pi) => (
-                  <p key={pi} className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{p}</p>
+                  <p key={pi} className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{p}</p>
                 ))}
               </div>
               {/* Interpretação */}
               <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
                 <p className="mb-1 text-xs uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Como interpretar</p>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{m.interpretacao}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{m.interpretacao}</p>
               </div>
             </div>
           ) : null}
@@ -568,21 +631,33 @@ export default function FornecedoresPage({ onNavigateHome, onNavigateRecortes, o
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div
-          className="absolute inset-0"
+        <span
+          className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-black"
           style={{
-            background:
-              "linear-gradient(90deg, rgba(5,5,5,0.78) 0%, rgba(5,5,5,0.46) 42%, rgba(5,5,5,0.10) 100%)",
+            fontFamily: SERIF,
+            fontSize: "clamp(7rem, 20vw, 15.5rem)",
+            color: "rgba(196,18,48,0.95)",
+            lineHeight: 1,
+            textShadow: "0 4px 18px rgba(0,0,0,0.85)",
+            WebkitTextStroke: "1px rgba(255,255,255,0.55)",
           }}
-        />
-        <div className="absolute inset-0" style={{ boxShadow: "inset 0 -70px 90px rgba(10,10,10,0.52)" }} />
-        <p className="relative z-10 mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>05 — CONTRATOS</p>
-        <h1 className="relative z-10 mb-4 font-black leading-none" style={{ fontFamily: SERIF, color: "var(--foreground)", fontSize: "clamp(3rem, 7vw, 5.5rem)" }}>
+        >
+          05
+        </span>
+        <p className="relative z-10 mb-5 text-sm font-black uppercase tracking-[0.35em] text-primary md:text-base" style={{ fontFamily: MONO, textShadow: "0 3px 12px rgba(0,0,0,0.95)" }}>05 — CONTRATOS</p>
+        <h1 className="relative z-10 mb-5 font-black leading-none" style={{ fontFamily: SERIF, color: "#050505", fontSize: "clamp(3.25rem, 7vw, 6.25rem)", textShadow: "none" }}>
           Fornecedores
           <br />
-          <span style={{ color: RED }}>× Deputados</span>
+          <span style={{ color: RED, textShadow: "0 5px 20px rgba(0,0,0,0.95)" }}>× Deputados</span>
         </h1>
-        <p className="relative z-10 max-w-2xl text-base leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+        <p
+          className="relative z-10 max-w-2xl px-4 py-3 text-lg font-black leading-relaxed md:text-xl"
+          style={{
+            background: "rgba(255,255,255,0.78)",
+            color: "rgb(160, 0, 34)",
+            textShadow: "none",
+          }}
+        >
           Quem recebeu dinheiro da cota parlamentar — quanto cada empresa foi paga ao longo da 57ª Legislatura e com quais fornecedores cada deputado fez seus gastos.
         </p>
       </div>

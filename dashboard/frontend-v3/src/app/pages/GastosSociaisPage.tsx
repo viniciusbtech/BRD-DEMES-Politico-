@@ -48,7 +48,7 @@ function SectionProblemBg({ img }: { img: string }) {
 
 export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: GastosSociaisPageProps) {
   const { theme } = useTheme();
-  type GastosSection = "painel-economico" | "achados" | "categorias";
+  type GastosSection = "painel-economico" | "curiosidades" | "categorias" | "construir";
   const [activeSection, setActiveSection] = useState<GastosSection>("painel-economico");
   const RED = "#e00836";
   const [savings, setSavings] = useState(50);
@@ -302,37 +302,42 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
       >
         <button type="button" onClick={() => setActiveSection("painel-economico")}
           className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
-          style={{ fontFamily: "monospace", background: activeSection === "painel-economico" ? RED : "transparent", color: activeSection === "painel-economico" ? "#fff" : "var(--foreground)", borderColor: activeSection === "painel-economico" ? RED : "var(--border)" }}>
+          style={{ fontFamily: MONO, background: activeSection === "painel-economico" ? RED : "transparent", color: activeSection === "painel-economico" ? "#fff" : "var(--foreground)", borderColor: activeSection === "painel-economico" ? RED : "var(--border)" }}>
           Painel Econômico
         </button>
-        <button type="button" onClick={() => setActiveSection("achados")}
+        <button type="button" onClick={() => setActiveSection("curiosidades")}
           className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
-          style={{ fontFamily: "monospace", background: activeSection === "achados" ? RED : "transparent", color: activeSection === "achados" ? "#fff" : "var(--foreground)", borderColor: activeSection === "achados" ? RED : "var(--border)" }}>
-          Achados
+          style={{ fontFamily: MONO, background: activeSection === "curiosidades" ? RED : "transparent", color: activeSection === "curiosidades" ? "#fff" : "var(--foreground)", borderColor: activeSection === "curiosidades" ? RED : "var(--border)" }}>
+          Curiosidades
         </button>
         <button type="button" onClick={() => setActiveSection("categorias")}
           className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
-          style={{ fontFamily: "monospace", background: activeSection === "categorias" ? RED : "transparent", color: activeSection === "categorias" ? "#fff" : "var(--foreground)", borderColor: activeSection === "categorias" ? RED : "var(--border)" }}>
+          style={{ fontFamily: MONO, background: activeSection === "categorias" ? RED : "transparent", color: activeSection === "categorias" ? "#fff" : "var(--foreground)", borderColor: activeSection === "categorias" ? RED : "var(--border)" }}>
           Categorias
+        </button>
+        <button type="button" onClick={() => setActiveSection("construir")}
+          className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+          style={{ fontFamily: MONO, background: activeSection === "construir" ? RED : "transparent", color: activeSection === "construir" ? "#fff" : "var(--foreground)", borderColor: activeSection === "construir" ? RED : "var(--border)" }}>
+          O que construiríamos
         </button>
       </div>
 
       {activeSection === "painel-economico" && (
-      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
-        <SectionProblemBg img="/intro/problemas/principais-problemas-sociais.jpg" />
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14" style={{ background: "#080808" }}>
+        <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
         <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           PAINEL ECONÔMICO
         </p>
         <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
           Arraste o slider de economia
         </h2>
-        <p className="mb-12 max-w-lg text-sm text-muted-foreground">
+        <p className="mb-12 max-w-lg text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.88)" }}>
           Quanto poderíamos economizar cortando parte dos gastos parlamentares? Arraste e veja o que seria possível financiar em troca.
         </p>
 
         <div className="mb-12 max-w-2xl">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-bold text-foreground">% da CEAP economizada</span>
+            <span className="text-base font-bold" style={{ color: "#f0ece4" }}>% da CEAP economizada</span>
             <span className="text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
               {savings}%
             </span>
@@ -346,7 +351,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
             onChange={(event) => setSavings(Number(event.target.value))}
             className="gastos-range mb-3 w-full"
           />
-          <div className="flex justify-between text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+          <div className="flex justify-between text-sm" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.7)" }}>
             <span>R$ 0</span>
             <span className="font-bold text-primary">{formatCurrency(savedAmount)} liberados</span>
             <span>R$ 1,48 bi</span>
@@ -356,18 +361,18 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         <div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-3">
           {socialItems.map((item) => {
             const count = Math.floor(savedAmount / item.cost);
-            const opacity = savings === 0 ? 0.15 : 0.3 + (savings / 100) * 0.7;
+            const opacity = savings === 0 ? 0.2 : 0.4 + (savings / 100) * 0.6;
             const scale = savings === 0 ? 0.7 : 0.85 + (savings / 100) * 0.15;
             return (
               <div
                 key={item.id}
-                className="border border-border p-5 transition-all duration-500"
-                style={{ background: "#111111", borderColor: savings > 0 ? `${item.color}60` : "rgba(240,236,228,0.1)" }}
+                className="border p-5 transition-all duration-500"
+                style={{ background: "#111111", borderColor: savings > 0 ? `${item.color}70` : "rgba(240,236,228,0.12)" }}
               >
-                <span className="mb-3 inline-flex min-h-8 items-center border px-2 text-[10px] tracking-widest" style={{ borderColor: item.color, color: item.color, opacity, fontFamily: MONO }}>
+                <span className="mb-3 inline-flex min-h-8 items-center border px-2 text-[11px] font-bold tracking-widest" style={{ borderColor: item.color, color: item.color, opacity, fontFamily: MONO }}>
                   {item.marker}
                 </span>
-                <p className="mb-2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-2 text-sm font-semibold" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.78)" }}>
                   {item.label.toUpperCase()}
                 </p>
                 <p
@@ -382,7 +387,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
                 >
                   {savings === 0 ? "—" : count.toLocaleString("pt-BR")}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mt-2 text-sm" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.62)" }}>
                   {item.unit} · {formatCurrency(item.cost)}/un.
                 </p>
               </div>
@@ -390,27 +395,27 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           })}
         </div>
 
-        <div className="border-l-4 border-primary px-6 py-5 transition-all duration-700" style={{ background: "rgba(196,18,48,0.06)", opacity: savings > 0 ? 1 : 0.3 }}>
-          <p className="mb-2 text-xs text-primary" style={{ fontFamily: MONO }}>
+        <div className="border-l-4 border-primary px-6 py-5 transition-all duration-700" style={{ background: "rgba(196,18,48,0.10)", opacity: savings > 0 ? 1 : 0.3 }}>
+          <p className="mb-2 text-xs font-bold tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>
             {opportunity.headline.toUpperCase()}
           </p>
-          <p className="text-base leading-relaxed text-foreground">{opportunity.description}</p>
+          <p className="text-base font-medium leading-relaxed" style={{ color: "#f0ece4" }}>{opportunity.description}</p>
         </div>
       </section>
       )}
 
-      {activeSection === "achados" && (
-      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
+      {activeSection === "curiosidades" && (
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14" style={{ background: "#080808" }}>
         <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
-        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
-          ACHADOS DOS RECORTES
+        <p className="mb-2 text-xs font-bold tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+          CURIOSIDADES DOS RECORTES
         </p>
         <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
-          Curiosidades que viram custo social
+          Números que viram custo social
         </h2>
-        <p className="mb-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <p className="mb-10 max-w-2xl text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.88)" }}>
           Esta leitura junta pontos levantados em outros recortes do trabalho: gasto total, fornecedores,
-          categorias sensiveis e custo-beneficio. Os valores abaixo sao fixos no frontend para contar a historia
+          categorias sensíveis e custo-benefício. Os valores abaixo são fixos no frontend para contar a história
           sem alterar consultas, respostas ou banco.
         </p>
 
@@ -418,27 +423,27 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           {workInsights.map((item, index) => (
             <article
               key={item.title}
-              className="border border-border p-5"
-              style={{ background: index === 0 ? "rgba(196,18,48,0.12)" : "#111111" }}
+              className="border p-5"
+              style={{ background: index === 0 ? "rgba(196,18,48,0.14)" : "#111111", borderColor: index === 0 ? "rgba(196,18,48,0.45)" : "rgba(240,236,228,0.12)" }}
             >
               <div className="mb-5 flex items-center justify-between gap-3">
-                <span className="border px-2 py-1 text-[10px] font-bold tracking-widest text-primary" style={{ borderColor: "rgba(196,18,48,0.5)", fontFamily: MONO }}>
+                <span className="border px-2 py-1 text-[11px] font-bold tracking-widest text-primary" style={{ borderColor: "rgba(196,18,48,0.5)", fontFamily: MONO }}>
                   {item.source}
                 </span>
-                <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                <span className="text-xs font-medium" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.5)" }}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
               </div>
-              <p className="mb-2 text-sm font-bold leading-snug" style={{ color: "#f0ece4" }}>
+              <p className="mb-2 text-base font-bold leading-snug" style={{ color: "#f0ece4" }}>
                 {item.title}
               </p>
               <p className="mb-4 text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
                 {item.value}
               </p>
-              <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+              <p className="mb-4 text-sm leading-relaxed" style={{ color: "rgba(240,236,228,0.82)" }}>
                 {item.description}
               </p>
-              <p className="border-t pt-3 text-[11px] leading-relaxed" style={{ borderColor: "rgba(240,236,228,0.12)", color: "rgba(240,236,228,0.72)", fontFamily: MONO }}>
+              <p className="border-t pt-3 text-sm leading-relaxed" style={{ borderColor: "rgba(240,236,228,0.14)", color: "rgba(240,236,228,0.78)", fontFamily: MONO }}>
                 {item.conversion}
               </p>
             </article>
@@ -448,15 +453,15 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
       )}
 
       {activeSection === "categorias" && (
-      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
-        <SectionProblemBg img="/intro/problemas/images (3).jpg" />
-        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14" style={{ background: "#080808" }}>
+        <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
+        <p className="mb-2 text-xs font-bold tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           CATEGORIAS DE GASTO
         </p>
         <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
           Onde está o dinheiro?
         </h2>
-        <p className="mb-12 max-w-lg text-sm text-muted-foreground">
+        <p className="mb-12 max-w-lg text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.88)" }}>
           Cada slider representa um achado consolidado do trabalho. Conforme o valor aumenta, o painel social perde força.
         </p>
 
@@ -469,10 +474,10 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
                 <div key={slider.id}>
                   <div className="mb-1 flex items-start justify-between gap-4">
                     <div>
-                      <p className="mb-0.5 text-sm font-bold text-foreground">{slider.label}</p>
-                      <p className="text-xs text-muted-foreground">{slider.description}</p>
+                      <p className="mb-1 text-base font-bold" style={{ color: "#f0ece4" }}>{slider.label}</p>
+                      <p className="text-sm leading-relaxed" style={{ color: "rgba(240,236,228,0.72)" }}>{slider.description}</p>
                     </div>
-                    <span className="shrink-0 text-lg font-black text-primary" style={{ fontFamily: SERIF }}>
+                    <span className="shrink-0 text-xl font-black text-primary" style={{ fontFamily: SERIF }}>
                       {percent}%
                     </span>
                   </div>
@@ -485,7 +490,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
                     onChange={(event) => setSliderValues((previous) => ({ ...previous, [slider.id]: Number(event.target.value) }))}
                     className="gastos-range mb-1 mt-3 w-full"
                   />
-                  <p className="text-right text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <p className="text-right text-sm font-medium" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.68)" }}>
                     {formatCurrency(value)}
                   </p>
                 </div>
@@ -493,20 +498,20 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
             })}
           </div>
 
-          <div className="border border-border p-6" style={{ background: "#111111" }}>
-            <p className="mb-6 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+          <div className="border p-6" style={{ background: "#111111", borderColor: "rgba(240,236,228,0.12)" }}>
+            <p className="mb-6 text-xs font-bold tracking-[0.3em]" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.7)" }}>
               IMPACTO EM PROGRAMAS SOCIAIS
             </p>
 
             {socialPrograms.map((program) => {
-              const fade = Math.max(0.08, 1 - wasteRatio * 0.85);
+              const fade = Math.max(0.15, 1 - wasteRatio * 0.85);
               const sizeMultiplier = Math.max(0.6, 1 - wasteRatio * 0.4);
               const visibleValue = Math.round(program.base * fade);
               return (
                 <div key={program.label} className="mb-5 transition-all duration-700">
                   <p
-                    className="mb-1 text-xs text-muted-foreground transition-all duration-700"
-                    style={{ fontFamily: MONO, opacity: Math.max(0.2, fade) }}
+                    className="mb-1 text-sm font-semibold transition-all duration-700"
+                    style={{ fontFamily: MONO, color: `rgba(240,236,228,${Math.max(0.5, fade)})` }}
                   >
                     {program.label.toUpperCase()}
                   </p>
@@ -532,10 +537,10 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
                 className={`mt-4 p-3 ${glitch ? "gastos-glitch-text" : ""}`}
                 style={{ background: "rgba(196,18,48,0.15)", border: "1px solid rgba(196,18,48,0.4)" }}
               >
-                <p className="text-xs text-primary" style={{ fontFamily: MONO }}>
+                <p className="text-sm font-bold text-primary" style={{ fontFamily: MONO }}>
                   ALERTA — GASTO MÁXIMO ATIVADO
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-sm leading-relaxed" style={{ color: "rgba(240,236,228,0.82)" }}>
                   Com esse nível de gasto parlamentar, programas sociais operam no limite mínimo.
                 </p>
               </div>
@@ -546,15 +551,15 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
       )}
 
       {activeSection === "categorias" && (
-      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14">
-        <SectionProblemBg img="/intro/problemas/images (1).jpg" />
-        <p className="mb-2 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+      <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14" style={{ background: "#080808" }}>
+        <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
+        <p className="mb-2 text-xs font-bold tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
           O LUXO × O POVO
         </p>
         <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
           Quando o gasto vira privilégio
         </h2>
-        <p className="mb-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <p className="mb-10 max-w-2xl text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.88)" }}>
           Quatro categorias sensíveis de gasto parlamentar, comparadas ao que o mesmo dinheiro
           entregaria à população. Valores ilustrativos fixos no frontend, sem alterar consultas,
           respostas ou banco.
@@ -564,31 +569,31 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
           {luxuryComparisons.map((item, index) => (
             <article
               key={item.id}
-              className="flex flex-col border border-border p-5"
-              style={{ background: "rgba(17,17,17,0.86)" }}
+              className="flex flex-col border p-5"
+              style={{ background: "#111111", borderColor: "rgba(240,236,228,0.12)" }}
             >
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-2xl">{item.icon}</span>
-                <span className="text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                <span className="text-xs font-medium" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.45)" }}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
               </div>
-              <p className="mb-2 text-sm font-bold leading-snug" style={{ color: "#f0ece4" }}>
+              <p className="mb-2 text-base font-bold leading-snug" style={{ color: "#f0ece4" }}>
                 {item.label}
               </p>
               <p className="mb-1 text-3xl font-black text-primary" style={{ fontFamily: SERIF }}>
                 {formatCurrency(item.value)}
               </p>
               {item.illustrative ? (
-                <p className="mb-3 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+                <p className="mb-3 text-[11px] font-bold tracking-widest" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.55)" }}>
                   VALOR ILUSTRATIVO
                 </p>
               ) : null}
-              <div className="mt-auto border-t pt-3" style={{ borderColor: "rgba(240,236,228,0.12)" }}>
-                <p className="text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>
+              <div className="mt-auto border-t pt-3" style={{ borderColor: "rgba(240,236,228,0.14)" }}>
+                <p className="mb-1 text-[11px] font-bold tracking-widest" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.55)" }}>
                   EQUIVALE A
                 </p>
-                <p className="mt-1 text-xs leading-relaxed" style={{ color: "rgba(240,236,228,0.82)" }}>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(240,236,228,0.88)" }}>
                   {item.socialEquivalent}
                 </p>
               </div>
@@ -606,14 +611,14 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         />
 
         <div className="relative z-10 max-w-3xl">
-          <p className="gastos-flicker mb-6 text-xs tracking-[0.4em] text-primary" style={{ fontFamily: MONO }}>
+          <p className="gastos-flicker mb-6 text-xs font-bold tracking-[0.4em] text-primary" style={{ fontFamily: MONO }}>
             ERRO DO SISTEMA · DADOS NÃO ENCONTRADOS
           </p>
 
           {manifestLines.map((line, index) => (
             <div key={line.text} className="relative mb-8">
               <p
-                className={`mb-1 font-black leading-none transition-all ${glitch && index % 2 === 0 ? "gastos-glitch-text" : ""}`}
+                className={`mb-2 font-black leading-none transition-all ${glitch && index % 2 === 0 ? "gastos-glitch-text" : ""}`}
                 style={{
                   fontFamily: SERIF,
                   fontSize: "clamp(1.5rem, 4vw, 3rem)",
@@ -622,7 +627,7 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
               >
                 {line.text}
               </p>
-              <p className="text-base leading-relaxed" style={{ color: "#c41230", fontFamily: MONO, fontSize: "0.85rem" }}>
+              <p className="text-base font-medium leading-relaxed" style={{ color: "#e00836", fontFamily: MONO }}>
                 → {line.sub}
               </p>
             </div>
@@ -630,6 +635,95 @@ export default function GastosSociaisPage({ onNavigateHome, onNavigateRecortes, 
         </div>
       </section>
       )}
+
+      {activeSection === "construir" && (() => {
+        const ceapPorAno = totalCeap / 4;
+        const economiaPorAno = ceapPorAno * 0.20;
+        const economia4Anos = economiaPorAno * 4;
+        const CONSTRUCOES = [
+          { id: "casas", icon: "🏠", label: "Casas populares", custo: 150_000, unidade: "casas", cor: "#c41230", descricao: "Programa Minha Casa Minha Vida — unidade básica com 45 m²" },
+          { id: "ubs", icon: "🏥", label: "Unidades Básicas de Saúde", custo: 600_000, unidade: "UBS", cor: "#d4841a", descricao: "UBS padrão MS com consultórios, triagem e farmácia básica" },
+          { id: "salas", icon: "📚", label: "Salas de aula equipadas", custo: 80_000, unidade: "salas", cor: "#4a7c59", descricao: "Sala escolar completa com mobiliário, quadro e ventilação" },
+          { id: "cisternas", icon: "💧", label: "Cisternas para o semiárido", custo: 2_500, unidade: "cisternas", cor: "#2e5fa3", descricao: "Programa P1+2 — cisterna de 16 mil litros por família rural" },
+          { id: "bolsas", icon: "🎓", label: "Bolsas universitárias (por ano)", custo: 24_000, unidade: "bolsas/ano", cor: "#7b3fa0", descricao: "Bolsa de estudo integral em universidade particular — 1 ano" },
+          { id: "merenda", icon: "🍽️", label: "Crianças com merenda (1 ano)", custo: 1_500, unidade: "crianças/ano", cor: "#c8970a", descricao: "Custo PNAE por aluno por ano letivo completo" },
+          { id: "saneamento", icon: "🚿", label: "Famílias com saneamento básico", custo: 5_000, unidade: "famílias", cor: "#1e7a6d", descricao: "Conexão de rede de esgoto e água tratada por domicílio" },
+          { id: "km", icon: "🛣️", label: "Km de estrada rural pavimentada", custo: 1_000_000, unidade: "km", cor: "#8b5e3c", descricao: "Pavimentação de estrada vicinal de acesso a comunidades rurais" },
+        ];
+        return (
+        <section className="relative isolate overflow-hidden border-b border-border px-6 py-16 md:px-14" style={{ background: "#080808" }}>
+          <SectionProblemBg img="/intro/problemas/saude publica.jpg" />
+          <p className="mb-2 text-xs font-bold tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+            O QUE PODERÍAMOS CONSTRUIR
+          </p>
+          <h2 className="mb-3 text-3xl font-black md:text-4xl" style={{ fontFamily: SERIF, color: "#f0ece4" }}>
+            Com 20% de economia na CEAP por ano
+          </h2>
+          <p className="mb-4 max-w-2xl text-base leading-relaxed" style={{ color: "rgba(240,236,228,0.88)" }}>
+            A CEAP custa em média <strong style={{ color: "#e00836" }}>R$ 370 milhões por ano</strong>. Se economizarmos apenas
+            20% — sem cortar absolutamente nada essencial — liberamos <strong style={{ color: "#e00836" }}>R$ 74 milhões por ano</strong>.
+            Em 4 anos de legislatura, isso equivale a <strong style={{ color: "#e00836" }}>R$ 296 milhões</strong>. Veja o que daria para construir.
+          </p>
+          <div className="mb-12 flex flex-wrap items-center gap-6 border-l-4 border-primary px-6 py-5" style={{ background: "rgba(196,18,48,0.10)" }}>
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>CEAP ANUAL ESTIMADA</p>
+              <p className="text-3xl font-black" style={{ fontFamily: SERIF, color: "#f0ece4" }}>R$ 370 mi / ano</p>
+            </div>
+            <div className="hidden md:block h-10 w-px" style={{ background: "rgba(196,18,48,0.4)" }} />
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>20% DE ECONOMIA / ANO</p>
+              <p className="text-3xl font-black" style={{ fontFamily: SERIF, color: "#e00836" }}>R$ 74 mi / ano</p>
+            </div>
+            <div className="hidden md:block h-10 w-px" style={{ background: "rgba(196,18,48,0.4)" }} />
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] text-primary" style={{ fontFamily: MONO }}>TOTAL EM 4 ANOS</p>
+              <p className="text-3xl font-black" style={{ fontFamily: SERIF, color: "#e00836" }}>R$ 296 mi</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {CONSTRUCOES.map((item) => {
+              const qtd = Math.floor(economia4Anos / item.custo);
+              return (
+                <article
+                  key={item.id}
+                  className="flex flex-col border p-5"
+                  style={{ background: "#111111", borderColor: `${item.cor}35` }}
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <span className="text-2xl">{item.icon}</span>
+                    <span className="border px-2 py-0.5 text-[10px] font-bold tracking-widest" style={{ borderColor: `${item.cor}55`, color: item.cor, fontFamily: MONO }}>
+                      R$ {(item.custo / 1000).toLocaleString("pt-BR")}K/un.
+                    </span>
+                  </div>
+                  <p className="mb-1 text-sm font-bold leading-snug" style={{ color: "rgba(240,236,228,0.78)", fontFamily: MONO }}>
+                    {item.label.toUpperCase()}
+                  </p>
+                  <p className="mb-4 text-4xl font-black leading-none" style={{ fontFamily: SERIF, color: item.cor }}>
+                    {qtd.toLocaleString("pt-BR")}
+                  </p>
+                  <p className="mt-auto text-sm leading-relaxed" style={{ color: "rgba(240,236,228,0.72)" }}>
+                    {item.descricao}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 border-t pt-8" style={{ borderColor: "rgba(240,236,228,0.1)" }}>
+            <p className="mb-3 text-xs font-bold tracking-[0.3em]" style={{ fontFamily: MONO, color: "rgba(240,236,228,0.55)" }}>NOTA METODOLÓGICA</p>
+            <p className="max-w-3xl text-sm leading-relaxed" style={{ color: "rgba(240,236,228,0.7)" }}>
+              Valores calculados com base no <strong style={{ color: "rgba(240,236,228,0.88)" }}>custo estimado por unidade</strong> de cada tipo de obra ou programa social.
+              A CEAP total projetada para a 57ª legislatura é de R$ 1,48 bilhão (R$ 370 mi/ano). 20% de economia anual =
+              R$ 74 mi/ano × 4 anos = <strong style={{ color: "#e00836" }}>R$ 296 milhões</strong>.
+              Custos referenciais: Minha Casa Minha Vida, Ministério da Saúde (UBS), FNDE (salas de aula),
+              Programa Cisternas (P1+2), PNAE (merenda), SNIS (saneamento). Valores são estimativas de referência,
+              não incluem terraplanagem, urbanização ou custos indiretos.
+            </p>
+          </div>
+        </section>
+        );
+      })()}
     </div>
     </>
   );

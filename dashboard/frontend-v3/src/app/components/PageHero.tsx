@@ -55,45 +55,52 @@ export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImage
           src={imageUrl(currentSrc, 1800, 840)}
           alt={title}
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: "grayscale(20%) contrast(1.05) brightness(0.68)", opacity, transition: "opacity 0.7s ease" }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to right, rgba(10,10,10,0.92) 50%, rgba(10,10,10,0.35) 100%)" }}
-        />
-        <div
-          className="absolute bottom-0 inset-x-0 h-24"
-          style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
+          style={{ opacity, transition: "opacity 0.7s ease" }}
         />
         <span
           className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-black"
           style={{
             fontFamily: SERIF,
-            fontSize: "clamp(6rem, 18vw, 14rem)",
-            color: "rgba(196,18,48,0.12)",
+            fontSize: "clamp(7rem, 20vw, 15.5rem)",
+            color: "rgba(196,18,48,0.95)",
             lineHeight: 1,
+            textShadow: "0 4px 18px rgba(0,0,0,0.85)",
+            WebkitTextStroke: "1px rgba(255,255,255,0.55)",
           }}
         >
           {n.padStart(2, "0")}
         </span>
 
         <div className="relative z-10 px-6 pb-14 pt-16 md:px-14">
-          <p className="mb-4 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+          <p
+            className="mb-5 text-sm font-black uppercase tracking-[0.35em] text-primary md:text-base"
+            style={{ fontFamily: MONO, textShadow: "0 3px 12px rgba(0,0,0,0.95)" }}
+          >
             {n.padStart(2, "0")} — {tag}
           </p>
           <h1
             className="mb-5 font-black leading-tight"
-            style={{ fontFamily: SERIF, color: "#f0ece4", fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
+            style={{
+              fontFamily: SERIF,
+              color: "#fffaf0",
+              fontSize: "clamp(3.25rem, 7vw, 6.25rem)",
+              textShadow: "0 5px 22px rgba(0,0,0,0.95)",
+            }}
           >
             {title}
             {titleRed ? (
               <>
                 <br />
-                <span className="text-primary">{titleRed}</span>
+                <span className="text-primary" style={{ textShadow: "0 5px 20px rgba(0,0,0,0.95)" }}>
+                  {titleRed}
+                </span>
               </>
             ) : null}
           </h1>
-          <p className="max-w-lg text-base leading-relaxed text-muted-foreground" style={{ fontWeight: 300 }}>
+          <p
+            className="max-w-2xl text-lg font-semibold leading-relaxed md:text-xl"
+            style={{ color: "#fffaf0", textShadow: "0 3px 14px rgba(0,0,0,0.95)" }}
+          >
             {desc}
           </p>
         </div>
@@ -110,9 +117,7 @@ export default function PageHero({ n, tag, title, titleRed, desc, imgId, bgImage
                 src={imageUrl(img.id, 600, 360)}
                 alt={img.alt}
                 className="absolute inset-0 h-full w-full object-cover"
-                style={{ filter: "grayscale(30%) contrast(1.05) brightness(0.55)" }}
               />
-              <div className="absolute inset-0" style={{ background: "rgba(10,10,10,0.35)" }} />
             </div>
           ))}
         </div>
