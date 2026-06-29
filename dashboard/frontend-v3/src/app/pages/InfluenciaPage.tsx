@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import * as echarts from "echarts";
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, ReferenceLine, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
@@ -56,6 +56,9 @@ const IDEOLOGY_COLORS: Record<string, string> = {
   "direita": "#2b5490",
   "nao classificado": "#555",
 };
+
+const ROBUST_MIN_VOTES = 500;
+const ROBUST_MIN_DEPS  = 5;
 
 const TRANSVERSAL_PARTIES = ["PL", "PP", "PSD", "PSDB", "MDB", "UNIÃO", "REPUBLICANOS", "PODE", "AVANTE", "CIDADANIA"];
 const LEFT_PARTIES = ["PT", "PSOL", "PCdoB", "PV", "REDE"];
@@ -389,6 +392,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   const [q8TableOpen, setQ8TableOpen] = useState(false);
   const [q10TableOpen, setQ10TableOpen] = useState(false);
   const [q10AnnualOpen, setQ10AnnualOpen] = useState(false);
+  const [q10RobustMode, setQ10RobustMode] = useState(false);
   const isDark = theme === "dark";
   const q8LightVars = (!isDark
     ? {
@@ -476,18 +480,53 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
   const q8SearchActive = q8DepSearch.trim() !== "";
   const q8VisibleRanked = q8SearchActive ? q8FilteredRanked : q8FilteredRanked.slice(0, q8RowsShown);
 
-  // ── Seção 10: busca por partido (filtra as tabelas) ──
+  // ── Seção 10: filtragem robusta e scatter ──
+  const q10RobustRows = useMemo(() =>
+    q10Rows.filter((row) => {
+      const votes = raw(row, q10VoteTotalKey);
+      const deps  = raw(row, "qtd_deputados");
+      return votes >= ROBUST_MIN_VOTES && (q10Year ? true : deps >= ROBUST_MIN_DEPS);
+    })
+  , [q10Rows, q10VoteTotalKey, q10Year]);
+
+  const q10ActiveRows = q10RobustMode ? q10RobustRows : q10Rows;
+
   const q10PartyActive = q10PartySearch.trim() !== "";
   const q10FilteredRows = useMemo(() => {
     const q = normalizeText(q10PartySearch);
-    if (!q) return q10Rows;
-    return q10Rows.filter((row) => normalizeText(text(row, "sigla_partido")).includes(q));
-  }, [q10Rows, q10PartySearch]);
+    if (!q) return q10ActiveRows;
+    return q10ActiveRows.filter((row) => normalizeText(text(row, "sigla_partido")).includes(q));
+  }, [q10ActiveRows, q10PartySearch]);
   const q10AnnualFiltered = useMemo(() => {
     const q = normalizeText(q10PartySearch);
     if (!q) return q10AnnualRows.slice(0, 40);
     return q10AnnualRows.filter((row) => normalizeText(text(row, "sigla_partido")).includes(q));
   }, [q10AnnualRows, q10PartySearch]);
+
+  type Q10Point = { x: number; yLog: number; y: number; sigla: string; ideologia: string; pct: number; votos: number; deps: number; alinhados: number; contrarios: number };
+  const q10ScatterData = useMemo((): Q10Point[] =>
+    q10ActiveRows.map((row) => ({
+      x:         raw(row, "pct_alinhamento"),
+      yLog:      Math.log10(Math.max(raw(row, q10VoteTotalKey), 1)),
+      y:         raw(row, q10VoteTotalKey),
+      sigla:     text(row, "sigla_partido"),
+      ideologia: text(row, "ideologia") || "nao classificado",
+      pct:       raw(row, "pct_alinhamento"),
+      votos:     raw(row, q10VoteTotalKey),
+      deps:      raw(row, "qtd_deputados"),
+      alinhados: raw(row, "votos_alinhados"),
+      contrarios:raw(row, "votos_contrarios"),
+    }))
+  , [q10ActiveRows, q10VoteTotalKey]);
+
+  const q10ByIdeology = useMemo((): Record<string, Q10Point[]> => {
+    const groups: Record<string, Q10Point[]> = {};
+    for (const d of q10ScatterData) {
+      if (!groups[d.ideologia]) groups[d.ideologia] = [];
+      groups[d.ideologia].push(d);
+    }
+    return groups;
+  }, [q10ScatterData]);
 
   const communityNodes = useMemo(() => q8Communities.map((row, index) => ({
     id: text(row, "comunidade"),
@@ -1016,13 +1055,54 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           desc="Tabela baseada na resposta original da Q8. Ela mostra autoria, aprovacao e participacao no total global aprovado."
         />
 
-        <div className="mb-4 h-72">
+        <div className="mb-6" style={{ height: Math.max(420, q8FullRanking.slice(0, 15).length * 38) }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={q8FullRanking.slice(0, 15)} layout="vertical" margin={{ left: 40, right: 20, top: 0, bottom: 0 }}>
-              <XAxis type="number" tick={{ fill: isDark ? "#888880" : "#0069ff", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="nome" width={135} tick={{ fill: isDark ? "#888880" : "#315f37", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: isDark ? "#141414" : "#ffffff", border: isDark ? "1px solid rgba(240,236,228,0.12)" : "1px solid #d9e4f2", color: isDark ? undefined : "#315f37", fontFamily: MONO, fontSize: 11 }} />
-              <Bar dataKey="pct_aprovadas" fill={isDark ? RED : "#007fff"} maxBarSize={18} />
+            <BarChart
+              data={q8FullRanking.slice(0, 15)}
+              layout="vertical"
+              margin={{ left: 8, right: 64, top: 4, bottom: 4 }}
+            >
+              <XAxis type="number" domain={[0, 100]} hide />
+              <YAxis
+                type="category"
+                dataKey="nome"
+                width={148}
+                tick={{ fill: isDark ? "rgba(240,236,228,0.75)" : "#1a1a1a", fontSize: 11, fontFamily: MONO }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                cursor={false}
+                contentStyle={{ background: isDark ? "#141414" : "#fff", border: `1px solid ${isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2"}`, fontFamily: MONO, fontSize: 11 }}
+                formatter={(value: number, _name: string, props: { payload: Row }) => [
+                  `${value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%  ·  ${fmtNum(raw(props.payload, "proposicoes_aprovadas"))} aprovadas de ${fmtNum(raw(props.payload, "proposicoes_autoria"))} autorais`,
+                  "% aprovadas",
+                ]}
+              />
+              <Bar
+                dataKey="pct_aprovadas"
+                maxBarSize={3}
+                shape={(props: { x?: number; y?: number; width?: number; height?: number; value?: number; index?: number }) => {
+                  const { x = 0, y = 0, width = 0, height = 0, value = 0, index = 0 } = props;
+                  const cy = y + height / 2;
+                  const x1 = x;
+                  const x2 = x + width;
+                  const isTop3 = index < 3;
+                  const dotR = isTop3 ? 7 : 5;
+                  const lineColor = index === 0 ? RED : isDark ? "rgba(240,236,228,0.35)" : "rgba(0,0,0,0.18)";
+                  const dotColor = index === 0 ? RED : isDark ? "rgba(240,236,228,0.7)" : "#444";
+                  const labelColor = isDark ? "#e8e4dc" : "#111";
+                  return (
+                    <g>
+                      <line x1={x1} y1={cy} x2={x2 - dotR} y2={cy} stroke={lineColor} strokeWidth={isTop3 ? 2 : 1.5} />
+                      <circle cx={x2} cy={cy} r={dotR} fill={dotColor} />
+                      <text x={x2 + dotR + 5} y={cy + 4} fontSize={isTop3 ? 11 : 10} fontFamily={MONO} fontWeight={isTop3 ? "700" : "400"} fill={labelColor} style={{ userSelect: "none" }}>
+                        {value.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+                      </text>
+                    </g>
+                  );
+                }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1111,32 +1191,80 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         <SectionHeader
           n="06D"
           tag="DISCIPLINA PARTIDARIA"
-          title="Qual partido convence mais seus deputados?"
-          desc="A Q10 ordena os partidos pelo alinhamento interno: votos alinhados com a orientacao partidaria dividido pelo total de votos com diretriz."
+          title="Qual partido mantém sua bancada mais alinhada?"
+          desc="Alinhamento = votos seguindo a orientação do partido ÷ total de votos com diretriz registrada. Atenção: mede obediência ao partido, não causalidade."
         />
+
+        {/* ── Caixa de explicação das mudanças ── */}
+        <div className="mb-10 border-l-4 border-primary" style={{ borderColor: RED }}>
+          <div className="px-5 py-5" style={{ background: isDark ? "rgba(196,18,48,0.07)" : "rgba(196,18,48,0.04)" }}>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em]" style={{ fontFamily: MONO, color: RED }}>O QUE MEDIMOS E O QUE MUDOU NESTA SEÇÃO</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.7 }}>O QUE O DADO MEDE</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.88 }}>
+                  O percentual de alinhamento mostra com que frequência os deputados de um partido votaram de acordo com a orientação oficial da bancada. <strong>Não é prova de persuasão ou convencimento</strong> — pode ser disciplina interna, pressão partidária, acordo político ou simples coincidência ideológica.
+                </p>
+              </div>
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.7 }}>POR QUE O RANKING BRUTO ENGANA</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.88 }}>
+                  Um partido com 1 deputado e 49 votos pode atingir 100% facilmente. Um partido com 50 mil votos dificilmente passa de 99%. Comparar os dois diretamente é injusto. O modo <strong>Amostra Robusta</strong> abaixo resolve isso filtrando apenas partidos com ≥ {ROBUST_MIN_VOTES} votos com diretriz {!q10Year ? `e ≥ ${ROBUST_MIN_DEPS} deputados` : ""}.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <div className="border px-3 py-2.5" style={{ borderColor: "rgba(196,18,48,0.25)", background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.6)" }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>① NOVO GRÁFICO</p>
+                <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>Diagrama de dispersão: eixo X = alinhamento (%), eixo Y = volume da amostra. Você vê confiabilidade e disciplina ao mesmo tempo.</p>
+              </div>
+              <div className="border px-3 py-2.5" style={{ borderColor: "rgba(196,18,48,0.25)", background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.6)" }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>② MODO ROBUSTO</p>
+                <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>Toggle abaixo filtra apenas partidos com amostra suficiente, tornando o topo do ranking comparável e estatisticamente confiável.</p>
+              </div>
+              <div className="border px-3 py-2.5" style={{ borderColor: "rgba(196,18,48,0.25)", background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.6)" }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>③ LEITURA DOS PONTOS</p>
+                <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>Ponto canto superior-direito = alta disciplina + amostra grande = resultado confiável. Canto inferior-direito = alta disciplina mas amostra pequena = suspeito.</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Filtro por ANO */}
         <p className="mb-2 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>FILTRAR POR ANO</p>
         <div className="mb-5 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setQ10Year("")}
-            className="border px-3 py-1.5 text-xs font-bold"
-            style={{ fontFamily: MONO, borderColor: !q10Year ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2", color: !q10Year ? (isDark ? RED : "#007fff") : "var(--muted-foreground)", background: !q10Year && !isDark ? "rgba(0,127,255,0.08)" : "transparent" }}
-          >
+          <button type="button" onClick={() => setQ10Year("")} className="border px-3 py-1.5 text-xs font-bold"
+            style={{ fontFamily: MONO, borderColor: !q10Year ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2", color: !q10Year ? (isDark ? RED : "#007fff") : "var(--muted-foreground)", background: !q10Year && !isDark ? "rgba(0,127,255,0.08)" : "transparent" }}>
             TODOS
           </button>
           {years.map((year) => (
-            <button
-              key={year.value}
-              type="button"
-              onClick={() => setQ10Year(year.value)}
-              className="border px-3 py-1.5 text-xs font-bold"
-              style={{ fontFamily: MONO, borderColor: q10Year === year.value ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2", color: q10Year === year.value ? (isDark ? RED : "#007fff") : "var(--muted-foreground)", background: q10Year === year.value && !isDark ? "rgba(0,127,255,0.08)" : "transparent" }}
-            >
+            <button key={year.value} type="button" onClick={() => setQ10Year(year.value)} className="border px-3 py-1.5 text-xs font-bold"
+              style={{ fontFamily: MONO, borderColor: q10Year === year.value ? (isDark ? RED : "#007fff") : isDark ? "rgba(240,236,228,0.12)" : "#d9e4f2", color: q10Year === year.value ? (isDark ? RED : "#007fff") : "var(--muted-foreground)", background: q10Year === year.value && !isDark ? "rgba(0,127,255,0.08)" : "transparent" }}>
               {year.label}
             </button>
           ))}
+        </div>
+
+        {/* Toggle Amostra Robusta */}
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <p className="text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>MODO DE EXIBIÇÃO</p>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setQ10RobustMode(false)}
+              className="border px-3 py-1.5 text-xs font-bold transition-colors"
+              style={{ fontFamily: MONO, borderColor: !q10RobustMode ? RED : "var(--border)", background: !q10RobustMode ? `${RED}18` : "transparent", color: !q10RobustMode ? RED : "var(--muted-foreground)" }}>
+              TODOS OS PARTIDOS ({fmtNum(q10Rows.length)})
+            </button>
+            <button type="button" onClick={() => setQ10RobustMode(true)}
+              className="border px-3 py-1.5 text-xs font-bold transition-colors"
+              style={{ fontFamily: MONO, borderColor: q10RobustMode ? RED : "var(--border)", background: q10RobustMode ? `${RED}18` : "transparent", color: q10RobustMode ? RED : "var(--muted-foreground)" }}>
+              AMOSTRA ROBUSTA ≥{ROBUST_MIN_VOTES} votos ({fmtNum(q10RobustRows.length)})
+            </button>
+          </div>
+          {q10RobustMode && (
+            <span className="text-xs" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.55 }}>
+              Critérios: ≥ {ROBUST_MIN_VOTES} votos com diretriz{!q10Year ? ` · ≥ ${ROBUST_MIN_DEPS} deputados` : ""}
+            </span>
+          )}
         </div>
 
         {/* Filtro por PARTIDO */}
@@ -1145,44 +1273,139 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           <SearchInput value={q10PartySearch} onChange={setQ10PartySearch} placeholder="Pesquisar partido (ex: PT, PL, MDB)..." />
         </div>
 
-        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-3" style={q8SoftGridStyle}>
-          <StatCard label="PARTIDO MAIS ALINHADO" value={text(q10Rows[0], "sigla_partido") || "-"} sub={q10Rows[0] ? fmtPct(raw(q10Rows[0], "pct_alinhamento")) : undefined} />
-          <StatCard label="VOTOS COM DIRETRIZ" value={fmtNum(q10Rows.reduce((sum, row) => sum + raw(row, q10VoteTotalKey), 0))} />
-          <StatCard label="PARTIDOS NO RANKING" value={fmtNum(q10Rows.length)} />
+        {/* Cards de resumo */}
+        <div className="mb-8 grid grid-cols-1 gap-px border border-border md:grid-cols-4" style={q8SoftGridStyle}>
+          <StatCard
+            label={q10RobustMode ? "MAIS ALINHADO (ROBUSTO)" : "PARTIDO MAIS ALINHADO"}
+            value={text(q10ActiveRows[0], "sigla_partido") || "-"}
+            sub={q10ActiveRows[0] ? `${fmtPct(raw(q10ActiveRows[0], "pct_alinhamento"))} · ${fmtNum(raw(q10ActiveRows[0], q10VoteTotalKey))} votos` : undefined}
+          />
+          <StatCard label="VOTOS COM DIRETRIZ" value={fmtNum(q10ActiveRows.reduce((s, r) => s + raw(r, q10VoteTotalKey), 0))} />
+          <StatCard label="PARTIDOS EXIBIDOS" value={fmtNum(q10ActiveRows.length)} sub={q10RobustMode ? `de ${fmtNum(q10Rows.length)} totais` : undefined} />
+          <StatCard
+            label="MEDIANA ALINHAMENTO"
+            value={(() => {
+              const sorted = [...q10ActiveRows].sort((a, b) => raw(a, "pct_alinhamento") - raw(b, "pct_alinhamento"));
+              const mid = Math.floor(sorted.length / 2);
+              return sorted.length ? fmtPct(raw(sorted[mid], "pct_alinhamento")) : "-";
+            })()}
+          />
         </div>
 
-        <div className="mb-4 flex flex-wrap items-center gap-4">
+        {/* Legenda de ideologia */}
+        <div className="mb-3 flex flex-wrap items-center gap-4">
           {(["esquerda", "centro", "direita", "nao classificado"] as const).map((label) => (
             <div key={label} className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: IDEOLOGY_COLORS[label] }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: IDEOLOGY_COLORS[label] }} />
               <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{label.toUpperCase()}</span>
             </div>
           ))}
+          <span className="text-xs text-muted-foreground" style={{ fontFamily: MONO, opacity: 0.6 }}>· ponto grande = amostra robusta (≥{ROBUST_MIN_VOTES} votos)</span>
         </div>
 
-        <div className="mb-10" style={{ height: Math.max(400, q10Rows.length * 34) }}>
+        {/* ── SCATTER CHART: alinhamento × volume da amostra ── */}
+        <div className="mb-4 border border-border" style={{ height: 560, background: isDark ? "#080808" : "#fafafa" }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={q10Rows} layout="vertical" margin={{ left: 0, right: 50, top: 0, bottom: 0 }}>
-              <XAxis type="number" domain={[0, 100]} tick={{ fill: isDark ? "#888880" : "#0069ff", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-              <YAxis type="category" dataKey="sigla_partido" width={72} tick={{ fill: isDark ? "#888880" : "#315f37", fontSize: 10, fontFamily: MONO }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ background: isDark ? "#141414" : "#ffffff", border: isDark ? "1px solid rgba(240,236,228,0.12)" : "1px solid #d9e4f2", fontFamily: MONO, fontSize: 11, color: isDark ? "#fff" : "#315f37" }}
-                itemStyle={{ color: isDark ? "#fff" : "#315f37" }}
-                labelStyle={{ color: isDark ? "#fff" : "#315f37" }}
-                formatter={(value, _name, props) => [`${value}%`, `${props.payload.sigla_partido} · ${props.payload.ideologia ?? ""}`]}
+            <ScatterChart margin={{ top: 20, right: 24, bottom: 52, left: 64 }}>
+              <XAxis
+                type="number"
+                dataKey="x"
+                domain={[
+                  Math.max(50, Math.floor((q10ScatterData.length ? Math.min(...q10ScatterData.map((d) => d.x)) : 80) - 3)),
+                  100.5,
+                ]}
+                tick={{ fill: isDark ? "#888880" : "#555", fontSize: 10, fontFamily: MONO }}
+                axisLine={{ stroke: isDark ? "rgba(240,236,228,0.08)" : "rgba(0,0,0,0.08)" }}
+                tickLine={false}
+                tickFormatter={(v: number) => `${v}%`}
+                label={{ value: "% ALINHAMENTO À ORIENTAÇÃO PARTIDÁRIA", position: "insideBottom", offset: -36, fill: isDark ? "#666" : "#888", fontSize: 10, fontFamily: MONO }}
               />
-              <Bar dataKey="pct_alinhamento" maxBarSize={22} label={{ position: "right", fill: isDark ? "#888880" : "#315f37", fontSize: 10, fontFamily: MONO, formatter: (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` }}>
-                {q10Rows.map((row) => (
-                  <Cell key={text(row, "sigla_partido")} fill={IDEOLOGY_COLORS[text(row, "ideologia")] ?? "#555"} />
-                ))}
-              </Bar>
-            </BarChart>
+              <YAxis
+                type="number"
+                dataKey="yLog"
+                domain={[0, "auto"]}
+                tick={{ fill: isDark ? "#888880" : "#555", fontSize: 10, fontFamily: MONO }}
+                axisLine={{ stroke: isDark ? "rgba(240,236,228,0.08)" : "rgba(0,0,0,0.08)" }}
+                tickLine={false}
+                tickFormatter={(v: number) => fmtNum(Math.round(Math.pow(10, v)))}
+                label={{ value: "VOTOS COM DIRETRIZ (log)", angle: -90, position: "insideLeft", offset: 12, fill: isDark ? "#666" : "#888", fontSize: 10, fontFamily: MONO }}
+              />
+              <Tooltip
+                cursor={{ strokeDasharray: "3 3", stroke: isDark ? "rgba(240,236,228,0.2)" : "rgba(0,0,0,0.1)" }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const d = payload[0]?.payload as Q10Point | undefined;
+                  if (!d) return null;
+                  const isRobust = d.votos >= ROBUST_MIN_VOTES;
+                  return (
+                    <div style={{ background: isDark ? "#141414" : "#fff", border: `1px solid ${IDEOLOGY_COLORS[d.ideologia] ?? "#555"}`, padding: "10px 14px", fontFamily: MONO, fontSize: 11, minWidth: 200 }}>
+                      <p style={{ fontWeight: "bold", color: IDEOLOGY_COLORS[d.ideologia] ?? "#555", marginBottom: 6 }}>{d.sigla} · {d.ideologia.toUpperCase()}</p>
+                      <p style={{ color: "var(--foreground)" }}>Alinhamento: <strong>{d.pct.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</strong></p>
+                      <p style={{ color: "var(--foreground)" }}>Votos com diretriz: {fmtNum(d.votos)}</p>
+                      {d.alinhados > 0 && <p style={{ color: "var(--foreground)" }}>Votos alinhados: {fmtNum(d.alinhados)}</p>}
+                      {d.contrarios > 0 && <p style={{ color: "var(--foreground)" }}>Votos contrários: {fmtNum(d.contrarios)}</p>}
+                      {d.deps > 0 && <p style={{ color: "var(--foreground)" }}>Deputados: {d.deps}</p>}
+                      <p style={{ color: isRobust ? "#4a7c59" : "#c4813a", marginTop: 4, fontWeight: "bold" }}>
+                        {isRobust ? "✓ AMOSTRA ROBUSTA" : "⚠ AMOSTRA PEQUENA"}
+                      </p>
+                    </div>
+                  );
+                }}
+              />
+              {/* Linha de referência: amostra robusta (500 votos) */}
+              <ReferenceLine
+                y={Math.log10(ROBUST_MIN_VOTES + 1)}
+                stroke={isDark ? "rgba(196,18,48,0.3)" : "rgba(196,18,48,0.2)"}
+                strokeDasharray="5 4"
+                label={{ value: `≥ ${ROBUST_MIN_VOTES} votos → AMOSTRA ROBUSTA`, position: "insideTopRight", fontSize: 9, fontFamily: MONO, fill: isDark ? "rgba(196,18,48,0.7)" : RED }}
+              />
+              {/* Linha de referência: alta disciplina (95%) */}
+              <ReferenceLine
+                x={95}
+                stroke={isDark ? "rgba(240,236,228,0.12)" : "rgba(0,0,0,0.1)"}
+                strokeDasharray="5 4"
+                label={{ value: "95%", position: "insideTopLeft", fontSize: 9, fontFamily: MONO, fill: isDark ? "rgba(240,236,228,0.4)" : "#999" }}
+              />
+              {/* Um Scatter por ideologia para colorir corretamente */}
+              {Object.entries(q10ByIdeology).map(([ideo, data]) => (
+                <Scatter
+                  key={ideo}
+                  data={data}
+                  shape={(props: { cx?: number; cy?: number; payload?: Q10Point }) => {
+                    const { cx = 0, cy = 0, payload } = props;
+                    if (!payload) return <g />;
+                    const color = IDEOLOGY_COLORS[payload.ideologia] ?? "#555";
+                    const isRobust = payload.votos >= ROBUST_MIN_VOTES;
+                    const r = isRobust ? 6 : 3.5;
+                    const textFill   = isDark ? "#e8e4dc" : "#111111";
+                    const shadowFill = isDark ? "#000000" : "#ffffff";
+                    return (
+                      <g>
+                        <circle cx={cx} cy={cy} r={r} fill={color} opacity={isRobust ? 0.92 : 0.48} stroke={isRobust ? (isDark ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.7)") : "none"} strokeWidth={1} />
+                        {/* halo branco/preto para legibilidade sobre qualquer fundo */}
+                        <text x={cx + r + 5} y={cy + 4} fontSize={isRobust ? 10 : 9} fontFamily={MONO} fontWeight={isRobust ? "700" : "500"} fill={shadowFill} stroke={shadowFill} strokeWidth={3} strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
+                          {payload.sigla}
+                        </text>
+                        <text x={cx + r + 5} y={cy + 4} fontSize={isRobust ? 10 : 9} fontFamily={MONO} fontWeight={isRobust ? "700" : "500"} fill={textFill} style={{ pointerEvents: "none", userSelect: "none" }}>
+                          {payload.sigla}
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
+              ))}
+            </ScatterChart>
           </ResponsiveContainer>
         </div>
 
+        {/* Nota do gráfico */}
+        <p className="mb-10 text-xs" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.5 }}>
+          Passe o mouse sobre cada ponto para ver os detalhes. Pontos maiores e opacos = amostra robusta (≥{ROBUST_MIN_VOTES} votos, com rótulo). Pontos menores e semi-transparentes = amostra pequena. A linha tracejada vermelha marca o limiar de amostra robusta. Escala do eixo Y é logarítmica.
+        </p>
+
         {/* Tabela principal — inicialmente escondida (abre ao mostrar ou ao pesquisar partido) */}
         <CollapsibleSection
-          title={`RANKING DE PARTIDOS · ${fmtNum(q10FilteredRows.length)} ${q10PartyActive ? "ENCONTRADOS" : "PARTIDOS"}`}
+          title={`RANKING DE PARTIDOS${q10RobustMode ? " · AMOSTRA ROBUSTA" : ""} · ${fmtNum(q10FilteredRows.length)} ${q10PartyActive ? "ENCONTRADOS" : "PARTIDOS"}`}
           open={q10TableOpen || q10PartyActive}
           onToggle={() => setQ10TableOpen((v) => !v)}
         >
@@ -1201,7 +1424,6 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
               title="Alinhamento interno por ano"
               desc="Tabela complementar da Q10 para comparar a disciplina partidaria ano a ano."
             />
-            {/* Tabela anual — inicialmente escondida (abre ao mostrar ou ao pesquisar partido) */}
             <CollapsibleSection
               title={`ALINHAMENTO POR ANO · ${fmtNum(q10AnnualFiltered.length)} ${q10PartyActive ? "ENCONTRADAS" : "LINHAS"}`}
               open={q10AnnualOpen || q10PartyActive}

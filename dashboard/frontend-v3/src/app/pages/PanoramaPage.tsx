@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, Treemap, XAxis, YAxis } from "recharts";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
 import { fetchQuestion } from "../api";
@@ -871,97 +871,132 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
       {activeSection === "categorias" && (
       <Section n="01B" tag="CATEGORIAS" title="No geral, onde os deputados mais gastam?" sub="CEAP CONSOLIDADA 2023-2026 · TODAS AS CATEGORIAS DE DESPESA · TOP 10">
 
-        {/* Gráfico horizontal */}
+        {/* Treemap de categorias */}
         {catTop10.length > 0 ? (() => {
-          const maxVal = raw(catTop10[0], "total_gasto") || 1;
-          const barData = catTop10.map((r, i) => ({
+          const TREE_COLORS = [
+            RED,
+            "#a81828",
+            "#c84a10",
+            "#a03808",
+            "#8c5820",
+            "#7c4830",
+            "#6c3828",
+            "#5c3020",
+            "#4c2818",
+            "#3c2010",
+          ];
+          const treeData = catTop10.map((r, i) => ({
             name: abrevCat(str(r, "descricao_despesa")),
-            total: raw(r, "total_gasto"),
+            fullName: str(r, "descricao_despesa"),
+            size: raw(r, "total_gasto"),
             pct: raw(r, "pct_total"),
-            fill: i === 0 ? RED : i < 3 ? "#d4841a" : "rgba(196,18,48,0.40)",
+            total: raw(r, "total_gasto"),
+            rank: i + 1,
+            color: TREE_COLORS[i] ?? "#3c2010",
           }));
+
+          const TreeCell = (props: {
+            x?: number; y?: number; width?: number; height?: number;
+            name?: string; pct?: number; total?: number; rank?: number; color?: string;
+          }) => {
+            const { x = 0, y = 0, width = 0, height = 0, name = "", pct = 0, total = 0, rank = 1, color = RED } = props;
+            if (width < 10 || height < 10) return null;
+            const tooNarrow  = width  < 72;
+            const tooShort   = height < 48;
+            const showLabel  = !tooNarrow && !tooShort;
+            const showPct    = !tooNarrow && height >= 32;
+            const pad = 8;
+            const maxChars = Math.floor((width - pad * 2) / 7);
+            const label = name.length > maxChars ? `${name.slice(0, maxChars - 1)}…` : name;
+            return (
+              <g>
+                <rect x={x} y={y} width={width} height={height} fill={color} stroke="#000" strokeWidth={1.5} strokeOpacity={0.35} rx={2} />
+                {/* overlay escuro suave para contraste do texto */}
+                <rect x={x} y={y} width={width} height={height} fill="rgba(0,0,0,0.18)" rx={2} />
+                {showLabel && (
+                  <text
+                    x={x + pad}
+                    y={y + pad + 11}
+                    fontSize={11}
+                    fontFamily={MONO}
+                    fontWeight="600"
+                    fill="rgba(255,255,255,0.88)"
+                    style={{ userSelect: "none", pointerEvents: "none" }}
+                  >
+                    {label}
+                  </text>
+                )}
+                {showPct && (
+                  <text
+                    x={x + pad}
+                    y={showLabel ? y + height - pad - 2 : y + height / 2 + 6}
+                    fontSize={showLabel ? 18 : 13}
+                    fontFamily={MONO}
+                    fontWeight="800"
+                    fill="#ffffff"
+                    style={{ userSelect: "none", pointerEvents: "none" }}
+                  >
+                    {pct.toFixed(1)}%
+                  </text>
+                )}
+                {/* número do ranking no canto superior direito */}
+                {width >= 28 && height >= 28 && (
+                  <text
+                    x={x + width - pad}
+                    y={y + pad + 10}
+                    fontSize={10}
+                    fontFamily={MONO}
+                    fontWeight="700"
+                    fill="rgba(255,255,255,0.45)"
+                    textAnchor="end"
+                    style={{ userSelect: "none", pointerEvents: "none" }}
+                  >
+                    #{rank}
+                  </text>
+                )}
+              </g>
+            );
+          };
 
           return (
             <div className="mb-10">
-              <div className="mb-2 h-[340px] border border-border p-4" style={{ background: "var(--card)" }}>
+              <div className="mb-2 border border-border" style={{ height: 380, background: "#080808" }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    layout="vertical"
-                    data={barData}
-                    margin={{ left: 0, right: 80, top: 8, bottom: 8 }}
-                    barCategoryGap="28%"
+                  <Treemap
+                    data={treeData}
+                    dataKey="size"
+                    aspectRatio={16 / 9}
+                    stroke="transparent"
+                    content={<TreeCell />}
                   >
-                    <XAxis
-                      type="number"
-                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 11, fontFamily: MONO }}
-                      axisLine={false}
-                      tickLine={false}
-                      tickFormatter={(v: number) =>
-                        v >= 1_000_000 ? `R$${(v / 1_000_000).toFixed(0)}M` : `R$${(v / 1_000).toFixed(0)}k`
-                      }
-                    />
-                    <YAxis
-                      type="category"
-                      dataKey="name"
-                      width={250}
-                      tick={{ fill: "var(--chart-axis-fill)", fontSize: 13, fontFamily: MONO, fontWeight: 700 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
                     <Tooltip
                       contentStyle={{ background: "var(--chart-tooltip-bg)", border: "1px solid var(--chart-tooltip-border)", color: "var(--chart-tooltip-text)", fontFamily: MONO, fontSize: 12 }}
-                      itemStyle={{ color: "var(--chart-tooltip-text)" }}
-                      labelStyle={{ color: "var(--chart-tooltip-text)" }}
-                      formatter={(v: number, _: string, e: { payload?: { pct?: number } }) => [
-                        `${fmtCurrency(v)}  ·  ${(e.payload?.pct ?? 0).toFixed(1)}% do total`,
-                        "Total CEAP",
+                      formatter={(_v: unknown, _n: string, e: { payload?: { fullName?: string; pct?: number; total?: number } }) => [
+                        `${fmtCurrency(e.payload?.total ?? 0)}  ·  ${(e.payload?.pct ?? 0).toFixed(2)}% do total`,
+                        e.payload?.fullName ?? "",
                       ]}
                     />
-                    <Bar dataKey="total" radius={[0, 2, 2, 0]} maxBarSize={18}>
-                      {barData.map((d, i) => (
-                        <Cell key={i} fill={d.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
+                  </Treemap>
                 </ResponsiveContainer>
               </div>
+              <p className="mb-4 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                Área proporcional ao gasto total · passe o mouse para ver detalhes · #1 = maior gasto
+              </p>
 
               {/* Mini legenda com % */}
               <div className="grid grid-cols-2 gap-px border border-border sm:grid-cols-5" style={{ background: "rgba(240,236,228,0.06)" }}>
                 {catTop10.slice(0, 5).map((r, i) => (
                   <div key={i} className="bg-background px-4 py-3">
-                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: i === 0 ? RED : i < 3 ? "#d4841a" : "var(--foreground)" }}>
+                    <p className="mb-1 text-base font-black" style={{ fontFamily: MONO, color: TREE_COLORS[i] ?? RED }}>
                       {raw(r, "pct_total").toFixed(1)}%
                     </p>
                     <p className="text-xs font-semibold leading-snug text-muted-foreground" style={{ fontFamily: MONO }}>
                       {abrevCat(str(r, "descricao_despesa"))}
                     </p>
-                    <div className="mt-2 h-0.5" style={{ background: `linear-gradient(to right, ${i === 0 ? RED : i < 3 ? "#d4841a" : "rgba(196,18,48,0.4)"} ${(raw(r, "pct_total") / raw(catTop10[0], "pct_total")) * 100}%, transparent 0%)` }} />
+                    <div className="mt-2 h-0.5" style={{ background: `linear-gradient(to right, ${TREE_COLORS[i] ?? RED} ${(raw(r, "pct_total") / raw(catTop10[0], "pct_total")) * 100}%, transparent 0%)` }} />
                   </div>
                 ))}
               </div>
-
-              {/* Barra de proporção visual */}
-              <div className="mt-3 flex h-3 overflow-hidden border border-border">
-                {catTop10.map((r, i) => {
-                  const w = (raw(r, "total_gasto") / maxVal) * 100 / catTop10.length * catTop10.length;
-                  const pct = raw(r, "pct_total");
-                  return (
-                    <div
-                      key={i}
-                      title={`${abrevCat(str(r, "descricao_despesa"))}: ${pct.toFixed(1)}%`}
-                      style={{
-                        width: `${pct}%`,
-                        background: i === 0 ? RED : i === 1 ? "#b05010" : i === 2 ? "#a04828" : i < 5 ? "rgba(196,18,48,0.5)" : "rgba(196,18,48,0.2)",
-                        transition: "width 0.6s ease",
-                      }}
-                    />
-                  );
-                })}
-              </div>
-              <p className="mt-1 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>
-                Barra proporcional ao % do total · hover para ver categoria
-              </p>
             </div>
           );
         })() : (
