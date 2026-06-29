@@ -11,3 +11,5 @@ artifacts/q3/q3_votos_analitico.csv
 artifacts/gastos/*.csv
 artifacts/gastos/gastos_metadata.json
 artifacts/gastos/auditoria_*.json
+
+.tmp/

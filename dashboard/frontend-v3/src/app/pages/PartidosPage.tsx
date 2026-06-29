@@ -46,6 +46,15 @@ type AnnualPartySnapshot = {
   expenses: number;
 };
 
+type PartyExpenseCategory = {
+  rank: number;
+  category: string;
+  spending: number;
+  percent: number;
+  launches: number;
+  deputies: number;
+};
+
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
 const sectionTitleStyle = { fontFamily: SERIF, color: "var(--foreground)" };
@@ -158,6 +167,49 @@ function tableRows(payload: QuestionPayload | null, kind: "presence" | "proposal
     return title.includes("gastos");
   });
   return table?.rows ?? [];
+}
+
+function compactExpenseCategory(value: string) {
+  return value
+    .replace("DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.", "Divulgacao parlamentar")
+    .replace("PASSAGEM AÉREA - SIGEPA", "Passagem aerea")
+    .replace("PASSAGEM AÉREA - RPA", "Passagem aerea")
+    .replace("PASSAGEM AÉREA - REEMBOLSO", "Passagem aerea")
+    .replace("LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES", "Locacao de veiculos")
+    .replace("LOCAÇÃO OU FRETAMENTO DE AERONAVES", "Locacao de aeronaves")
+    .replace("LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES", "Locacao de embarcacoes")
+    .replace("MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR", "Manutencao de escritorio")
+    .replace("COMBUSTÍVEIS E LUBRIFICANTES.", "Combustiveis")
+    .replace("HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.", "Hospedagem")
+    .replace("FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR", "Alimentacao")
+    .replace("SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO", "Taxi, pedagio e estacionamento")
+    .replace("TELEFONIA", "Telefonia")
+    .trim();
+}
+
+function partyExpenseCategories(payload: QuestionPayload | null, partyId: string, year: string): PartyExpenseCategory[] {
+  if (!payload || !partyId) return [];
+  const targetTable =
+    findTable(payload, (table) => {
+      const title = table.title.toLowerCase();
+      return title.includes("categorias de gasto por partido") && (year ? title.includes("por ano") : !title.includes("por ano"));
+    }) ??
+    findTable(payload, (table) => table.title.toLowerCase().includes("categorias de gasto por partido"));
+
+  const rows = (targetTable?.rows ?? []) as Array<Record<string, unknown>>;
+  return rows
+    .filter((row) => text(row, "sigla_partido") === partyId)
+    .filter((row) => !year || String(row.ano_dados ?? "") === year)
+    .map((row) => ({
+      rank: raw(row, "posicao_categoria"),
+      category: compactExpenseCategory(text(row, "descricao_despesa")),
+      spending: raw(row, "gasto_total"),
+      percent: raw(row, "pct_gasto_partido"),
+      launches: raw(row, "qtd_lancamentos"),
+      deputies: raw(row, "qtd_deputados"),
+    }))
+    .sort((a, b) => a.rank - b.rank || b.spending - a.spending)
+    .slice(0, 10);
 }
 
 function normalizePartyOptions(rows: Array<Record<string, unknown>>, metaParties: FilterChoice[]): Party[] {
@@ -446,6 +498,10 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         };
       }),
     [annualPayloads, metaParties, selectedPartyId, years],
+  );
+  const selectedExpenseCategories = useMemo(
+    () => partyExpenseCategories(selectedPayload ?? payload, selectedPartyId, selectedYear),
+    [payload, selectedPayload, selectedPartyId, selectedYear],
   );
   const presenceRank = selected ? sortedParties.findIndex((party) => party.id === selected.id) + 1 : 0;
 
@@ -870,6 +926,54 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                   <p className="text-[13px] font-semibold leading-relaxed" style={contrastMutedStyle}>
                     Ranking de gastos: #{selected.spendingRank || "-"} entre os partidos listados na Q11.c. Use os anos no topo para alternar entre todos os anos e um ano especifico.
                   </p>
+
+                  <div className="mt-8 border border-border p-5" style={{ background: "var(--card)" }}>
+                    <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="text-[13px] font-black uppercase tracking-[0.18em]" style={{ color: "var(--foreground)", fontFamily: MONO }}>
+                          PRINCIPAIS CATEGORIAS DE GASTO
+                        </p>
+                        <p className="mt-1 text-[12px] font-semibold" style={contrastMutedStyle}>
+                          Q11.e - ordenado do maior gasto para o menor {selectedYear ? `em ${selectedYear}` : "no periodo consolidado"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {selectedExpenseCategories.length > 0 ? (
+                      <div className="flex flex-col gap-3">
+                        {(() => {
+                          const maxVal = Math.max(...selectedExpenseCategories.map((item) => item.spending), 1);
+                          return selectedExpenseCategories.map((item) => {
+                            const pct = (item.spending / maxVal) * 100;
+                            return (
+                              <div key={`${item.rank}-${item.category}`} className="grid gap-2">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-black leading-snug" style={{ color: "var(--foreground)", fontFamily: MONO }}>
+                                      {String(item.rank).padStart(2, "0")} · {item.category}
+                                    </p>
+                                    <p className="mt-0.5 text-[11px] font-semibold" style={contrastMutedStyle}>
+                                      {item.launches.toLocaleString("pt-BR")} lancamentos · {item.deputies.toLocaleString("pt-BR")} deputados · {item.percent.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% do partido
+                                    </p>
+                                  </div>
+                                  <p className="shrink-0 text-right text-sm font-black tabular-nums" style={{ color: selected.color, fontFamily: MONO }}>
+                                    {formatCurrency(item.spending)}
+                                  </p>
+                                </div>
+                                <div className="h-2.5 overflow-hidden" style={{ background: isDark ? "rgba(240,236,228,0.08)" : "rgba(15,23,42,0.08)" }}>
+                                  <div style={{ width: `${pct}%`, height: "100%", background: selected.color }} />
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    ) : (
+                      <p className="text-sm font-semibold" style={contrastMutedStyle}>
+                        Sem categorias de gasto detalhadas para este partido no filtro atual.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -1096,38 +1200,38 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
             </div>
 
             {METODOS.map((m) => (
-              <div key={m.id} className="mb-2 border border-border" style={{ background: "var(--card)" }}>
+              <div key={m.id} className="mb-3 border border-border" style={{ background: "var(--card)" }}>
                 <button
                   type="button"
                   onClick={() => toggleMetodo(m.id)}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+                  className="flex w-full items-center justify-between px-5 py-5 text-left transition-colors hover:bg-white/[0.03] md:px-6"
                 >
                   <div>
-                    <p className="text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.titulo}</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground" style={{ fontFamily: MONO }}>{m.origem}</p>
+                    <p className="text-base font-black leading-tight md:text-lg" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.titulo}</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] md:text-[13px]" style={{ color: RED, fontFamily: MONO }}>{m.origem}</p>
                   </div>
-                  <span className="ml-4 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  <span className="ml-4 shrink-0 text-sm font-black md:text-base" style={{ color: RED, fontFamily: MONO }}>
                     {metodoOpen[m.id] ? "▲" : "▼"}
                   </span>
                 </button>
 
                 {metodoOpen[m.id] && (
-                  <div className="border-t border-border px-5 py-5" style={{ background: "var(--card)" }}>
+                  <div className="border-t border-border px-5 py-6 md:px-6" style={{ background: "var(--card)" }}>
                     {/* Formula */}
                     <div className="mb-4 border-l-2 py-2 pl-4" style={{ borderColor: "var(--primary)" }}>
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Formula</p>
-                      <p className="mt-1 text-sm font-bold" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
+                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: RED, fontFamily: MONO }}>Formula</p>
+                      <p className="mt-1 text-base font-bold leading-relaxed" style={{ color: "var(--foreground)", fontFamily: MONO }}>{m.formula}</p>
                     </div>
                     {/* Passos */}
-                    <div className="mb-4 flex flex-col gap-2">
+                    <div className="mb-5 flex flex-col gap-3">
                       {m.passos.map((p, pi) => (
-                        <p key={pi} className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{p}</p>
+                        <p key={pi} className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ color: "var(--foreground)", opacity: 0.88, fontFamily: MONO }}>{p}</p>
                       ))}
                     </div>
                     {/* Interpretacao */}
-                    <div className="border border-border p-3" style={{ background: "rgba(196,18,48,0.06)" }}>
-                      <p className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Como interpretar</p>
-                      <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: MONO }}>{m.interpretacao}</p>
+                    <div className="border border-border p-4" style={{ background: "rgba(196,18,48,0.08)" }}>
+                      <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: RED, fontFamily: MONO }}>Como interpretar</p>
+                      <p className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ color: "var(--foreground)", opacity: 0.9, fontFamily: MONO }}>{m.interpretacao}</p>
                     </div>
                   </div>
                 )}

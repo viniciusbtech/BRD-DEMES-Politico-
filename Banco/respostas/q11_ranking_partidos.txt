@@ -422,3 +422,1038 @@ Cada partido e um termo; a frequencia e um score normalizado combinando votacoes
       28 | REPUBLICA     | nao classificado |              0 |                 1 |            0 |          0.00 |             0.00 |        0.00 |        0.00 |       0.00
 (32 rows)
 
+
+Q11.e - Categorias de gasto por partido (consolidado)
+ posicao_categoria | sigla_partido |                     descricao_despesa                     | qtd_lancamentos | qtd_deputados | gasto_total | pct_gasto_partido 
+-------------------+---------------+-----------------------------------------------------------+-----------------+---------------+-------------+-------------------
+                 1 | AVANTE        | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             643 |             5 |  2702387.43 |             38.02
+                 2 | AVANTE        | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             194 |             5 |  1593983.85 |             22.43
+                 3 | AVANTE        | PASSAGEM AÉREA - SIGEPA                                   |            1231 |             5 |  1471573.26 |             20.71
+                 4 | AVANTE        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             359 |             4 |   621091.76 |              8.74
+                 5 | AVANTE        | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1301 |             5 |   522084.51 |              7.35
+                 6 | AVANTE        | TELEFONIA                                                 |             585 |             5 |   152635.08 |              2.15
+                 7 | AVANTE        | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              22 |             4 |    19194.19 |              0.27
+                 8 | AVANTE        | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             395 |             2 |    11900.10 |              0.17
+                 9 | AVANTE        | PASSAGEM AÉREA - REEMBOLSO                                |               3 |             2 |     5879.70 |              0.08
+                10 | AVANTE        | PASSAGEM AÉREA - RPA                                      |               2 |             2 |     4415.12 |              0.06
+                 1 | CIDADANIA     | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             115 |             2 |  1072805.61 |             37.02
+                 2 | CIDADANIA     | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             634 |             3 |   849364.96 |             29.31
+                 3 | CIDADANIA     | PASSAGEM AÉREA - SIGEPA                                   |             399 |             3 |   528440.08 |             18.24
+                 4 | CIDADANIA     | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              44 |             3 |   188345.15 |              6.50
+                 5 | CIDADANIA     | COMBUSTÍVEIS E LUBRIFICANTES.                             |             707 |             2 |   113507.87 |              3.92
+                 6 | CIDADANIA     | PASSAGEM AÉREA - REEMBOLSO                                |               7 |             3 |    43960.55 |              1.52
+                 7 | CIDADANIA     | TELEFONIA                                                 |             250 |             3 |    38506.02 |              1.33
+                 8 | CIDADANIA     | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             356 |             2 |    33890.82 |              1.17
+                 9 | CIDADANIA     | PASSAGEM AÉREA - RPA                                      |               8 |             1 |    18035.77 |              0.62
+                10 | CIDADANIA     | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              22 |             2 |    10126.49 |              0.35
+                 1 | MDB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            3315 |            47 | 26659727.45 |             43.04
+                 2 | MDB           | PASSAGEM AÉREA - SIGEPA                                   |            9307 |            44 | 10831282.01 |             17.49
+                 3 | MDB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1510 |            44 |  9579336.94 |             15.46
+                 4 | MDB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            3935 |            45 |  5675743.85 |              9.16
+                 5 | MDB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |           15080 |            46 |  4509998.17 |              7.28
+                 6 | MDB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              77 |             9 |  2171402.71 |              3.51
+                 7 | MDB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1712 |            31 |   717494.00 |              1.16
+                 8 | MDB           | TELEFONIA                                                 |            3270 |            47 |   686731.58 |              1.11
+                 9 | MDB           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             126 |             6 |   275939.46 |              0.45
+                10 | MDB           | PASSAGEM AÉREA - RPA                                      |             183 |            24 |   271785.47 |              0.44
+                 1 | MISSAO        | PASSAGEM AÉREA - SIGEPA                                   |             440 |             1 |   476086.67 |             83.65
+                 2 | MISSAO        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              85 |             1 |    93013.64 |             16.34
+                 3 | MISSAO        | TELEFONIA                                                 |              30 |             1 |       28.10 |              0.00
+                 1 | NOVO          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             381 |             5 |  1751098.45 |             32.34
+                 2 | NOVO          | PASSAGEM AÉREA - SIGEPA                                   |            1309 |             5 |  1419405.99 |             26.21
+                 3 | NOVO          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             937 |             5 |   877195.35 |             16.20
+                 4 | NOVO          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             174 |             5 |   663363.68 |             12.25
+                 5 | NOVO          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1513 |             4 |   400781.07 |              7.40
+                 6 | NOVO          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             140 |             5 |    87379.94 |              1.61
+                 7 | NOVO          | PASSAGEM AÉREA - REEMBOLSO                                |              20 |             2 |    75657.85 |              1.40
+                 8 | NOVO          | TELEFONIA                                                 |             382 |             5 |    59726.12 |              1.10
+                 9 | NOVO          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             805 |             4 |    51334.61 |              0.95
+                10 | NOVO          | ASSINATURA DE PUBLICAÇÕES                                 |             117 |             2 |    14265.47 |              0.26
+                 1 | PCDOB         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1068 |            10 |  6026230.48 |             42.30
+                 2 | PCDOB         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1269 |            10 |  2433651.84 |             17.08
+                 3 | PCDOB         | PASSAGEM AÉREA - SIGEPA                                   |            1917 |             9 |  2405310.80 |             16.89
+                 4 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             344 |             9 |  1865577.28 |             13.10
+                 5 | PCDOB         | COMBUSTÍVEIS E LUBRIFICANTES.                             |            3268 |            11 |  1063621.93 |              7.47
+                 6 | PCDOB         | TELEFONIA                                                 |             975 |            10 |   208735.39 |              1.47
+                 7 | PCDOB         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             264 |             8 |   121958.86 |              0.86
+                 8 | PCDOB         | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             655 |             7 |    34566.90 |              0.24
+                 9 | PCDOB         | PASSAGEM AÉREA - REEMBOLSO                                |              13 |             7 |    33406.18 |              0.23
+                10 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |               5 |             1 |    25000.00 |              0.18
+                 1 | PDT           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1435 |            13 |  7837069.91 |             44.55
+                 2 | PDT           | PASSAGEM AÉREA - SIGEPA                                   |            2643 |            13 |  3083167.08 |             17.53
+                 3 | PDT           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             466 |            12 |  2825675.44 |             16.06
+                 4 | PDT           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             974 |            12 |  1698533.20 |              9.66
+                 5 | PDT           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            4912 |            12 |  1161945.71 |              6.61
+                 6 | PDT           | TELEFONIA                                                 |            1074 |            13 |   240743.75 |              1.37
+                 7 | PDT           | PASSAGEM AÉREA - RPA                                      |             113 |            10 |   184146.77 |              1.05
+                 8 | PDT           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              20 |             1 |   161400.00 |              0.92
+                 9 | PDT           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               4 |             2 |   130175.00 |              0.74
+                10 | PDT           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             271 |            11 |   114930.99 |              0.65
+                 1 | PL            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            9996 |           114 | 57536008.39 |             36.58
+                 2 | PL            | PASSAGEM AÉREA - SIGEPA                                   |           25464 |           114 | 27902804.69 |             17.74
+                 3 | PL            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            5210 |           107 | 27812488.33 |             17.68
+                 4 | PL            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |           13863 |           110 | 20972088.56 |             13.33
+                 5 | PL            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           48110 |           112 | 13641485.83 |              8.67
+                 6 | PL            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            5519 |            90 |  3053705.01 |              1.94
+                 7 | PL            | TELEFONIA                                                 |            8327 |           115 |  1645914.04 |              1.05
+                 8 | PL            | PASSAGEM AÉREA - RPA                                      |             872 |            52 |   945671.77 |              0.60
+                 9 | PL            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |           11584 |            74 |   873129.10 |              0.56
+                10 | PL            | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |             131 |             3 |   708968.00 |              0.45
+                 1 | PODE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            3222 |            32 | 19581540.81 |             48.36
+                 2 | PODE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1022 |            28 |  6302189.77 |             15.56
+                 3 | PODE          | PASSAGEM AÉREA - SIGEPA                                   |            5313 |            29 |  5829869.08 |             14.40
+                 4 | PODE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            2208 |            30 |  4433781.24 |             10.95
+                 5 | PODE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            8609 |            31 |  2975452.98 |              7.35
+                 6 | PODE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             598 |            26 |   295444.11 |              0.73
+                 7 | PODE          | TELEFONIA                                                 |            1470 |            33 |   245102.16 |              0.61
+                 8 | PODE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               7 |             2 |   222000.00 |              0.55
+                 9 | PODE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            1301 |            21 |   157908.99 |              0.39
+                10 | PODE          | PASSAGEM AÉREA - REEMBOLSO                                |              42 |            19 |   148378.16 |              0.37
+                 1 | PP            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            7602 |            60 | 32142041.37 |             40.33
+                 2 | PP            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            2200 |            58 | 14659120.50 |             18.39
+                 3 | PP            | PASSAGEM AÉREA - SIGEPA                                   |           10518 |            57 | 12291327.01 |             15.42
+                 4 | PP            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            5819 |            60 |  9110466.51 |             11.43
+                 5 | PP            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           22337 |            61 |  7453730.45 |              9.35
+                 6 | PP            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            2144 |            44 |   969125.31 |              1.22
+                 7 | PP            | TELEFONIA                                                 |            4747 |            59 |   919866.35 |              1.15
+                 8 | PP            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             196 |            14 |   873721.07 |              1.10
+                 9 | PP            | PASSAGEM AÉREA - REEMBOLSO                                |              67 |            33 |   386457.26 |              0.48
+                10 | PP            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |            3687 |            33 |   272141.02 |              0.34
+                 1 | PRD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             282 |             4 |  1607141.87 |             32.15
+                 2 | PRD           | PASSAGEM AÉREA - SIGEPA                                   |             999 |             4 |  1262048.02 |             25.25
+                 3 | PRD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             130 |             5 |   785636.02 |             15.72
+                 4 | PRD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             343 |             5 |   625133.25 |             12.51
+                 5 | PRD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2208 |             5 |   599175.94 |             11.99
+                 6 | PRD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              91 |             5 |    56787.02 |              1.14
+                 7 | PRD           | TELEFONIA                                                 |             204 |             4 |    39868.74 |              0.80
+                 8 | PRD           | PASSAGEM AÉREA - REEMBOLSO                                |               5 |             3 |     9154.53 |              0.18
+                 9 | PRD           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             275 |             4 |     7430.48 |              0.15
+                10 | PRD           | PASSAGEM AÉREA - RPA                                      |               3 |             2 |     3090.78 |              0.06
+                 1 | PSB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1544 |            18 | 11232435.43 |             42.02
+                 2 | PSB           | PASSAGEM AÉREA - SIGEPA                                   |            4351 |            17 |  4790451.29 |             17.92
+                 3 | PSB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             838 |            16 |  4263115.40 |             15.95
+                 4 | PSB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            2293 |            18 |  3052415.04 |             11.42
+                 5 | PSB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            8396 |            17 |  2259035.60 |              8.45
+                 6 | PSB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             623 |            14 |   370242.81 |              1.39
+                 7 | PSB           | TELEFONIA                                                 |            1248 |            18 |   246086.33 |              0.92
+                 8 | PSB           | PASSAGEM AÉREA - RPA                                      |             150 |             7 |   185132.54 |              0.69
+                 9 | PSB           | PASSAGEM AÉREA - REEMBOLSO                                |              24 |            11 |   106360.41 |              0.40
+                10 | PSB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               4 |             1 |    98260.00 |              0.37
+                 1 | PSD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            5202 |            60 | 29936256.73 |             37.39
+                 2 | PSD           | PASSAGEM AÉREA - SIGEPA                                   |           12716 |            62 | 14223509.67 |             17.76
+                 3 | PSD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            2065 |            52 | 12220063.93 |             15.26
+                 4 | PSD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            5842 |            59 | 10382761.80 |             12.97
+                 5 | PSD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |           22880 |            59 |  6869206.23 |              8.58
+                 6 | PSD           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              93 |             7 |  2084560.00 |              2.60
+                 7 | PSD           | TELEFONIA                                                 |            4676 |            63 |  1150945.90 |              1.44
+                 8 | PSD           | PASSAGEM AÉREA - RPA                                      |             762 |            30 |   975186.78 |              1.22
+                 9 | PSD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1751 |            52 |   909176.99 |              1.14
+                10 | PSD           | PASSAGEM AÉREA - REEMBOLSO                                |             121 |            37 |   530839.63 |              0.66
+                 1 | PSDB          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1237 |            17 |  8876940.13 |             35.95
+                 2 | PSDB          | PASSAGEM AÉREA - SIGEPA                                   |            4118 |            16 |  4435126.69 |             17.96
+                 3 | PSDB          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             605 |            16 |  4019282.53 |             16.28
+                 4 | PSDB          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1897 |            17 |  3480029.53 |             14.09
+                 5 | PSDB          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6136 |            17 |  2487002.78 |             10.07
+                 6 | PSDB          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             695 |            10 |   355957.73 |              1.44
+                 7 | PSDB          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              10 |             2 |   253367.80 |              1.03
+                 8 | PSDB          | TELEFONIA                                                 |            1332 |            17 |   179322.77 |              0.73
+                 9 | PSDB          | PASSAGEM AÉREA - RPA                                      |             108 |             9 |   173682.92 |              0.70
+                10 | PSDB          | PASSAGEM AÉREA - REEMBOLSO                                |              50 |            11 |   156077.48 |              0.63
+                 1 | PSOL          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1425 |            14 |  7089711.68 |             34.40
+                 2 | PSOL          | PASSAGEM AÉREA - SIGEPA                                   |            4688 |            14 |  5898529.15 |             28.62
+                 3 | PSOL          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            2101 |            14 |  3030094.96 |             14.70
+                 4 | PSOL          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             432 |            13 |  1876425.63 |              9.10
+                 5 | PSOL          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            4068 |            13 |  1049618.35 |              5.09
+                 6 | PSOL          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              96 |             6 |   626779.01 |              3.04
+                 7 | PSOL          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             546 |            13 |   356130.20 |              1.73
+                 8 | PSOL          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            6432 |            12 |   245149.40 |              1.19
+                 9 | PSOL          | TELEFONIA                                                 |            1204 |            14 |   229114.67 |              1.11
+                10 | PSOL          | PASSAGEM AÉREA - REEMBOLSO                                |              23 |             7 |    53965.86 |              0.26
+                 1 | PT            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            7559 |            75 | 41023207.81 |             36.76
+                 2 | PT            | PASSAGEM AÉREA - SIGEPA                                   |           15940 |            72 | 18241771.73 |             16.35
+                 3 | PT            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |           12016 |            75 | 17748544.29 |             15.90
+                 4 | PT            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            3633 |            68 | 15947983.75 |             14.29
+                 5 | PT            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           38670 |            74 | 11415637.86 |             10.23
+                 6 | PT            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            5381 |            66 |  1800011.75 |              1.61
+                 7 | PT            | TELEFONIA                                                 |            7279 |            78 |  1610132.59 |              1.44
+                 8 | PT            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             334 |            15 |  1253923.27 |              1.12
+                 9 | PT            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |           27550 |            54 |  1058823.00 |              0.95
+                10 | PT            | PASSAGEM AÉREA - REEMBOLSO                                |             187 |            43 |   363048.15 |              0.33
+                 1 | PV            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             476 |             6 |  3226617.35 |             35.50
+                 2 | PV            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             269 |             6 |  1818052.36 |             20.00
+                 3 | PV            | PASSAGEM AÉREA - SIGEPA                                   |            1260 |             5 |  1476135.78 |             16.24
+                 4 | PV            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             431 |             6 |  1325621.87 |             14.59
+                 5 | PV            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            3046 |             6 |   738059.58 |              8.12
+                 6 | PV            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             350 |             4 |   210459.47 |              2.32
+                 7 | PV            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |               8 |             2 |    67800.00 |              0.75
+                 8 | PV            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             717 |             4 |    56455.75 |              0.62
+                 9 | PV            | TELEFONIA                                                 |             347 |             6 |    51461.66 |              0.57
+                10 | PV            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             745 |             3 |    44355.12 |              0.49
+                 1 | REDE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             215 |             6 |  2011694.94 |             52.39
+                 2 | REDE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             153 |             6 |   614331.31 |             16.00
+                 3 | REDE          | PASSAGEM AÉREA - SIGEPA                                   |             302 |             2 |   410647.75 |             10.69
+                 4 | REDE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             190 |             5 |   305787.02 |              7.96
+                 5 | REDE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             803 |             6 |   203483.66 |              5.30
+                 6 | REDE          | PASSAGEM AÉREA - REEMBOLSO                                |              25 |             3 |    83918.74 |              2.19
+                 7 | REDE          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             512 |             4 |    48057.79 |              1.25
+                 8 | REDE          | TELEFONIA                                                 |             195 |             3 |    46639.29 |              1.21
+                 9 | REDE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               2 |             1 |    44300.00 |              1.15
+                10 | REDE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              62 |             4 |    41185.75 |              1.07
+                 1 | REPUBLICANOS  | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            4899 |            57 | 31954528.79 |             45.55
+                 2 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            2053 |            51 | 12507116.77 |             17.83
+                 3 | REPUBLICANOS  | PASSAGEM AÉREA - SIGEPA                                   |            8459 |            53 |  9851913.97 |             14.04
+                 4 | REPUBLICANOS  | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            4857 |            51 |  6725491.73 |              9.59
+                 5 | REPUBLICANOS  | COMBUSTÍVEIS E LUBRIFICANTES.                             |           21031 |            55 |  5932463.31 |              8.46
+                 6 | REPUBLICANOS  | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            2036 |            43 |   884089.83 |              1.26
+                 7 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              24 |             4 |   865467.20 |              1.23
+                 8 | REPUBLICANOS  | TELEFONIA                                                 |            3282 |            55 |   588368.88 |              0.84
+                 9 | REPUBLICANOS  | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |            3131 |            31 |   217044.72 |              0.31
+                10 | REPUBLICANOS  | PASSAGEM AÉREA - REEMBOLSO                                |              75 |            28 |   206931.33 |              0.29
+                 1 | SOLIDARIEDADE | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             591 |             8 |  3388691.59 |             53.93
+                 2 | SOLIDARIEDADE | PASSAGEM AÉREA - SIGEPA                                   |            1084 |             6 |  1270371.72 |             20.22
+                 3 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             104 |             7 |   513679.99 |              8.18
+                 4 | SOLIDARIEDADE | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1374 |             7 |   440631.50 |              7.01
+                 5 | SOLIDARIEDADE | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             261 |             8 |   303884.49 |              4.84
+                 6 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               4 |             1 |   126110.00 |              2.01
+                 7 | SOLIDARIEDADE | PASSAGEM AÉREA - REEMBOLSO                                |              59 |             4 |    91725.06 |              1.46
+                 8 | SOLIDARIEDADE | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             128 |             2 |    73649.20 |              1.17
+                 9 | SOLIDARIEDADE | TELEFONIA                                                 |             283 |             7 |    39408.12 |              0.63
+                10 | SOLIDARIEDADE | PASSAGEM AÉREA - RPA                                      |               7 |             4 |    20759.02 |              0.33
+                 1 | S.PART.       | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              51 |             1 |   157860.00 |             38.43
+                 2 | S.PART.       | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              18 |             1 |   102446.66 |             24.94
+                 3 | S.PART.       | COMBUSTÍVEIS E LUBRIFICANTES.                             |               8 |             1 |    71468.96 |             17.40
+                 4 | S.PART.       | PASSAGEM AÉREA - SIGEPA                                   |              47 |             1 |    71437.56 |             17.39
+                 5 | S.PART.       | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |               8 |             1 |     2796.62 |              0.68
+                 6 | S.PART.       | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     2400.19 |              0.58
+                 7 | S.PART.       | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |               3 |             1 |     1258.90 |              0.31
+                 8 | S.PART.       | TELEFONIA                                                 |              34 |             1 |     1061.55 |              0.26
+                 9 | S.PART.       | PASSAGEM AÉREA - RPA                                      |               1 |             1 |        9.95 |              0.00
+                 1 | UNIAO         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            5436 |            62 | 36664215.50 |             39.52
+                 2 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            2407 |            60 | 15504847.60 |             16.71
+                 3 | UNIAO         | PASSAGEM AÉREA - SIGEPA                                   |           12738 |            62 | 14399086.93 |             15.52
+                 4 | UNIAO         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            5739 |            61 | 12165356.68 |             13.11
+                 5 | UNIAO         | COMBUSTÍVEIS E LUBRIFICANTES.                             |           23306 |            61 |  9098100.47 |              9.81
+                 6 | UNIAO         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            2598 |            46 |  1302685.35 |              1.40
+                 7 | UNIAO         | TELEFONIA                                                 |            4560 |            63 |  1044727.99 |              1.13
+                 8 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              45 |            10 |   818715.00 |              0.88
+                 9 | UNIAO         | PASSAGEM AÉREA - REEMBOLSO                                |             183 |            31 |   573927.35 |              0.62
+                10 | UNIAO         | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             191 |            12 |   524122.89 |              0.56
+(212 rows)
+
+
+Q11.e - Categorias de gasto por partido por ano
+ ano_dados | posicao_categoria | sigla_partido |                     descricao_despesa                     | qtd_lancamentos | qtd_deputados | gasto_total | pct_gasto_partido 
+-----------+-------------------+---------------+-----------------------------------------------------------+-----------------+---------------+-------------+-------------------
+      2023 |                 1 | AVANTE        | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             144 |             4 |   696778.30 |             33.34
+      2023 |                 2 | AVANTE        | PASSAGEM AÉREA - SIGEPA                                   |             364 |             5 |   495869.17 |             23.73
+      2023 |                 3 | AVANTE        | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              44 |             5 |   465210.62 |             22.26
+      2023 |                 4 | AVANTE        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             126 |             4 |   195050.59 |              9.33
+      2023 |                 5 | AVANTE        | COMBUSTÍVEIS E LUBRIFICANTES.                             |             406 |             4 |   157596.50 |              7.54
+      2023 |                 6 | AVANTE        | TELEFONIA                                                 |             190 |             5 |    52495.10 |              2.51
+      2023 |                 7 | AVANTE        | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              12 |             3 |    11945.13 |              0.57
+      2023 |                 8 | AVANTE        | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             332 |             2 |     9174.69 |              0.44
+      2023 |                 9 | AVANTE        | PASSAGEM AÉREA - RPA                                      |               1 |             1 |     2299.27 |              0.11
+      2023 |                10 | AVANTE        | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     1865.39 |              0.09
+      2023 |                 1 | CIDADANIA     | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              21 |             2 |   329421.74 |             39.65
+      2023 |                 2 | CIDADANIA     | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             207 |             2 |   226880.04 |             27.31
+      2023 |                 3 | CIDADANIA     | PASSAGEM AÉREA - SIGEPA                                   |             128 |             2 |   189799.34 |             22.84
+      2023 |                 4 | CIDADANIA     | COMBUSTÍVEIS E LUBRIFICANTES.                             |             220 |             2 |    27341.20 |              3.29
+      2023 |                 5 | CIDADANIA     | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |               6 |             2 |    21861.92 |              2.63
+      2023 |                 6 | CIDADANIA     | TELEFONIA                                                 |              90 |             3 |    13741.52 |              1.65
+      2023 |                 7 | CIDADANIA     | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              77 |             1 |    10028.94 |              1.21
+      2023 |                 8 | CIDADANIA     | PASSAGEM AÉREA - REEMBOLSO                                |               2 |             1 |     6239.82 |              0.75
+      2023 |                 9 | CIDADANIA     | PASSAGEM AÉREA - RPA                                      |               2 |             1 |     3355.36 |              0.40
+      2023 |                10 | CIDADANIA     | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               2 |             1 |     2005.95 |              0.24
+      2023 |                 1 | MDB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             883 |            40 |  7601184.59 |             40.47
+      2023 |                 2 | MDB           | PASSAGEM AÉREA - SIGEPA                                   |            3708 |            37 |  4348854.63 |             23.15
+      2023 |                 3 | MDB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             455 |            37 |  2892357.14 |             15.40
+      2023 |                 4 | MDB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1002 |            37 |  1483597.99 |              7.90
+      2023 |                 5 | MDB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            4138 |            36 |  1197494.51 |              6.38
+      2023 |                 6 | MDB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              17 |             5 |   448320.00 |              2.39
+      2023 |                 7 | MDB           | TELEFONIA                                                 |            1072 |            40 |   223451.83 |              1.19
+      2023 |                 8 | MDB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             374 |            22 |   149572.93 |              0.80
+      2023 |                 9 | MDB           | PASSAGEM AÉREA - RPA                                      |             122 |            16 |   135792.05 |              0.72
+      2023 |                10 | MDB           | PASSAGEM AÉREA - REEMBOLSO                                |              32 |            18 |   117956.47 |              0.63
+      2023 |                 1 | MISSAO        | PASSAGEM AÉREA - SIGEPA                                   |             216 |             1 |   265480.67 |             94.96
+      2023 |                 2 | MISSAO        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              10 |             1 |    14075.50 |              5.03
+      2023 |                 3 | MISSAO        | TELEFONIA                                                 |              11 |             1 |       13.07 |              0.00
+      2023 |                 1 | NOVO          | PASSAGEM AÉREA - SIGEPA                                   |             507 |             5 |   509198.87 |             33.81
+      2023 |                 2 | NOVO          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             102 |             5 |   469347.57 |             31.17
+      2023 |                 3 | NOVO          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             258 |             5 |   220486.83 |             14.64
+      2023 |                 4 | NOVO          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              52 |             4 |   169889.89 |             11.28
+      2023 |                 5 | NOVO          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             330 |             4 |    86061.63 |              5.71
+      2023 |                 6 | NOVO          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              41 |             5 |    14336.06 |              0.95
+      2023 |                 7 | NOVO          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             321 |             4 |    13987.42 |              0.93
+      2023 |                 8 | NOVO          | TELEFONIA                                                 |             103 |             5 |     9661.81 |              0.64
+      2023 |                 9 | NOVO          | PASSAGEM AÉREA - REEMBOLSO                                |               9 |             2 |     7939.00 |              0.53
+      2023 |                10 | NOVO          | PASSAGEM AÉREA - RPA                                      |               2 |             1 |     2284.90 |              0.15
+      2023 |                 1 | PCDOB         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             263 |             8 |  1542667.43 |             39.52
+      2023 |                 2 | PCDOB         | PASSAGEM AÉREA - SIGEPA                                   |             689 |             8 |   915982.69 |             23.47
+      2023 |                 3 | PCDOB         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             347 |             8 |   542867.22 |             13.91
+      2023 |                 4 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              95 |             7 |   495723.81 |             12.70
+      2023 |                 5 | PCDOB         | COMBUSTÍVEIS E LUBRIFICANTES.                             |             921 |             8 |   272915.53 |              6.99
+      2023 |                 6 | PCDOB         | TELEFONIA                                                 |             331 |             8 |    69157.17 |              1.77
+      2023 |                 7 | PCDOB         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              63 |             4 |    27997.42 |              0.72
+      2023 |                 8 | PCDOB         | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             424 |             4 |    15709.28 |              0.40
+      2023 |                 9 | PCDOB         | PASSAGEM AÉREA - RPA                                      |               5 |             2 |    10890.43 |              0.28
+      2023 |                10 | PCDOB         | PASSAGEM AÉREA - REEMBOLSO                                |               2 |             2 |     7693.54 |              0.20
+      2023 |                 1 | PDT           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             403 |            10 |  2225444.94 |             41.58
+      2023 |                 2 | PDT           | PASSAGEM AÉREA - SIGEPA                                   |            1242 |            11 |  1331217.39 |             24.87
+      2023 |                 3 | PDT           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             154 |            10 |   867655.72 |             16.21
+      2023 |                 4 | PDT           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             277 |            10 |   438111.75 |              8.19
+      2023 |                 5 | PDT           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1366 |            10 |   274430.02 |              5.13
+      2023 |                 6 | PDT           | TELEFONIA                                                 |             358 |            11 |    70413.01 |              1.32
+      2023 |                 7 | PDT           | PASSAGEM AÉREA - RPA                                      |              30 |             7 |    50006.87 |              0.93
+      2023 |                 8 | PDT           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             329 |             6 |    23117.67 |              0.43
+      2023 |                 9 | PDT           | PASSAGEM AÉREA - REEMBOLSO                                |              10 |             5 |    23105.70 |              0.43
+      2023 |                10 | PDT           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              42 |             7 |    18345.70 |              0.34
+      2023 |                 1 | PL            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            2667 |            99 | 15515115.35 |             33.97
+      2023 |                 2 | PL            | PASSAGEM AÉREA - SIGEPA                                   |            9178 |           104 | 10011892.73 |             21.92
+      2023 |                 3 | PL            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1633 |            94 |  7896614.73 |             17.29
+      2023 |                 4 | PL            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            4058 |            99 |  5850564.33 |             12.81
+      2023 |                 5 | PL            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           13363 |            99 |  3662657.62 |              8.02
+      2023 |                 6 | PL            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1429 |            75 |   720455.27 |              1.58
+      2023 |                 7 | PL            | PASSAGEM AÉREA - RPA                                      |             431 |            30 |   499659.46 |              1.09
+      2023 |                 8 | PL            | TELEFONIA                                                 |            2697 |           105 |   462006.53 |              1.01
+      2023 |                 9 | PL            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            3964 |            59 |   226790.66 |              0.50
+      2023 |                10 | PL            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |            3045 |            52 |   193114.06 |              0.42
+      2023 |                 1 | PODE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             849 |            23 |  5228968.06 |             47.96
+      2023 |                 2 | PODE          | PASSAGEM AÉREA - SIGEPA                                   |            2055 |            23 |  2164791.72 |             19.85
+      2023 |                 3 | PODE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             296 |            20 |  1465655.49 |             13.44
+      2023 |                 4 | PODE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             504 |            23 |  1030063.60 |              9.45
+      2023 |                 5 | PODE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2226 |            22 |   690024.32 |              6.33
+      2023 |                 6 | PODE          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              10 |             2 |    62630.00 |              0.57
+      2023 |                 7 | PODE          | TELEFONIA                                                 |             427 |            25 |    56328.76 |              0.52
+      2023 |                 8 | PODE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             122 |            13 |    49096.23 |              0.45
+      2023 |                 9 | PODE          | PASSAGEM AÉREA - RPA                                      |              35 |             4 |    47739.58 |              0.44
+      2023 |                10 | PODE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             503 |            11 |    41567.36 |              0.38
+      2023 |                 1 | PP            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1957 |            47 |  8710759.45 |             38.06
+      2023 |                 2 | PP            | PASSAGEM AÉREA - SIGEPA                                   |            4134 |            48 |  4872877.33 |             21.29
+      2023 |                 3 | PP            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             621 |            45 |  3739446.34 |             16.34
+      2023 |                 4 | PP            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1692 |            48 |  2382791.98 |             10.41
+      2023 |                 5 | PP            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6428 |            48 |  1996909.21 |              8.72
+      2023 |                 6 | PP            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              54 |             9 |   326967.79 |              1.43
+      2023 |                 7 | PP            | TELEFONIA                                                 |            1485 |            50 |   263666.47 |              1.15
+      2023 |                 8 | PP            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             494 |            33 |   233919.89 |              1.02
+      2023 |                 9 | PP            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |            1567 |            26 |   105791.78 |              0.46
+      2023 |                10 | PP            | PASSAGEM AÉREA - REEMBOLSO                                |              26 |            13 |    75738.34 |              0.33
+      2023 |                 1 | PRD           | PASSAGEM AÉREA - SIGEPA                                   |             421 |             4 |   546047.88 |             34.19
+      2023 |                 2 | PRD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              86 |             4 |   468604.92 |             29.34
+      2023 |                 3 | PRD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              34 |             3 |   210299.12 |             13.17
+      2023 |                 4 | PRD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              98 |             4 |   210103.54 |             13.16
+      2023 |                 5 | PRD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |             504 |             4 |   128031.36 |              8.02
+      2023 |                 6 | PRD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              18 |             2 |    11715.60 |              0.73
+      2023 |                 7 | PRD           | TELEFONIA                                                 |              64 |             4 |    11674.98 |              0.73
+      2023 |                 8 | PRD           | PASSAGEM AÉREA - REEMBOLSO                                |               4 |             3 |     5870.44 |              0.37
+      2023 |                 9 | PRD           | PASSAGEM AÉREA - RPA                                      |               3 |             2 |     3090.78 |              0.19
+      2023 |                10 | PRD           | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |               3 |             1 |      752.23 |              0.05
+      2023 |                 1 | PSB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             431 |            16 |  2983289.47 |             38.51
+      2023 |                 2 | PSB           | PASSAGEM AÉREA - SIGEPA                                   |            1686 |            17 |  1897717.11 |             24.50
+      2023 |                 3 | PSB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             233 |            15 |  1036516.65 |             13.38
+      2023 |                 4 | PSB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             638 |            17 |   857091.30 |             11.07
+      2023 |                 5 | PSB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2300 |            16 |   575004.70 |              7.42
+      2023 |                 6 | PSB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             194 |            14 |   119689.68 |              1.55
+      2023 |                 7 | PSB           | PASSAGEM AÉREA - RPA                                      |              73 |             6 |    89126.11 |              1.15
+      2023 |                 8 | PSB           | TELEFONIA                                                 |             422 |            17 |    76610.45 |              0.99
+      2023 |                 9 | PSB           | PASSAGEM AÉREA - REEMBOLSO                                |              13 |             7 |    54201.11 |              0.70
+      2023 |                10 | PSB           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             607 |             5 |    25236.51 |              0.33
+      2023 |                 1 | PSD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1483 |            54 |  8511991.60 |             35.41
+      2023 |                 2 | PSD           | PASSAGEM AÉREA - SIGEPA                                   |            4762 |            57 |  5325992.66 |             22.16
+      2023 |                 3 | PSD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             598 |            47 |  3342615.18 |             13.91
+      2023 |                 4 | PSD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1734 |            54 |  2816646.11 |             11.72
+      2023 |                 5 | PSD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6771 |            56 |  1927569.31 |              8.02
+      2023 |                 6 | PSD           | PASSAGEM AÉREA - RPA                                      |             463 |            25 |   611110.29 |              2.54
+      2023 |                 7 | PSD           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              19 |             5 |   488460.00 |              2.03
+      2023 |                 8 | PSD           | TELEFONIA                                                 |            1557 |            61 |   354840.28 |              1.48
+      2023 |                 9 | PSD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             409 |            40 |   200923.10 |              0.84
+      2023 |                10 | PSD           | PASSAGEM AÉREA - REEMBOLSO                                |              40 |            24 |   193531.29 |              0.81
+      2023 |                 1 | PSDB          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             388 |            16 |  2548344.86 |             34.55
+      2023 |                 2 | PSDB          | PASSAGEM AÉREA - SIGEPA                                   |            1611 |            15 |  1749670.77 |             23.72
+      2023 |                 3 | PSDB          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             171 |            13 |  1235354.31 |             16.75
+      2023 |                 4 | PSDB          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             497 |            16 |   811911.51 |             11.01
+      2023 |                 5 | PSDB          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1428 |            16 |   653127.55 |              8.86
+      2023 |                 6 | PSDB          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             147 |             8 |    64352.20 |              0.87
+      2023 |                 7 | PSDB          | PASSAGEM AÉREA - RPA                                      |              45 |             6 |    63557.67 |              0.86
+      2023 |                 8 | PSDB          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               3 |             1 |    62512.80 |              0.85
+      2023 |                 9 | PSDB          | TELEFONIA                                                 |             431 |            17 |    50788.29 |              0.69
+      2023 |                10 | PSDB          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              20 |             3 |    36629.89 |              0.50
+      2023 |                 1 | PSOL          | PASSAGEM AÉREA - SIGEPA                                   |            1770 |            14 |  2201704.23 |             37.22
+      2023 |                 2 | PSOL          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             380 |            14 |  1782745.71 |             30.14
+      2023 |                 3 | PSOL          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             579 |            14 |   757275.78 |             12.80
+      2023 |                 4 | PSOL          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             114 |            11 |   446939.75 |              7.56
+      2023 |                 5 | PSOL          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1123 |            13 |   261931.41 |              4.43
+      2023 |                 6 | PSOL          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              23 |             4 |   156006.84 |              2.64
+      2023 |                 7 | PSOL          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             143 |            12 |    95433.56 |              1.61
+      2023 |                 8 | PSOL          | TELEFONIA                                                 |             365 |            14 |    68609.54 |              1.16
+      2023 |                 9 | PSOL          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            1898 |            11 |    58010.46 |              0.98
+      2023 |                10 | PSOL          | PASSAGEM AÉREA - REEMBOLSO                                |              12 |             4 |    24362.64 |              0.41
+      2023 |                 1 | PT            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            2036 |            68 | 11588929.82 |             34.94
+      2023 |                 2 | PT            | PASSAGEM AÉREA - SIGEPA                                   |            6596 |            66 |  7568060.04 |             22.82
+      2023 |                 3 | PT            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            3353 |            68 |  4826775.63 |             14.55
+      2023 |                 4 | PT            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1059 |            58 |  4125836.36 |             12.44
+      2023 |                 5 | PT            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           10712 |            65 |  3076010.11 |              9.27
+      2023 |                 6 | PT            | TELEFONIA                                                 |            2425 |            69 |   495490.69 |              1.49
+      2023 |                 7 | PT            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1231 |            55 |   398665.88 |              1.20
+      2023 |                 8 | PT            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              80 |            11 |   283179.38 |              0.85
+      2023 |                 9 | PT            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            8068 |            43 |   283169.72 |              0.85
+      2023 |                10 | PT            | PASSAGEM AÉREA - REEMBOLSO                                |              89 |            25 |   150631.14 |              0.45
+      2023 |                 1 | PV            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             121 |             5 |   738974.03 |             29.75
+      2023 |                 2 | PV            | PASSAGEM AÉREA - SIGEPA                                   |             575 |             5 |   627388.14 |             25.26
+      2023 |                 3 | PV            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              72 |             5 |   474364.70 |             19.10
+      2023 |                 4 | PV            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             115 |             6 |   311077.12 |             12.52
+      2023 |                 5 | PV            | COMBUSTÍVEIS E LUBRIFICANTES.                             |             727 |             6 |   176567.05 |              7.11
+      2023 |                 6 | PV            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              84 |             3 |    55194.42 |              2.22
+      2023 |                 7 | PV            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |               4 |             1 |    34800.00 |              1.40
+      2023 |                 8 | PV            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             296 |             4 |    21204.77 |              0.85
+      2023 |                 9 | PV            | PASSAGEM AÉREA - REEMBOLSO                                |               4 |             2 |    17660.34 |              0.71
+      2023 |                10 | PV            | TELEFONIA                                                 |             104 |             6 |    14477.12 |              0.58
+      2023 |                 1 | REDE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              71 |             2 |   485640.31 |             48.15
+      2023 |                 2 | REDE          | PASSAGEM AÉREA - SIGEPA                                   |             140 |             2 |   199926.68 |             19.82
+      2023 |                 3 | REDE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              32 |             2 |   116692.31 |             11.57
+      2023 |                 4 | REDE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             300 |             2 |    76369.03 |              7.57
+      2023 |                 5 | REDE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              45 |             2 |    60244.75 |              5.97
+      2023 |                 6 | REDE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               1 |             1 |    24900.00 |              2.47
+      2023 |                 7 | REDE          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             112 |             1 |    11397.56 |              1.13
+      2023 |                 8 | REDE          | TELEFONIA                                                 |              56 |             3 |    10972.99 |              1.09
+      2023 |                 9 | REDE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              12 |             2 |     7620.18 |              0.76
+      2023 |                10 | REDE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |               8 |             2 |     5955.09 |              0.59
+      2023 |                 1 | REPUBLICANOS  | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1377 |            49 |  8717933.02 |             42.78
+      2023 |                 2 | REPUBLICANOS  | PASSAGEM AÉREA - SIGEPA                                   |            3228 |            49 |  3841518.30 |             18.85
+      2023 |                 3 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             594 |            45 |  3426597.83 |             16.81
+      2023 |                 4 | REPUBLICANOS  | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1384 |            48 |  1920133.16 |              9.42
+      2023 |                 5 | REPUBLICANOS  | COMBUSTÍVEIS E LUBRIFICANTES.                             |            5805 |            47 |  1642075.50 |              8.06
+      2023 |                 6 | REPUBLICANOS  | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             490 |            33 |   218112.78 |              1.07
+      2023 |                 7 | REPUBLICANOS  | TELEFONIA                                                 |            1049 |            51 |   168993.27 |              0.83
+      2023 |                 8 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               5 |             2 |   167534.20 |              0.82
+      2023 |                 9 | REPUBLICANOS  | PASSAGEM AÉREA - RPA                                      |              58 |            16 |    90355.26 |              0.44
+      2023 |                10 | REPUBLICANOS  | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |            1072 |            25 |    73715.18 |              0.36
+      2023 |                 1 | SOLIDARIEDADE | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             134 |             4 |   716062.82 |             44.87
+      2023 |                 2 | SOLIDARIEDADE | PASSAGEM AÉREA - SIGEPA                                   |             331 |             5 |   440803.93 |             27.62
+      2023 |                 3 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               3 |             1 |   125000.00 |              7.83
+      2023 |                 4 | SOLIDARIEDADE | COMBUSTÍVEIS E LUBRIFICANTES.                             |             268 |             4 |    91183.22 |              5.71
+      2023 |                 5 | SOLIDARIEDADE | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              84 |             3 |    75916.93 |              4.76
+      2023 |                 6 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              17 |             3 |    64317.13 |              4.03
+      2023 |                 7 | SOLIDARIEDADE | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              28 |             2 |    32037.07 |              2.01
+      2023 |                 8 | SOLIDARIEDADE | PASSAGEM AÉREA - REEMBOLSO                                |              25 |             3 |    28465.56 |              1.78
+      2023 |                 9 | SOLIDARIEDADE | TELEFONIA                                                 |              77 |             5 |    10154.42 |              0.64
+      2023 |                10 | SOLIDARIEDADE | PASSAGEM AÉREA - RPA                                      |               2 |             2 |     7803.71 |              0.49
+      2023 |                 1 | S.PART.       | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              41 |             1 |   140880.00 |             37.01
+      2023 |                 2 | S.PART.       | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              18 |             1 |   102446.66 |             26.91
+      2023 |                 3 | S.PART.       | COMBUSTÍVEIS E LUBRIFICANTES.                             |               8 |             1 |    71468.96 |             18.77
+      2023 |                 4 | S.PART.       | PASSAGEM AÉREA - SIGEPA                                   |              41 |             1 |    58387.28 |             15.34
+      2023 |                 5 | S.PART.       | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |               8 |             1 |     2796.62 |              0.73
+      2023 |                 6 | S.PART.       | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     2400.19 |              0.63
+      2023 |                 7 | S.PART.       | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |               3 |             1 |     1258.90 |              0.33
+      2023 |                 8 | S.PART.       | TELEFONIA                                                 |              18 |             1 |     1022.15 |              0.27
+      2023 |                 9 | S.PART.       | PASSAGEM AÉREA - RPA                                      |               1 |             1 |        9.95 |              0.00
+      2023 |                 1 | UNIAO         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1366 |            54 | 10341957.52 |             37.77
+      2023 |                 2 | UNIAO         | PASSAGEM AÉREA - SIGEPA                                   |            5158 |            55 |  5806584.87 |             21.21
+      2023 |                 3 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             710 |            51 |  4225371.34 |             15.43
+      2023 |                 4 | UNIAO         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1689 |            53 |  3159414.86 |             11.54
+      2023 |                 5 | UNIAO         | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6606 |            55 |  2439160.42 |              8.91
+      2023 |                 6 | UNIAO         | TELEFONIA                                                 |            1517 |            57 |   296462.02 |              1.08
+      2023 |                 7 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              13 |             6 |   269715.00 |              0.99
+      2023 |                 8 | UNIAO         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             511 |            37 |   257615.98 |              0.94
+      2023 |                 9 | UNIAO         | PASSAGEM AÉREA - REEMBOLSO                                |              65 |            22 |   194312.35 |              0.71
+      2023 |                10 | UNIAO         | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              58 |             9 |   149339.49 |              0.55
+      2024 |                 1 | AVANTE        | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             179 |             4 |   757659.90 |             32.25
+      2024 |                 2 | AVANTE        | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              75 |             5 |   595067.23 |             25.33
+      2024 |                 3 | AVANTE        | PASSAGEM AÉREA - SIGEPA                                   |             490 |             5 |   579811.90 |             24.68
+      2024 |                 4 | AVANTE        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             103 |             4 |   186737.61 |              7.95
+      2024 |                 5 | AVANTE        | COMBUSTÍVEIS E LUBRIFICANTES.                             |             374 |             4 |   172875.40 |              7.36
+      2024 |                 6 | AVANTE        | TELEFONIA                                                 |             195 |             5 |    47655.08 |              2.03
+      2024 |                 7 | AVANTE        | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               4 |             3 |     3598.43 |              0.15
+      2024 |                 8 | AVANTE        | PASSAGEM AÉREA - RPA                                      |               1 |             1 |     2115.85 |              0.09
+      2024 |                 9 | AVANTE        | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     2037.85 |              0.09
+      2024 |                10 | AVANTE        | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              53 |             1 |     1962.97 |              0.08
+      2024 |                 1 | CIDADANIA     | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             176 |             3 |   242437.50 |             26.52
+      2024 |                 2 | CIDADANIA     | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              27 |             2 |   229354.94 |             25.09
+      2024 |                 3 | CIDADANIA     | PASSAGEM AÉREA - SIGEPA                                   |             168 |             3 |   210161.21 |             22.99
+      2024 |                 4 | CIDADANIA     | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              23 |             3 |    94073.07 |             10.29
+      2024 |                 5 | CIDADANIA     | COMBUSTÍVEIS E LUBRIFICANTES.                             |             326 |             2 |    58490.30 |              6.40
+      2024 |                 6 | CIDADANIA     | PASSAGEM AÉREA - REEMBOLSO                                |               2 |             1 |    32627.80 |              3.57
+      2024 |                 7 | CIDADANIA     | PASSAGEM AÉREA - RPA                                      |               6 |             1 |    14680.41 |              1.61
+      2024 |                 8 | CIDADANIA     | TELEFONIA                                                 |              87 |             3 |    12277.86 |              1.34
+      2024 |                 9 | CIDADANIA     | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             184 |             2 |    11997.50 |              1.31
+      2024 |                10 | CIDADANIA     | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              18 |             2 |     7617.78 |              0.83
+      2024 |                 1 | MDB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             951 |            41 |  8343307.24 |             42.11
+      2024 |                 2 | MDB           | PASSAGEM AÉREA - SIGEPA                                   |            3472 |            39 |  4030485.36 |             20.34
+      2024 |                 3 | MDB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             480 |            40 |  2971685.27 |             15.00
+      2024 |                 4 | MDB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1216 |            40 |  1695566.86 |              8.56
+      2024 |                 5 | MDB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            4546 |            41 |  1397826.18 |              7.05
+      2024 |                 6 | MDB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              23 |             6 |   643182.71 |              3.25
+      2024 |                 7 | MDB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             558 |            24 |   224233.08 |              1.13
+      2024 |                 8 | MDB           | TELEFONIA                                                 |            1138 |            43 |   218921.16 |              1.10
+      2024 |                 9 | MDB           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              41 |             5 |    80665.54 |              0.41
+      2024 |                10 | MDB           | PASSAGEM AÉREA - RPA                                      |              34 |            12 |    71331.09 |              0.36
+      2024 |                 1 | MISSAO        | PASSAGEM AÉREA - SIGEPA                                   |             158 |             1 |   149898.75 |             84.25
+      2024 |                 2 | MISSAO        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              24 |             1 |    28018.95 |             15.75
+      2024 |                 3 | MISSAO        | TELEFONIA                                                 |              11 |             1 |        8.87 |              0.00
+      2024 |                 1 | NOVO          | PASSAGEM AÉREA - SIGEPA                                   |             501 |             5 |   553952.56 |             31.77
+      2024 |                 2 | NOVO          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             122 |             5 |   518091.35 |             29.72
+      2024 |                 3 | NOVO          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             266 |             4 |   238192.09 |             13.66
+      2024 |                 4 | NOVO          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              50 |             3 |   206797.66 |             11.86
+      2024 |                 5 | NOVO          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             467 |             4 |   121386.18 |              6.96
+      2024 |                 6 | NOVO          | PASSAGEM AÉREA - REEMBOLSO                                |               5 |             2 |    38723.85 |              2.22
+      2024 |                 7 | NOVO          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              37 |             5 |    29380.37 |              1.69
+      2024 |                 8 | NOVO          | TELEFONIA                                                 |             123 |             5 |    18562.87 |              1.06
+      2024 |                 9 | NOVO          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             187 |             4 |    13437.70 |              0.77
+      2024 |                10 | NOVO          | ASSINATURA DE PUBLICAÇÕES                                 |              24 |             2 |     3233.00 |              0.19
+      2024 |                 1 | PCDOB         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             316 |             8 |  1653085.84 |             39.64
+      2024 |                 2 | PCDOB         | PASSAGEM AÉREA - SIGEPA                                   |             739 |             8 |   840216.11 |             20.15
+      2024 |                 3 | PCDOB         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             371 |             8 |   674162.14 |             16.16
+      2024 |                 4 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             108 |             7 |   587997.61 |             14.10
+      2024 |                 5 | PCDOB         | COMBUSTÍVEIS E LUBRIFICANTES.                             |             909 |             8 |   300799.34 |              7.21
+      2024 |                 6 | PCDOB         | TELEFONIA                                                 |             310 |             8 |    58885.94 |              1.41
+      2024 |                 7 | PCDOB         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              70 |             5 |    40129.95 |              0.96
+      2024 |                 8 | PCDOB         | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              85 |             4 |     8672.43 |              0.21
+      2024 |                 9 | PCDOB         | PASSAGEM AÉREA - RPA                                      |               2 |             2 |     4123.26 |              0.10
+      2024 |                10 | PCDOB         | ASSINATURA DE PUBLICAÇÕES                                 |              21 |             1 |     1407.41 |              0.03
+      2024 |                 1 | PDT           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             399 |            12 |  2302921.51 |             43.33
+      2024 |                 2 | PDT           | PASSAGEM AÉREA - SIGEPA                                   |             832 |            12 |  1016209.65 |             19.12
+      2024 |                 3 | PDT           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             140 |            10 |   796450.66 |             14.98
+      2024 |                 4 | PDT           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             309 |            11 |   562265.36 |             10.58
+      2024 |                 5 | PDT           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1370 |            11 |   340137.29 |              6.40
+      2024 |                 6 | PDT           | PASSAGEM AÉREA - RPA                                      |              46 |             7 |    81849.70 |              1.54
+      2024 |                 7 | PDT           | TELEFONIA                                                 |             351 |            13 |    77839.69 |              1.46
+      2024 |                 8 | PDT           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |               8 |             1 |    64000.00 |              1.20
+      2024 |                 9 | PDT           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              79 |             7 |    37867.00 |              0.71
+      2024 |                10 | PDT           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             234 |             8 |    19910.79 |              0.37
+      2024 |                 1 | PL            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            3006 |           106 | 17108889.58 |             33.86
+      2024 |                 2 | PL            | PASSAGEM AÉREA - SIGEPA                                   |           10007 |           109 | 10809475.83 |             21.39
+      2024 |                 3 | PL            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1680 |           100 |  8855401.95 |             17.53
+      2024 |                 4 | PL            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            4293 |           104 |  6559216.04 |             12.98
+      2024 |                 5 | PL            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           14669 |           103 |  4177169.67 |              8.27
+      2024 |                 6 | PL            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1692 |            77 |   957354.26 |              1.89
+      2024 |                 7 | PL            | TELEFONIA                                                 |            2833 |           110 |   534038.43 |              1.06
+      2024 |                 8 | PL            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            3629 |            57 |   264108.72 |              0.52
+      2024 |                 9 | PL            | PASSAGEM AÉREA - REEMBOLSO                                |              84 |            38 |   250666.66 |              0.50
+      2024 |                10 | PL            | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |              43 |             2 |   237000.00 |              0.47
+      2024 |                 1 | PODE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             800 |            24 |  5133712.16 |             46.02
+      2024 |                 2 | PODE          | PASSAGEM AÉREA - SIGEPA                                   |            1846 |            26 |  2060867.80 |             18.47
+      2024 |                 3 | PODE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             258 |            21 |  1571775.08 |             14.09
+      2024 |                 4 | PODE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             643 |            23 |  1232372.82 |             11.05
+      2024 |                 5 | PODE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2335 |            22 |   817411.27 |              7.33
+      2024 |                 6 | PODE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             163 |            16 |    75462.30 |              0.68
+      2024 |                 7 | PODE          | TELEFONIA                                                 |             466 |            28 |    65869.67 |              0.59
+      2024 |                 8 | PODE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             225 |            12 |    48646.08 |              0.44
+      2024 |                 9 | PODE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               3 |             2 |    39000.00 |              0.35
+      2024 |                10 | PODE          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |               5 |             1 |    31900.80 |              0.29
+      2024 |                 1 | PP            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            2302 |            50 | 10173555.73 |             39.76
+      2024 |                 2 | PP            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             700 |            47 |  4502371.80 |             17.60
+      2024 |                 3 | PP            | PASSAGEM AÉREA - SIGEPA                                   |            3978 |            52 |  4458362.37 |             17.43
+      2024 |                 4 | PP            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1767 |            50 |  2760602.00 |             10.79
+      2024 |                 5 | PP            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            7100 |            50 |  2361585.15 |              9.23
+      2024 |                 6 | PP            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              71 |            11 |   338355.26 |              1.32
+      2024 |                 7 | PP            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             726 |            31 |   322056.18 |              1.26
+      2024 |                 8 | PP            | TELEFONIA                                                 |            1579 |            54 |   276892.98 |              1.08
+      2024 |                 9 | PP            | PASSAGEM AÉREA - REEMBOLSO                                |              21 |            15 |   100289.69 |              0.39
+      2024 |                10 | PP            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            1531 |            16 |    81770.46 |              0.32
+      2024 |                 1 | PRD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              67 |             4 |   497315.64 |             33.17
+      2024 |                 2 | PRD           | PASSAGEM AÉREA - SIGEPA                                   |             325 |             4 |   395794.81 |             26.40
+      2024 |                 3 | PRD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              35 |             4 |   225633.68 |             15.05
+      2024 |                 4 | PRD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |             676 |             4 |   193771.51 |             12.92
+      2024 |                 5 | PRD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              79 |             4 |   153024.65 |             10.21
+      2024 |                 6 | PRD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              30 |             4 |    18761.93 |              1.25
+      2024 |                 7 | PRD           | TELEFONIA                                                 |              61 |             4 |     9649.66 |              0.64
+      2024 |                 8 | PRD           | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     3284.09 |              0.22
+      2024 |                 9 | PRD           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              56 |             2 |     1032.10 |              0.07
+      2024 |                10 | PRD           | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |               4 |             2 |      654.11 |              0.04
+      2024 |                 1 | PSB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             397 |            16 |  3204034.69 |             38.39
+      2024 |                 2 | PSB           | PASSAGEM AÉREA - SIGEPA                                   |            1602 |            16 |  1756997.93 |             21.05
+      2024 |                 3 | PSB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             247 |            15 |  1392048.54 |             16.68
+      2024 |                 4 | PSB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             756 |            16 |   963884.16 |             11.55
+      2024 |                 5 | PSB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2553 |            14 |   685857.37 |              8.22
+      2024 |                 6 | PSB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             170 |            10 |   123602.47 |              1.48
+      2024 |                 7 | PSB           | TELEFONIA                                                 |             413 |            16 |    75026.56 |              0.90
+      2024 |                 8 | PSB           | PASSAGEM AÉREA - RPA                                      |              50 |             5 |    64087.17 |              0.77
+      2024 |                 9 | PSB           | PASSAGEM AÉREA - REEMBOLSO                                |               5 |             4 |    39824.18 |              0.48
+      2024 |                10 | PSB           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             929 |             4 |    35000.75 |              0.42
+      2024 |                 1 | PSD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1514 |            51 |  9098081.83 |             36.02
+      2024 |                 2 | PSD           | PASSAGEM AÉREA - SIGEPA                                   |            4774 |            56 |  5225601.15 |             20.69
+      2024 |                 3 | PSD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             629 |            44 |  3687629.72 |             14.60
+      2024 |                 4 | PSD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1827 |            49 |  3233505.35 |             12.80
+      2024 |                 5 | PSD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            7338 |            53 |  2103937.96 |              8.33
+      2024 |                 6 | PSD           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              27 |             4 |   562800.00 |              2.23
+      2024 |                 7 | PSD           | TELEFONIA                                                 |            1621 |            61 |   385080.18 |              1.52
+      2024 |                 8 | PSD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             590 |            39 |   328295.51 |              1.30
+      2024 |                 9 | PSD           | PASSAGEM AÉREA - RPA                                      |             225 |            13 |   250721.08 |              0.99
+      2024 |                10 | PSD           | PASSAGEM AÉREA - REEMBOLSO                                |              30 |            16 |   165533.87 |              0.66
+      2024 |                 1 | PSDB          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             309 |            16 |  2438466.03 |             33.20
+      2024 |                 2 | PSDB          | PASSAGEM AÉREA - SIGEPA                                   |            1443 |            14 |  1520879.80 |             20.71
+      2024 |                 3 | PSDB          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             184 |            13 |  1287415.71 |             17.53
+      2024 |                 4 | PSDB          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             585 |            14 |   974274.40 |             13.27
+      2024 |                 5 | PSDB          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1674 |            16 |   641044.77 |              8.73
+      2024 |                 6 | PSDB          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               5 |             2 |   141855.00 |              1.93
+      2024 |                 7 | PSDB          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             192 |             7 |    99319.73 |              1.35
+      2024 |                 8 | PSDB          | PASSAGEM AÉREA - RPA                                      |              38 |             5 |    66181.79 |              0.90
+      2024 |                 9 | PSDB          | TELEFONIA                                                 |             448 |            16 |    50159.86 |              0.68
+      2024 |                10 | PSDB          | PASSAGEM AÉREA - REEMBOLSO                                |              14 |             7 |    44890.81 |              0.61
+      2024 |                 1 | PSOL          | PASSAGEM AÉREA - SIGEPA                                   |            1812 |            14 |  2252846.26 |             33.29
+      2024 |                 2 | PSOL          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             414 |            14 |  2149466.78 |             31.77
+      2024 |                 3 | PSOL          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             660 |            13 |   992105.54 |             14.66
+      2024 |                 4 | PSOL          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             120 |            11 |   550782.70 |              8.14
+      2024 |                 5 | PSOL          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1243 |            12 |   328551.81 |              4.86
+      2024 |                 6 | PSOL          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              33 |             4 |   184926.68 |              2.73
+      2024 |                 7 | PSOL          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            2196 |            12 |    84239.35 |              1.24
+      2024 |                 8 | PSOL          | TELEFONIA                                                 |             426 |            14 |    83355.21 |              1.23
+      2024 |                 9 | PSOL          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             130 |            12 |    78905.50 |              1.17
+      2024 |                10 | PSOL          | PASSAGEM AÉREA - REEMBOLSO                                |               6 |             4 |    14141.40 |              0.21
+      2024 |                 1 | PT            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            2174 |            70 | 12320075.06 |             35.32
+      2024 |                 2 | PT            | PASSAGEM AÉREA - SIGEPA                                   |            5879 |            69 |  6527366.35 |             18.71
+      2024 |                 3 | PT            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            3756 |            69 |  5465014.26 |             15.67
+      2024 |                 4 | PT            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1130 |            61 |  4959687.73 |             14.22
+      2024 |                 5 | PT            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           12076 |            69 |  3489790.94 |             10.00
+      2024 |                 6 | PT            | TELEFONIA                                                 |            2552 |            71 |   511045.03 |              1.46
+      2024 |                 7 | PT            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1482 |            53 |   471225.42 |              1.35
+      2024 |                 8 | PT            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             102 |            10 |   404471.04 |              1.16
+      2024 |                 9 | PT            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            8685 |            48 |   329404.14 |              0.94
+      2024 |                10 | PT            | PASSAGEM AÉREA - RPA                                      |              64 |            12 |   106665.30 |              0.31
+      2024 |                 1 | PV            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             132 |             6 |  1051777.83 |             33.73
+      2024 |                 2 | PV            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              96 |             5 |   614376.25 |             19.70
+      2024 |                 3 | PV            | PASSAGEM AÉREA - SIGEPA                                   |             492 |             5 |   583605.91 |             18.72
+      2024 |                 4 | PV            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             141 |             6 |   431053.00 |             13.82
+      2024 |                 5 | PV            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1000 |             6 |   237267.36 |              7.61
+      2024 |                 6 | PV            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              92 |             3 |    67160.15 |              2.15
+      2024 |                 7 | PV            | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               3 |             1 |    41000.00 |              1.31
+      2024 |                 8 | PV            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |               4 |             1 |    33000.00 |              1.06
+      2024 |                 9 | PV            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             250 |             4 |    22163.51 |              0.71
+      2024 |                10 | PV            | TELEFONIA                                                 |             136 |             6 |    18331.23 |              0.59
+      2024 |                 1 | REDE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              52 |             2 |   420213.68 |             38.87
+      2024 |                 2 | REDE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              67 |             2 |   243675.59 |             22.54
+      2024 |                 3 | REDE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              99 |             2 |   165976.58 |             15.35
+      2024 |                 4 | REDE          | PASSAGEM AÉREA - SIGEPA                                   |              98 |             2 |   123531.73 |             11.43
+      2024 |                 5 | REDE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             249 |             2 |    55430.65 |              5.13
+      2024 |                 6 | REDE          | PASSAGEM AÉREA - REEMBOLSO                                |               3 |             1 |    25691.39 |              2.38
+      2024 |                 7 | REDE          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             204 |             2 |    16704.81 |              1.55
+      2024 |                 8 | REDE          | TELEFONIA                                                 |              72 |             2 |    15972.86 |              1.48
+      2024 |                 9 | REDE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              23 |             2 |     9996.82 |              0.92
+      2024 |                10 | REDE          | ASSINATURA DE PUBLICAÇÕES                                 |               1 |             1 |     3116.80 |              0.29
+      2024 |                 1 | REPUBLICANOS  | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1413 |            48 |  9769322.00 |             45.21
+      2024 |                 2 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             646 |            43 |  3839249.62 |             17.77
+      2024 |                 3 | REPUBLICANOS  | PASSAGEM AÉREA - SIGEPA                                   |            3035 |            46 |  3433125.56 |             15.89
+      2024 |                 4 | REPUBLICANOS  | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1539 |            45 |  2019777.74 |              9.35
+      2024 |                 5 | REPUBLICANOS  | COMBUSTÍVEIS E LUBRIFICANTES.                             |            5968 |            47 |  1642303.69 |              7.60
+      2024 |                 6 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              11 |             3 |   275500.00 |              1.28
+      2024 |                 7 | REPUBLICANOS  | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             659 |            34 |   248759.47 |              1.15
+      2024 |                 8 | REPUBLICANOS  | TELEFONIA                                                 |            1088 |            51 |   172692.38 |              0.80
+      2024 |                 9 | REPUBLICANOS  | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             800 |            20 |    52905.85 |              0.24
+      2024 |                10 | REPUBLICANOS  | PASSAGEM AÉREA - REEMBOLSO                                |              19 |            11 |    46882.46 |              0.22
+      2024 |                 1 | SOLIDARIEDADE | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             146 |             6 |   971686.25 |             52.82
+      2024 |                 2 | SOLIDARIEDADE | PASSAGEM AÉREA - SIGEPA                                   |             403 |             6 |   441022.87 |             23.97
+      2024 |                 3 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              37 |             5 |   177541.76 |              9.65
+      2024 |                 4 | SOLIDARIEDADE | COMBUSTÍVEIS E LUBRIFICANTES.                             |             359 |             5 |   101343.01 |              5.51
+      2024 |                 5 | SOLIDARIEDADE | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              74 |             6 |    88726.30 |              4.82
+      2024 |                 6 | SOLIDARIEDADE | PASSAGEM AÉREA - REEMBOLSO                                |              15 |             3 |    23534.03 |              1.28
+      2024 |                 7 | SOLIDARIEDADE | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              50 |             2 |    18791.32 |              1.02
+      2024 |                 8 | SOLIDARIEDADE | TELEFONIA                                                 |              95 |             6 |    11303.98 |              0.61
+      2024 |                 9 | SOLIDARIEDADE | PASSAGEM AÉREA - RPA                                      |               1 |             1 |     3972.43 |              0.22
+      2024 |                10 | SOLIDARIEDADE | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              10 |             1 |      765.83 |              0.04
+      2024 |                 1 | S.PART.       | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              10 |             1 |    16980.00 |             56.48
+      2024 |                 2 | S.PART.       | PASSAGEM AÉREA - SIGEPA                                   |               6 |             1 |    13050.28 |             43.41
+      2024 |                 3 | S.PART.       | TELEFONIA                                                 |              11 |             1 |       34.58 |              0.12
+      2024 |                 1 | UNIAO         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1637 |            58 | 11814857.22 |             39.68
+      2024 |                 2 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             764 |            50 |  4973480.36 |             16.70
+      2024 |                 3 | UNIAO         | PASSAGEM AÉREA - SIGEPA                                   |            4592 |            59 |  4951180.59 |             16.63
+      2024 |                 4 | UNIAO         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1810 |            56 |  3741993.92 |             12.57
+      2024 |                 5 | UNIAO         | COMBUSTÍVEIS E LUBRIFICANTES.                             |            7179 |            57 |  2935407.66 |              9.86
+      2024 |                 6 | UNIAO         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             719 |            36 |   387192.68 |              1.30
+      2024 |                 7 | UNIAO         | TELEFONIA                                                 |            1584 |            60 |   340553.42 |              1.14
+      2024 |                 8 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              11 |             6 |   192825.00 |              0.65
+      2024 |                 9 | UNIAO         | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              64 |             9 |   178736.74 |              0.60
+      2024 |                10 | UNIAO         | PASSAGEM AÉREA - REEMBOLSO                                |              24 |            10 |   101941.11 |              0.34
+      2025 |                 1 | AVANTE        | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             241 |             4 |   921808.45 |             42.59
+      2025 |                 2 | AVANTE        | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              61 |             5 |   455996.00 |             21.07
+      2025 |                 3 | AVANTE        | PASSAGEM AÉREA - SIGEPA                                   |             377 |             5 |   395892.19 |             18.29
+      2025 |                 4 | AVANTE        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             105 |             4 |   193916.93 |              8.96
+      2025 |                 5 | AVANTE        | COMBUSTÍVEIS E LUBRIFICANTES.                             |             386 |             4 |   149478.31 |              6.91
+      2025 |                 6 | AVANTE        | TELEFONIA                                                 |             176 |             5 |    44040.96 |              2.03
+      2025 |                 7 | AVANTE        | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               3 |             2 |     2616.50 |              0.12
+      2025 |                 8 | AVANTE        | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              10 |             1 |      762.44 |              0.04
+      2025 |                 9 | AVANTE        | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |               1 |             1 |       87.27 |              0.00
+      2025 |                 1 | CIDADANIA     | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              54 |             2 |   424202.96 |             45.36
+      2025 |                 2 | CIDADANIA     | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             196 |             2 |   282671.04 |             30.22
+      2025 |                 3 | CIDADANIA     | PASSAGEM AÉREA - SIGEPA                                   |             103 |             2 |   128479.53 |             13.74
+      2025 |                 4 | CIDADANIA     | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              12 |             1 |    54743.96 |              5.85
+      2025 |                 5 | CIDADANIA     | COMBUSTÍVEIS E LUBRIFICANTES.                             |             129 |             1 |    22665.99 |              2.42
+      2025 |                 6 | CIDADANIA     | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              89 |             1 |     9436.89 |              1.01
+      2025 |                 7 | CIDADANIA     | TELEFONIA                                                 |              63 |             2 |     9406.83 |              1.01
+      2025 |                 8 | CIDADANIA     | PASSAGEM AÉREA - REEMBOLSO                                |               2 |             1 |     3226.65 |              0.35
+      2025 |                 9 | CIDADANIA     | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               1 |             1 |      242.76 |              0.03
+      2025 |                10 | CIDADANIA     | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |               1 |             1 |      156.00 |              0.02
+      2025 |                 1 | MDB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1095 |            38 |  7947449.78 |             44.76
+      2025 |                 2 | MDB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             451 |            34 |  2784659.20 |             15.68
+      2025 |                 3 | MDB           | PASSAGEM AÉREA - SIGEPA                                   |            2127 |            38 |  2451942.02 |             13.81
+      2025 |                 4 | MDB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1301 |            35 |  1838878.65 |             10.36
+      2025 |                 5 | MDB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            4627 |            36 |  1357553.03 |              7.65
+      2025 |                 6 | MDB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              23 |             4 |   627400.00 |              3.53
+      2025 |                 7 | MDB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             516 |            21 |   238220.41 |              1.34
+      2025 |                 8 | MDB           | TELEFONIA                                                 |             936 |            41 |   193090.88 |              1.09
+      2025 |                 9 | MDB           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              41 |             4 |    83109.68 |              0.47
+      2025 |                10 | MDB           | PASSAGEM AÉREA - RPA                                      |              24 |            12 |    62769.65 |              0.35
+      2025 |                 1 | MISSAO        | PASSAGEM AÉREA - SIGEPA                                   |              66 |             1 |    60707.25 |             63.40
+      2025 |                 2 | MISSAO        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              38 |             1 |    35036.97 |             36.59
+      2025 |                 3 | MISSAO        | TELEFONIA                                                 |               8 |             1 |        6.16 |              0.01
+      2025 |                 1 | NOVO          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             114 |             5 |   541727.73 |             32.50
+      2025 |                 2 | NOVO          | PASSAGEM AÉREA - SIGEPA                                   |             301 |             5 |   356254.56 |             21.37
+      2025 |                 3 | NOVO          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             304 |             5 |   311965.98 |             18.71
+      2025 |                 4 | NOVO          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              54 |             4 |   205075.64 |             12.30
+      2025 |                 5 | NOVO          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             503 |             4 |   130765.26 |              7.84
+      2025 |                 6 | NOVO          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              52 |             5 |    38516.13 |              2.31
+      2025 |                 7 | NOVO          | PASSAGEM AÉREA - REEMBOLSO                                |               6 |             2 |    28995.00 |              1.74
+      2025 |                 8 | NOVO          | TELEFONIA                                                 |             128 |             5 |    23416.90 |              1.40
+      2025 |                 9 | NOVO          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             259 |             4 |    16478.96 |              0.99
+      2025 |                10 | NOVO          | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |              23 |             3 |     7398.41 |              0.44
+      2025 |                 1 | PCDOB         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             370 |            10 |  2045551.01 |             44.24
+      2025 |                 2 | PCDOB         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             409 |             9 |   853352.13 |             18.46
+      2025 |                 3 | PCDOB         | PASSAGEM AÉREA - SIGEPA                                   |             489 |             9 |   649112.00 |             14.04
+      2025 |                 4 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             110 |             9 |   592834.35 |             12.82
+      2025 |                 5 | PCDOB         | COMBUSTÍVEIS E LUBRIFICANTES.                             |             991 |            10 |   344578.17 |              7.45
+      2025 |                 6 | PCDOB         | TELEFONIA                                                 |             292 |            10 |    65403.32 |              1.41
+      2025 |                 7 | PCDOB         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              82 |             8 |    41102.01 |              0.89
+      2025 |                 8 | PCDOB         | PASSAGEM AÉREA - REEMBOLSO                                |               7 |             4 |    15821.11 |              0.34
+      2025 |                 9 | PCDOB         | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              99 |             4 |     7433.03 |              0.16
+      2025 |                10 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |               1 |             1 |     5000.00 |              0.11
+      2025 |                 1 | PDT           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             457 |            10 |  2326545.23 |             45.71
+      2025 |                 2 | PDT           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             127 |             8 |   835527.56 |             16.42
+      2025 |                 3 | PDT           | PASSAGEM AÉREA - SIGEPA                                   |             569 |            10 |   735740.04 |             14.46
+      2025 |                 4 | PDT           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             295 |             9 |   523877.20 |             10.29
+      2025 |                 5 | PDT           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1522 |             9 |   372930.53 |              7.33
+      2025 |                 6 | PDT           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              10 |             1 |    80000.00 |              1.57
+      2025 |                 7 | PDT           | TELEFONIA                                                 |             318 |            11 |    75522.74 |              1.48
+      2025 |                 8 | PDT           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             113 |             7 |    47134.61 |              0.93
+      2025 |                 9 | PDT           | PASSAGEM AÉREA - RPA                                      |              30 |             5 |    39271.10 |              0.77
+      2025 |                10 | PDT           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             327 |             7 |    25246.36 |              0.50
+      2025 |                 1 | PL            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            3159 |            98 | 17906347.17 |             38.36
+      2025 |                 2 | PL            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1468 |            92 |  8438931.61 |             18.08
+      2025 |                 3 | PL            | PASSAGEM AÉREA - SIGEPA                                   |            6279 |           100 |  7081436.13 |             15.17
+      2025 |                 4 | PL            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            4172 |            95 |  6412267.27 |             13.74
+      2025 |                 5 | PL            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           14234 |            96 |  4141929.19 |              8.87
+      2025 |                 6 | PL            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1632 |            71 |   945633.41 |              2.03
+      2025 |                 7 | PL            | TELEFONIA                                                 |            2402 |           104 |   505063.60 |              1.08
+      2025 |                 8 | PL            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            3080 |            55 |   283321.70 |              0.61
+      2025 |                 9 | PL            | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |              42 |             3 |   226068.00 |              0.48
+      2025 |                10 | PL            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             146 |            12 |   210405.82 |              0.45
+      2025 |                 1 | PODE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1105 |            30 |  6449971.74 |             47.49
+      2025 |                 2 | PODE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             342 |            24 |  2338499.92 |             17.22
+      2025 |                 3 | PODE          | PASSAGEM AÉREA - SIGEPA                                   |            1412 |            25 |  1604209.56 |             11.81
+      2025 |                 4 | PODE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             798 |            27 |  1589693.20 |             11.70
+      2025 |                 5 | PODE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2813 |            26 |  1037066.08 |              7.64
+      2025 |                 6 | PODE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               3 |             1 |   160000.00 |              1.18
+      2025 |                 7 | PODE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             206 |            19 |   120224.76 |              0.89
+      2025 |                 8 | PODE          | TELEFONIA                                                 |             497 |            29 |    84395.76 |              0.62
+      2025 |                 9 | PODE          | PASSAGEM AÉREA - REEMBOLSO                                |              14 |             9 |    80378.05 |              0.59
+      2025 |                10 | PODE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             340 |            16 |    48165.36 |              0.35
+      2025 |                 1 | PP            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            2399 |            51 |  9542528.63 |             40.65
+      2025 |                 2 | PP            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             648 |            47 |  4616659.26 |             19.67
+      2025 |                 3 | PP            | PASSAGEM AÉREA - SIGEPA                                   |            2406 |            47 |  2960087.31 |             12.61
+      2025 |                 4 | PP            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1780 |            47 |  2925963.40 |             12.46
+      2025 |                 5 | PP            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6393 |            49 |  2231366.94 |              9.50
+      2025 |                 6 | PP            | TELEFONIA                                                 |            1436 |            51 |   297766.16 |              1.27
+      2025 |                 7 | PP            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             622 |            33 |   290652.05 |              1.24
+      2025 |                 8 | PP            | PASSAGEM AÉREA - REEMBOLSO                                |              17 |            12 |   194699.66 |              0.83
+      2025 |                 9 | PP            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              52 |             8 |   171490.20 |              0.73
+      2025 |                10 | PP            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            1314 |            17 |    83709.05 |              0.36
+      2025 |                 1 | PRD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             105 |             3 |   542221.81 |             34.89
+      2025 |                 2 | PRD           | PASSAGEM AÉREA - SIGEPA                                   |             253 |             3 |   320205.33 |             20.61
+      2025 |                 3 | PRD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              47 |             4 |   249103.22 |             16.03
+      2025 |                 4 | PRD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |             777 |             4 |   216071.22 |             13.90
+      2025 |                 5 | PRD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             127 |             4 |   183543.27 |             11.81
+      2025 |                 6 | PRD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              30 |             3 |    21194.63 |              1.36
+      2025 |                 7 | PRD           | TELEFONIA                                                 |              69 |             3 |    15224.90 |              0.98
+      2025 |                 8 | PRD           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             112 |             3 |     4914.84 |              0.32
+      2025 |                 9 | PRD           | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |               4 |             2 |     1291.68 |              0.08
+      2025 |                10 | PRD           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |               1 |             1 |       95.00 |              0.01
+      2025 |                 1 | PSB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             506 |            16 |  3693909.62 |             45.82
+      2025 |                 2 | PSB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             274 |            13 |  1398818.20 |             17.35
+      2025 |                 3 | PSB           | PASSAGEM AÉREA - SIGEPA                                   |            1063 |            15 |  1135736.25 |             14.09
+      2025 |                 4 | PSB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             662 |            15 |   876841.30 |             10.88
+      2025 |                 5 | PSB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2442 |            14 |   683898.67 |              8.48
+      2025 |                 6 | PSB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             157 |            10 |    77073.63 |              0.96
+      2025 |                 7 | PSB           | TELEFONIA                                                 |             354 |            16 |    73277.43 |              0.91
+      2025 |                 8 | PSB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               2 |             1 |    49460.00 |              0.61
+      2025 |                 9 | PSB           | PASSAGEM AÉREA - RPA                                      |              25 |             2 |    26843.20 |              0.33
+      2025 |                10 | PSB           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             616 |             3 |    23340.57 |              0.29
+      2025 |                 1 | PSD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1624 |            49 |  8945969.66 |             38.27
+      2025 |                 2 | PSD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             633 |            40 |  3861749.44 |             16.52
+      2025 |                 3 | PSD           | PASSAGEM AÉREA - SIGEPA                                   |            3180 |            50 |  3671915.86 |             15.71
+      2025 |                 4 | PSD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1719 |            47 |  3173942.63 |             13.58
+      2025 |                 5 | PSD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6299 |            47 |  2036740.00 |              8.71
+      2025 |                 6 | PSD           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              30 |             6 |   616600.00 |              2.64
+      2025 |                 7 | PSD           | TELEFONIA                                                 |            1284 |            53 |   326540.04 |              1.40
+      2025 |                 8 | PSD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             550 |            29 |   281306.00 |              1.20
+      2025 |                 9 | PSD           | PASSAGEM AÉREA - REEMBOLSO                                |              40 |            18 |   133190.48 |              0.57
+      2025 |                10 | PSD           | PASSAGEM AÉREA - RPA                                      |              73 |            14 |   111367.64 |              0.48
+      2025 |                 1 | PSDB          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             393 |            17 |  2871994.66 |             37.98
+      2025 |                 2 | PSDB          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             593 |            17 |  1201020.03 |             15.88
+      2025 |                 3 | PSDB          | PASSAGEM AÉREA - SIGEPA                                   |            1064 |            15 |  1164576.12 |             15.40
+      2025 |                 4 | PSDB          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             181 |            13 |  1092099.99 |             14.44
+      2025 |                 5 | PSDB          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2109 |            16 |   827687.62 |             10.95
+      2025 |                 6 | PSDB          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             250 |             7 |   140763.69 |              1.86
+      2025 |                 7 | PSDB          | PASSAGEM AÉREA - REEMBOLSO                                |              18 |             4 |    73516.45 |              0.97
+      2025 |                 8 | PSDB          | TELEFONIA                                                 |             384 |            17 |    58077.31 |              0.77
+      2025 |                 9 | PSDB          | PASSAGEM AÉREA - RPA                                      |              23 |             6 |    41296.44 |              0.55
+      2025 |                10 | PSDB          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             251 |             5 |    24230.29 |              0.32
+      2025 |                 1 | PSOL          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             470 |            14 |  2276739.13 |             36.59
+      2025 |                 2 | PSOL          | PASSAGEM AÉREA - SIGEPA                                   |            1106 |            14 |  1443978.66 |             23.21
+      2025 |                 3 | PSOL          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             672 |            13 |  1000466.00 |             16.08
+      2025 |                 4 | PSOL          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             147 |            11 |   650225.89 |             10.45
+      2025 |                 5 | PSOL          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1218 |            13 |   330463.53 |              5.31
+      2025 |                 6 | PSOL          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              27 |             4 |   199159.49 |              3.20
+      2025 |                 7 | PSOL          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             187 |            11 |   131700.49 |              2.12
+      2025 |                 8 | PSOL          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            1846 |            12 |    79744.00 |              1.28
+      2025 |                 9 | PSOL          | TELEFONIA                                                 |             361 |            14 |    64234.77 |              1.03
+      2025 |                10 | PSOL          | PASSAGEM AÉREA - REEMBOLSO                                |               5 |             2 |    15461.82 |              0.25
+      2025 |                 1 | PT            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            2414 |            68 | 12222105.41 |             37.63
+      2025 |                 2 | PT            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            3678 |            69 |  5460120.13 |             16.81
+      2025 |                 3 | PT            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |            1073 |            59 |  4885749.42 |             15.04
+      2025 |                 4 | PT            | PASSAGEM AÉREA - SIGEPA                                   |            3465 |            63 |  4146345.34 |             12.76
+      2025 |                 5 | PT            | COMBUSTÍVEIS E LUBRIFICANTES.                             |           11320 |            68 |  3422838.42 |             10.54
+      2025 |                 6 | PT            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1896 |            51 |   656229.77 |              2.02
+      2025 |                 7 | PT            | TELEFONIA                                                 |            1975 |            72 |   474450.22 |              1.46
+      2025 |                 8 | PT            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |             116 |            12 |   425035.67 |              1.31
+      2025 |                 9 | PT            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            8604 |            41 |   339877.37 |              1.05
+      2025 |                10 | PT            | PASSAGEM AÉREA - REEMBOLSO                                |              41 |            20 |   100734.71 |              0.31
+      2025 |                 1 | PV            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             137 |             5 |   921155.49 |             37.57
+      2025 |                 2 | PV            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              74 |             5 |   493945.73 |             20.15
+      2025 |                 3 | PV            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             128 |             5 |   432250.95 |             17.63
+      2025 |                 4 | PV            | PASSAGEM AÉREA - SIGEPA                                   |             193 |             4 |   265141.73 |             10.81
+      2025 |                 5 | PV            | COMBUSTÍVEIS E LUBRIFICANTES.                             |             909 |             6 |   224462.16 |              9.16
+      2025 |                 6 | PV            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             120 |             3 |    70308.77 |              2.87
+      2025 |                 7 | PV            | TELEFONIA                                                 |              97 |             5 |    15634.68 |              0.64
+      2025 |                 8 | PV            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             172 |             2 |    12266.19 |              0.50
+      2025 |                 9 | PV            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             114 |             4 |     8856.25 |              0.36
+      2025 |                10 | PV            | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     7753.82 |              0.32
+      2025 |                 1 | REDE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              52 |             5 |   561126.20 |             55.88
+      2025 |                 2 | REDE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              35 |             3 |   159036.33 |             15.84
+      2025 |                 3 | REDE          | PASSAGEM AÉREA - SIGEPA                                   |              64 |             2 |    87189.34 |              8.68
+      2025 |                 4 | REDE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              31 |             4 |    65637.10 |              6.54
+      2025 |                 5 | REDE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             161 |             3 |    46613.94 |              4.64
+      2025 |                 6 | REDE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               1 |             1 |    19400.00 |              1.93
+      2025 |                 7 | REDE          | TELEFONIA                                                 |              56 |             2 |    16149.13 |              1.61
+      2025 |                 8 | REDE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              15 |             2 |    15742.22 |              1.57
+      2025 |                 9 | REDE          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             151 |             2 |    15252.20 |              1.52
+      2025 |                10 | REDE          | PASSAGEM AÉREA - REEMBOLSO                                |               5 |             2 |    11915.59 |              1.19
+      2025 |                 1 | REPUBLICANOS  | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1560 |            45 |  9949190.40 |             46.75
+      2025 |                 2 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             611 |            39 |  3838393.33 |             18.04
+      2025 |                 3 | REPUBLICANOS  | PASSAGEM AÉREA - SIGEPA                                   |            2196 |            40 |  2577270.11 |             12.11
+      2025 |                 4 | REPUBLICANOS  | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1438 |            40 |  1975399.49 |              9.28
+      2025 |                 5 | REPUBLICANOS  | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6870 |            43 |  1907795.50 |              8.96
+      2025 |                 6 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               6 |             2 |   289175.00 |              1.36
+      2025 |                 7 | REPUBLICANOS  | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             625 |            33 |   286012.57 |              1.34
+      2025 |                 8 | REPUBLICANOS  | TELEFONIA                                                 |             992 |            47 |   193743.83 |              0.91
+      2025 |                 9 | REPUBLICANOS  | PASSAGEM AÉREA - RPA                                      |              32 |             5 |    66345.09 |              0.31
+      2025 |                10 | REPUBLICANOS  | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             937 |            19 |    64767.02 |              0.30
+      2025 |                 1 | SOLIDARIEDADE | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             204 |             5 |  1147272.77 |             55.97
+      2025 |                 2 | SOLIDARIEDADE | PASSAGEM AÉREA - SIGEPA                                   |             350 |             4 |   388544.92 |             18.96
+      2025 |                 3 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              35 |             3 |   169634.17 |              8.28
+      2025 |                 4 | SOLIDARIEDADE | COMBUSTÍVEIS E LUBRIFICANTES.                             |             473 |             4 |   159258.04 |              7.77
+      2025 |                 5 | SOLIDARIEDADE | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              72 |             4 |    98941.20 |              4.83
+      2025 |                 6 | SOLIDARIEDADE | PASSAGEM AÉREA - REEMBOLSO                                |              19 |             3 |    39725.47 |              1.94
+      2025 |                 7 | SOLIDARIEDADE | TELEFONIA                                                 |             100 |             4 |    15286.71 |              0.75
+      2025 |                 8 | SOLIDARIEDADE | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              42 |             2 |    14217.81 |              0.69
+      2025 |                 9 | SOLIDARIEDADE | PASSAGEM AÉREA - RPA                                      |               4 |             2 |     8982.88 |              0.44
+      2025 |                10 | SOLIDARIEDADE | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |              21 |             1 |     6760.40 |              0.33
+      2025 |                 1 | S.PART.       | TELEFONIA                                                 |               5 |             1 |        4.82 |            100.00
+      2025 |                 1 | UNIAO         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1781 |            53 | 10627410.25 |             39.16
+      2025 |                 2 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             716 |            47 |  4670698.45 |             17.21
+      2025 |                 3 | UNIAO         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1662 |            53 |  3943867.76 |             14.53
+      2025 |                 4 | UNIAO         | PASSAGEM AÉREA - SIGEPA                                   |            2988 |            54 |  3641321.47 |             13.42
+      2025 |                 5 | UNIAO         | COMBUSTÍVEIS E LUBRIFICANTES.                             |            6968 |            52 |  2745342.61 |             10.12
+      2025 |                 6 | UNIAO         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |            1027 |            35 |   467895.94 |              1.72
+      2025 |                 7 | UNIAO         | TELEFONIA                                                 |            1266 |            56 |   330525.62 |              1.22
+      2025 |                 8 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              14 |             4 |   226450.00 |              0.83
+      2025 |                 9 | UNIAO         | PASSAGEM AÉREA - REEMBOLSO                                |              55 |             9 |   162992.04 |              0.60
+      2025 |                10 | UNIAO         | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              54 |             8 |   145562.73 |              0.54
+      2026 |                 1 | AVANTE        | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              79 |             5 |   326140.78 |             64.85
+      2026 |                 2 | AVANTE        | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              14 |             3 |    77710.00 |             15.45
+      2026 |                 3 | AVANTE        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              25 |             3 |    45386.63 |              9.03
+      2026 |                 4 | AVANTE        | COMBUSTÍVEIS E LUBRIFICANTES.                             |             135 |             5 |    42134.30 |              8.38
+      2026 |                 5 | AVANTE        | TELEFONIA                                                 |              24 |             4 |     8443.94 |              1.68
+      2026 |                 6 | AVANTE        | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     1976.46 |              0.39
+      2026 |                 7 | AVANTE        | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               3 |             2 |     1034.13 |              0.21
+      2026 |                 8 | AVANTE        | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |               2 |             1 |       57.23 |              0.01
+      2026 |                 1 | CIDADANIA     | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              55 |             2 |    97376.38 |             44.77
+      2026 |                 2 | CIDADANIA     | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              13 |             2 |    89825.97 |             41.30
+      2026 |                 3 | CIDADANIA     | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |               3 |             1 |    17666.20 |              8.12
+      2026 |                 4 | CIDADANIA     | COMBUSTÍVEIS E LUBRIFICANTES.                             |              32 |             1 |     5010.38 |              2.30
+      2026 |                 5 | CIDADANIA     | TELEFONIA                                                 |              10 |             2 |     3079.81 |              1.42
+      2026 |                 6 | CIDADANIA     | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |               6 |             1 |     2427.49 |              1.12
+      2026 |                 7 | CIDADANIA     | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     1866.28 |              0.86
+      2026 |                 8 | CIDADANIA     | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               1 |             1 |      260.00 |              0.12
+      2026 |                 1 | MDB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             386 |            34 |  2767785.84 |             49.47
+      2026 |                 2 | MDB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             124 |            30 |   930635.33 |             16.63
+      2026 |                 3 | MDB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             416 |            29 |   657700.35 |             11.76
+      2026 |                 4 | MDB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1769 |            35 |   557124.45 |              9.96
+      2026 |                 5 | MDB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              14 |             5 |   452500.00 |              8.09
+      2026 |                 6 | MDB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             264 |            17 |   105467.58 |              1.89
+      2026 |                 7 | MDB           | TELEFONIA                                                 |             124 |            30 |    51267.71 |              0.92
+      2026 |                 8 | MDB           | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              12 |             4 |    22156.04 |              0.40
+      2026 |                 9 | MDB           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             262 |            13 |    20611.97 |              0.37
+      2026 |                10 | MDB           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             160 |            13 |    16479.77 |              0.29
+      2026 |                 1 | MISSAO        | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              13 |             1 |    15882.22 |            100.00
+      2026 |                 1 | NOVO          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              43 |             4 |   221931.80 |             44.54
+      2026 |                 2 | NOVO          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             109 |             5 |   106550.45 |             21.38
+      2026 |                 3 | NOVO          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              18 |             3 |    81600.49 |             16.38
+      2026 |                 4 | NOVO          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             213 |             4 |    62568.00 |             12.56
+      2026 |                 5 | NOVO          | TELEFONIA                                                 |              28 |             5 |     8084.54 |              1.62
+      2026 |                 6 | NOVO          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              38 |             2 |     7430.53 |              1.49
+      2026 |                 7 | NOVO          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              10 |             2 |     5147.38 |              1.03
+      2026 |                 8 | NOVO          | ASSINATURA DE PUBLICAÇÕES                                 |              20 |             2 |     2840.80 |              0.57
+      2026 |                 9 | NOVO          | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |               6 |             1 |     2155.11 |              0.43
+      2026 |                 1 | PCDOB         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             119 |            10 |   784926.20 |             50.73
+      2026 |                 2 | PCDOB         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             142 |             8 |   363270.35 |             23.48
+      2026 |                 3 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              31 |             8 |   189021.51 |             12.22
+      2026 |                 4 | PCDOB         | COMBUSTÍVEIS E LUBRIFICANTES.                             |             447 |            11 |   145328.89 |              9.39
+      2026 |                 5 | PCDOB         | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |               4 |             1 |    20000.00 |              1.29
+      2026 |                 6 | PCDOB         | TELEFONIA                                                 |              42 |             8 |    15288.96 |              0.99
+      2026 |                 7 | PCDOB         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              49 |             5 |    12729.48 |              0.82
+      2026 |                 8 | PCDOB         | PASSAGEM AÉREA - REEMBOLSO                                |               4 |             2 |     9891.53 |              0.64
+      2026 |                 9 | PCDOB         | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              47 |             4 |     2752.16 |              0.18
+      2026 |                10 | PCDOB         | SERVIÇOS POSTAIS                                          |               2 |             2 |     1955.10 |              0.13
+      2026 |                 1 | PDT           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             176 |            10 |   982158.23 |             53.57
+      2026 |                 2 | PDT           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              45 |             9 |   326041.50 |             17.78
+      2026 |                 3 | PDT           | COMBUSTÍVEIS E LUBRIFICANTES.                             |             654 |             9 |   174447.87 |              9.52
+      2026 |                 4 | PDT           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              93 |             7 |   174278.89 |              9.51
+      2026 |                 5 | PDT           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               3 |             2 |   118675.00 |              6.47
+      2026 |                 6 | PDT           | TELEFONIA                                                 |              47 |             7 |    16968.31 |              0.93
+      2026 |                 7 | PDT           | PASSAGEM AÉREA - RPA                                      |               7 |             2 |    13019.10 |              0.71
+      2026 |                 8 | PDT           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              37 |             4 |    11583.68 |              0.63
+      2026 |                 9 | PDT           | SERVIÇOS POSTAIS                                          |              16 |             4 |    10508.14 |              0.57
+      2026 |                10 | PDT           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              70 |             6 |     5650.38 |              0.31
+      2026 |                 1 | PL            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |            1164 |            95 |  7005656.29 |             48.58
+      2026 |                 2 | PL            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             429 |            82 |  2621540.04 |             18.18
+      2026 |                 3 | PL            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1340 |            86 |  2150040.92 |             14.91
+      2026 |                 4 | PL            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            5844 |            92 |  1659729.35 |             11.51
+      2026 |                 5 | PL            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             766 |            62 |   430262.07 |              2.98
+      2026 |                 6 | PL            | TELEFONIA                                                 |             395 |            70 |   144805.48 |              1.00
+      2026 |                 7 | PL            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             911 |            45 |    98908.02 |              0.69
+      2026 |                 8 | PL            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              48 |            10 |    91935.23 |              0.64
+      2026 |                 9 | PL            | LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES                      |              11 |             2 |    61600.00 |              0.43
+      2026 |                10 | PL            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             751 |            34 |    59059.53 |              0.41
+      2026 |                 1 | PODE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             468 |            29 |  2768888.85 |             57.08
+      2026 |                 2 | PODE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             126 |            23 |   926259.28 |             19.10
+      2026 |                 3 | PODE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             263 |            24 |   581651.62 |             11.99
+      2026 |                 4 | PODE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1235 |            25 |   430951.31 |              8.88
+      2026 |                 5 | PODE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             107 |            16 |    50660.82 |              1.04
+      2026 |                 6 | PODE          | TELEFONIA                                                 |              80 |            18 |    38507.97 |              0.79
+      2026 |                 7 | PODE          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               1 |             1 |    23000.00 |              0.47
+      2026 |                 8 | PODE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             233 |            10 |    19530.19 |              0.40
+      2026 |                 9 | PODE          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              87 |             8 |     6708.27 |              0.14
+      2026 |                10 | PODE          | PASSAGEM AÉREA - REEMBOLSO                                |               1 |             1 |     3038.04 |              0.06
+      2026 |                 1 | PP            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             944 |            49 |  3715197.56 |             47.97
+      2026 |                 2 | PP            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             231 |            45 |  1800643.10 |             23.25
+      2026 |                 3 | PP            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             580 |            42 |  1041109.13 |             13.44
+      2026 |                 4 | PP            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2416 |            48 |   863869.15 |             11.15
+      2026 |                 5 | PP            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             302 |            24 |   122497.19 |              1.58
+      2026 |                 6 | PP            | TELEFONIA                                                 |             247 |            41 |    81540.74 |              1.05
+      2026 |                 7 | PP            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              19 |             6 |    36907.82 |              0.48
+      2026 |                 8 | PP            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             425 |            16 |    25459.92 |              0.33
+      2026 |                 9 | PP            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             237 |            15 |    18736.41 |              0.24
+      2026 |                10 | PP            | PASSAGEM AÉREA - REEMBOLSO                                |               3 |             3 |    15729.57 |              0.20
+      2026 |                 1 | PRD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              14 |             3 |   100600.00 |             28.83
+      2026 |                 2 | PRD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              24 |             3 |    98999.50 |             28.37
+      2026 |                 3 | PRD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              39 |             3 |    78461.79 |             22.49
+      2026 |                 4 | PRD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |             251 |             4 |    61301.85 |             17.57
+      2026 |                 5 | PRD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              13 |             3 |     5114.86 |              1.47
+      2026 |                 6 | PRD           | TELEFONIA                                                 |              10 |             1 |     3319.20 |              0.95
+      2026 |                 7 | PRD           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              49 |             2 |      925.09 |              0.27
+      2026 |                 8 | PRD           | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |               1 |             1 |      176.34 |              0.05
+      2026 |                 1 | PSB           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             210 |            17 |  1351201.65 |             52.46
+      2026 |                 2 | PSB           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              84 |            14 |   435732.01 |             16.92
+      2026 |                 3 | PSB           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             237 |            14 |   354598.28 |             13.77
+      2026 |                 4 | PSB           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            1101 |            15 |   314274.86 |             12.20
+      2026 |                 5 | PSB           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             102 |             8 |    49877.03 |              1.94
+      2026 |                 6 | PSB           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               1 |             1 |    32000.00 |              1.24
+      2026 |                 7 | PSB           | TELEFONIA                                                 |              59 |            14 |    21171.89 |              0.82
+      2026 |                 8 | PSB           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             247 |             3 |     8336.89 |              0.32
+      2026 |                 9 | PSB           | PASSAGEM AÉREA - RPA                                      |               2 |             1 |     5076.06 |              0.20
+      2026 |                10 | PSB           | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              14 |             3 |     1252.91 |              0.05
+      2026 |                 1 | PSD           | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             581 |            48 |  3380213.64 |             45.71
+      2026 |                 2 | PSD           | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             205 |            38 |  1328069.59 |             17.96
+      2026 |                 3 | PSD           | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             562 |            43 |  1158667.71 |             15.67
+      2026 |                 4 | PSD           | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2472 |            46 |   800958.96 |             10.83
+      2026 |                 5 | PSD           | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |              17 |             3 |   416700.00 |              5.63
+      2026 |                 6 | PSD           | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             202 |            28 |    98652.38 |              1.33
+      2026 |                 7 | PSD           | TELEFONIA                                                 |             214 |            35 |    84485.40 |              1.14
+      2026 |                 8 | PSD           | PASSAGEM AÉREA - REEMBOLSO                                |              11 |             5 |    38583.99 |              0.52
+      2026 |                 9 | PSD           | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             449 |            17 |    34114.55 |              0.46
+      2026 |                10 | PSD           | SERVIÇOS POSTAIS                                          |              11 |             6 |    26530.00 |              0.36
+      2026 |                 1 | PSDB          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             147 |            15 |  1018134.58 |             42.26
+      2026 |                 2 | PSDB          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             222 |            15 |   492823.59 |             20.45
+      2026 |                 3 | PSDB          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              69 |            11 |   404412.52 |             16.79
+      2026 |                 4 | PSDB          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             925 |            16 |   365142.84 |             15.16
+      2026 |                 5 | PSDB          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             106 |             6 |    51522.11 |              2.14
+      2026 |                 6 | PSDB          | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               1 |             1 |    28000.00 |              1.16
+      2026 |                 7 | PSDB          | TELEFONIA                                                 |              69 |            11 |    20297.31 |              0.84
+      2026 |                 8 | PSDB          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              92 |             3 |     8722.59 |              0.36
+      2026 |                 9 | PSDB          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              56 |             7 |     6085.32 |              0.25
+      2026 |                10 | PSDB          | ASSINATURA DE PUBLICAÇÕES                                 |              11 |             3 |     3805.60 |              0.16
+      2026 |                 1 | PSOL          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             161 |            12 |   880760.06 |             51.58
+      2026 |                 2 | PSOL          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             190 |            11 |   280247.64 |             16.41
+      2026 |                 3 | PSOL          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              51 |             9 |   228477.29 |             13.38
+      2026 |                 4 | PSOL          | COMBUSTÍVEIS E LUBRIFICANTES.                             |             484 |            12 |   128671.60 |              7.53
+      2026 |                 5 | PSOL          | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              13 |             3 |    86686.00 |              5.08
+      2026 |                 6 | PSOL          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              86 |            10 |    50090.65 |              2.93
+      2026 |                 7 | PSOL          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             492 |            11 |    23155.59 |              1.36
+      2026 |                 8 | PSOL          | TELEFONIA                                                 |              52 |             7 |    12915.15 |              0.76
+      2026 |                 9 | PSOL          | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |              40 |             4 |     9393.90 |              0.55
+      2026 |                10 | PSOL          | ASSINATURA DE PUBLICAÇÕES                                 |              11 |             3 |     4879.90 |              0.29
+      2026 |                 1 | PT            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             935 |            68 |  4892097.52 |             44.24
+      2026 |                 2 | PT            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |            1229 |            70 |  1996634.27 |             18.06
+      2026 |                 3 | PT            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             371 |            57 |  1976710.24 |             17.88
+      2026 |                 4 | PT            | COMBUSTÍVEIS E LUBRIFICANTES.                             |            4562 |            68 |  1426998.39 |             12.90
+      2026 |                 5 | PT            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             772 |            47 |   273890.68 |              2.48
+      2026 |                 6 | PT            | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              36 |            11 |   141237.18 |              1.28
+      2026 |                 7 | PT            | TELEFONIA                                                 |             327 |            56 |   129146.65 |              1.17
+      2026 |                 8 | PT            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |            2193 |            40 |   106371.77 |              0.96
+      2026 |                 9 | PT            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             484 |            25 |    31977.68 |              0.29
+      2026 |                10 | PT            | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |             114 |            16 |    25144.38 |              0.23
+      2026 |                 1 | PV            | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              86 |             6 |   514710.00 |             49.74
+      2026 |                 2 | PV            | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              27 |             5 |   235365.68 |             22.75
+      2026 |                 3 | PV            | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              47 |             5 |   151240.80 |             14.62
+      2026 |                 4 | PV            | COMBUSTÍVEIS E LUBRIFICANTES.                             |             410 |             6 |    99763.01 |              9.64
+      2026 |                 5 | PV            | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              54 |             2 |    17796.13 |              1.72
+      2026 |                 6 | PV            | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              95 |             3 |     8663.37 |              0.84
+      2026 |                 7 | PV            | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              57 |             3 |     4231.22 |              0.41
+      2026 |                 8 | PV            | TELEFONIA                                                 |              10 |             4 |     3018.63 |              0.29
+      2026 |                 1 | REDE          | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |              40 |             6 |   544714.75 |             73.00
+      2026 |                 2 | REDE          | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              19 |             6 |    94927.08 |             12.72
+      2026 |                 3 | REDE          | PASSAGEM AÉREA - REEMBOLSO                                |              15 |             2 |    42961.08 |              5.76
+      2026 |                 4 | REDE          | COMBUSTÍVEIS E LUBRIFICANTES.                             |              93 |             5 |    25070.04 |              3.36
+      2026 |                 5 | REDE          | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              15 |             5 |    13928.59 |              1.87
+      2026 |                 6 | REDE          | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |              12 |             3 |     7826.53 |              1.05
+      2026 |                 7 | REDE          | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |              13 |             2 |     4838.00 |              0.65
+      2026 |                 8 | REDE          | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |              45 |             4 |     4703.22 |              0.63
+      2026 |                 9 | REDE          | TELEFONIA                                                 |              11 |             2 |     3544.31 |              0.47
+      2026 |                10 | REDE          | ASSINATURA DE PUBLICAÇÕES                                 |               1 |             1 |     3331.60 |              0.45
+      2026 |                 1 | REPUBLICANOS  | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             549 |            47 |  3518083.37 |             51.12
+      2026 |                 2 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             202 |            42 |  1402875.99 |             20.38
+      2026 |                 3 | REPUBLICANOS  | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             496 |            39 |   810181.34 |             11.77
+      2026 |                 4 | REPUBLICANOS  | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2388 |            48 |   740288.62 |             10.76
+      2026 |                 5 | REPUBLICANOS  | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               2 |             1 |   133258.00 |              1.94
+      2026 |                 6 | REPUBLICANOS  | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             262 |            25 |   131205.01 |              1.91
+      2026 |                 7 | REPUBLICANOS  | TELEFONIA                                                 |             153 |            33 |    52939.40 |              0.77
+      2026 |                 8 | REPUBLICANOS  | PASSAGEM AÉREA - REEMBOLSO                                |              13 |             8 |    36450.08 |              0.53
+      2026 |                 9 | REPUBLICANOS  | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |             322 |            16 |    25656.67 |              0.37
+      2026 |                10 | REPUBLICANOS  | SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO                 |             116 |            15 |    11099.45 |              0.16
+      2026 |                 1 | SOLIDARIEDADE | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             107 |             6 |   553669.75 |             69.39
+      2026 |                 2 | SOLIDARIEDADE | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |              15 |             4 |   102186.93 |             12.81
+      2026 |                 3 | SOLIDARIEDADE | COMBUSTÍVEIS E LUBRIFICANTES.                             |             274 |             5 |    88847.23 |             11.13
+      2026 |                 4 | SOLIDARIEDADE | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |              31 |             6 |    40300.06 |              5.05
+      2026 |                 5 | SOLIDARIEDADE | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |               8 |             2 |     8603.00 |              1.08
+      2026 |                 6 | SOLIDARIEDADE | TELEFONIA                                                 |              11 |             4 |     2663.01 |              0.33
+      2026 |                 7 | SOLIDARIEDADE | PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS               |               3 |             1 |     1025.20 |              0.13
+      2026 |                 8 | SOLIDARIEDADE | FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR                |               5 |             2 |      626.25 |              0.08
+      2026 |                 1 | UNIAO         | DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.                      |             652 |            48 |  3879990.51 |             45.71
+      2026 |                 2 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES             |             217 |            44 |  1635297.45 |             19.27
+      2026 |                 3 | UNIAO         | MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR |             578 |            48 |  1320080.14 |             15.55
+      2026 |                 4 | UNIAO         | COMBUSTÍVEIS E LUBRIFICANTES.                             |            2553 |            49 |   978189.78 |             11.53
+      2026 |                 5 | UNIAO         | HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.    |             341 |            28 |   189980.75 |              2.24
+      2026 |                 6 | UNIAO         | LOCAÇÃO OU FRETAMENTO DE AERONAVES                        |               7 |             3 |   129725.00 |              1.53
+      2026 |                 7 | UNIAO         | PASSAGEM AÉREA - REEMBOLSO                                |              39 |             4 |   114681.85 |              1.35
+      2026 |                 8 | UNIAO         | TELEFONIA                                                 |             193 |            38 |    77186.93 |              0.91
+      2026 |                 9 | UNIAO         | PASSAGEM AÉREA - RPA                                      |              30 |             2 |    62903.10 |              0.74
+      2026 |                10 | UNIAO         | SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.  |              15 |             4 |    50483.93 |              0.59
+(811 rows)
+

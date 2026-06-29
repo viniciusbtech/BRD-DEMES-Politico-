@@ -154,15 +154,15 @@
       "title": "Indice de custo-beneficio",
       "group_id": "gastos",
       "tags": ["custo-benefício", "deputados", "desempenho"],
-      "description": "Compara beneficio estimado com gasto total por deputado.",
+      "description": "Compara beneficio legislativo qualificado com gasto total por deputado.",
       "response_files": ["questoes/q7/respostas/q7_custo_beneficio.txt", "questoes/q7/respostas/q7_custo_beneficio_complemento.txt"],
       "sql_file": "questoes/q7/consultas/q7.sql",
       "chart_type": "scatter",
       "supported_filters": ["anos", "partidos", "ufs", "deputados"],
-      "expected_columns": ["id_deputado", "nome", "gasto_total", "qtd_proposicoes", "proposicoes_aprovadas", "presenca_total", "beneficio", "custo_beneficio"],
+      "expected_columns": ["id_deputado", "nome", "gasto_total", "qtd_proposicoes", "proposicoes_aprovadas", "qualidade_proposicoes", "presenca_total", "fator_penalidade_gasto", "beneficio", "custo_beneficio"],
       "main_table_contains": "Tabela principal",
       "summary_table_contains": "Resumo executivo",
-      "explanation": "Combina autoria, aprovacao e presenca para estimar beneficio dividido pelo gasto.",
+      "explanation": "Calcula qualidade das proposicoes por tipo, situacao, conteudo e credito de autoria; soma essa qualidade com presenca e divide pelo gasto_total multiplicado por fator de penalidade em faixas.",
       "chart": { "x_field": "gasto_total", "y_fields": ["beneficio"], "label_field": "nome" }
     },
     {
@@ -218,7 +218,7 @@
       "title": "Rankings partidarios",
       "group_id": "partidos",
       "tags": ["rankings", "partidos", "frequência"],
-      "description": "Ordenacao dos partidos por frequencia nas votacoes, proposicoes de projetos, gastos e nuvem de palavras composta.",
+      "description": "Ordenacao dos partidos por frequencia nas votacoes, proposicoes de projetos, gastos, categorias de despesa e nuvem de palavras composta.",
       "response_files": ["questoes/q11/respostas/q11_ranking_partidos.txt"],
       "sql_file": "questoes/q11/consultas/q11.sql",
       "chart_type": "wordcloud_images",
@@ -226,7 +226,7 @@
       "expected_columns": ["posicao", "sigla_partido", "ideologia", "votacoes_participadas", "total_votos_registrados"],
       "main_table_contains": "Q11.a - Ranking de partidos por frequencia nas votacoes (consolidado)",
       "summary_table_contains": "",
-      "explanation": "Q11.a ordena partidos por frequencia nas votacoes. Q11.b ordena por proposicoes de projetos. Q11.c ordena por gastos totais. Q11.d combina as tres dimensoes em um score normalizado para nuvem de palavras.",
+      "explanation": "Q11.a ordena partidos por frequencia nas votacoes. Q11.b ordena por proposicoes de projetos. Q11.c ordena por gastos totais. Q11.d combina as tres dimensoes em um score normalizado para nuvem de palavras. Q11.e detalha as principais categorias de gasto de cada partido.",
       "chart": { "x_field": "sigla_partido", "y_fields": ["votacoes_participadas"] }
     },
     {

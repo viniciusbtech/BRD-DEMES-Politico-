@@ -12,9 +12,56 @@ import {
   YAxis,
 } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
-import type { FilterCatalog, FilterChoice, MetaResponse, QuestionPayload } from "../types";
+import type { FilterCatalog, FilterChoice, MetaResponse, QuestionPayload, TableSpec } from "../types";
 import { useTheme } from "../../contexts/ThemeContext";
 import NavBar from "../components/NavBar";
+
+type Row = Record<string, unknown>;
+
+const strVal = (row: Row | undefined, key: string) => String(row?.[key] ?? "");
+
+const isGlobalCbTable = (table: TableSpec) => {
+  const title = table.title.toLowerCase();
+  return title.includes("ranking global") && title.includes("todos os anos");
+};
+
+const getGlobalCbTable = (payload: QuestionPayload) =>
+  [payload.table_spec, ...payload.complement_tables].find(isGlobalCbTable) ?? payload.complement_tables[0];
+
+const getGlobalCbRows = (payload: QuestionPayload): Row[] => {
+  const globalTable = getGlobalCbTable(payload);
+  const rows = (globalTable?.rows ?? []) as Row[];
+  const globalOnly = rows.filter((r) => strVal(r, "ano_dados").toUpperCase() === "GLOBAL");
+  return globalOnly.length > 0 ? [...globalOnly] : [...rows];
+};
+
+const dedupeGlobalRows = (rows: Row[]): Row[] => {
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const key = `${strVal(r, "ano_dados")}:${strVal(r, "id_deputado")}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const fetchGlobalCbRanking = async (): Promise<Row[]> => {
+  const pageSize = 200;
+  const first = await fetchQuestion("q7", {}, { page: 1, pageSize });
+  const firstTable = getGlobalCbTable(first);
+  const total = firstTable?.total ?? 0;
+  const effectivePageSize = firstTable?.page_size ?? pageSize;
+  const pages = Math.ceil(total / effectivePageSize);
+
+  const rest =
+    pages > 1
+      ? await Promise.all(
+          Array.from({ length: pages - 1 }, (_, i) => fetchQuestion("q7", {}, { page: i + 2, pageSize })),
+        )
+      : [];
+
+  return dedupeGlobalRows([first, ...rest].flatMap(getGlobalCbRows));
+};
 
 type DeputadoPageProps = { onNavigateHome: () => void; onNavigateRecortes: () => void; onNavigateRecorte: (path: string) => void };
 type DeputySelection = FilterChoice;
@@ -830,18 +877,27 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
   );
 }
 
-function CostBenefitSection({ payloads }: { payloads: ProfilePayloads }) {
+function CostBenefitSection({ payloads, cbAllRows, selectedDeputyId }: { payloads: ProfilePayloads; cbAllRows: Row[]; selectedDeputyId: string }) {
   const row =
     payloads.q7?.table_spec.rows[0] ??
     payloads.q7?.complement_tables.find((table) => table.rows.length)?.rows[0];
-  const score = raw(row, "custo_beneficio");
-  const benefit = raw(row, "beneficio");
   const propositions = raw(row, "qtd_proposicoes");
   const approved = raw(row, "proposicoes_aprovadas");
   const presence = raw(row, "presenca_total");
   const spent = raw(row, "gasto_total");
   const approvalRate = propositions ? Math.round((approved / propositions) * 100) : 0;
-  const note = Math.max(0, Math.min(10, score * 10000));
+
+  const scoreCb = useMemo(() => {
+    if (!cbAllRows.length || !selectedDeputyId) return null;
+    const n = cbAllRows.length;
+    const idx = cbAllRows.findIndex((r) => String(r["id_deputado"] ?? "") === selectedDeputyId);
+    if (idx === -1) return null;
+    return ((n - idx) / n) * 100;
+  }, [cbAllRows, selectedDeputyId]);
+
+  const scoreCbDisplay = scoreCb !== null
+    ? scoreCb.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+    : cbAllRows.length === 0 ? "..." : "—";
 
   return (
     <section className="border-t px-6 py-16 sm:px-10" style={{ borderColor: "var(--border)" }}>
@@ -856,7 +912,7 @@ function CostBenefitSection({ payloads }: { payloads: ProfilePayloads }) {
         <div className="border" style={{ borderColor: "var(--border)" }}>
           <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4" style={{ background: "rgba(243,239,232,0.08)" }}>
             {[
-              ["Nota geral", `${note.toFixed(1)}/10`, "#e39115"],
+              ["Score CB", scoreCbDisplay, "#e39115"],
               ["Presencas", number(presence), "var(--foreground)"],
               ["Proposicoes", number(propositions), "var(--foreground)"],
               ["Aprovadas", number(approved), "var(--foreground)"],
@@ -876,16 +932,14 @@ function CostBenefitSection({ payloads }: { payloads: ProfilePayloads }) {
         <div className="mt-9 max-w-[480px]">
           <div className="mb-2 flex justify-between text-[13px] font-bold" style={{ color: "var(--foreground)", fontFamily: "'JetBrains Mono', monospace" }}>
             <span>0</span>
-            <span>NOTA — {note.toFixed(1)}/10</span>
-            <span>10</span>
+            <span>SCORE CB — {scoreCbDisplay}</span>
+            <span>100</span>
           </div>
           <div className="h-4 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }}>
-            <div className="h-full rounded-full" style={{ width: `${note * 10}%`, background: "linear-gradient(90deg, #e00836, #e39115)" }} />
+            <div className="h-full rounded-full" style={{ width: `${scoreCb ?? 0}%`, background: "linear-gradient(90deg, #e00836, #e39115)" }} />
           </div>
           <p className="mt-6 text-[16px] leading-relaxed" style={{ color: "var(--foreground)" }}>
             Custo total do mandato ate agora: <strong style={{ color: "#e00836" }}>{money(spent)}</strong>. Taxa de aprovacao de proposicoes: <strong style={{ color: "#e00836" }}>{approvalRate}%</strong>.
-            {benefit ? <span> Indicador de beneficio: <strong style={{ color: "#e00836" }}>{number(benefit)}</strong>.</span> : null}
-            {score ? <span> Indice custo-beneficio: <strong style={{ color: "#e00836" }}>{score.toFixed(6)}</strong>.</span> : null}
           </p>
         </div>
       </div>
@@ -1157,6 +1211,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cbAllRows, setCbAllRows] = useState<Row[]>([]);
 
   const filters = meta?.question_filters?.q13 ?? meta?.available_filters ?? emptyFilters;
 
@@ -1176,6 +1231,14 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
     return () => {
       mounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetchGlobalCbRanking()
+      .then((rows) => { if (active) setCbAllRows(rows); })
+      .catch(() => { /* silently ignore — cb ranking is optional */ });
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
@@ -1309,7 +1372,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
           )}
           {activeSection === "eixos" && <AxesSection payloads={payloads} />}
           {activeSection === "votacoes" && <VotesSection payloads={payloads} />}
-          {activeSection === "custo-beneficio" && <CostBenefitSection payloads={payloads} />}
+          {activeSection === "custo-beneficio" && <CostBenefitSection payloads={payloads} cbAllRows={cbAllRows} selectedDeputyId={selectedDeputy?.value ?? ""} />}
           {activeSection === "metodologia" && <MethodologySection />}
         </>
       )}

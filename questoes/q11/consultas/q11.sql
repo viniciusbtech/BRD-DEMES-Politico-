@@ -264,3 +264,117 @@ SELECT
 FROM normalizado n
 LEFT JOIN partidos_ideologia pi ON pi.sigla_partido = n.sigla_partido
 ORDER BY score_total DESC, n.sigla_partido;
+
+-- =======================================================================
+-- Q11.e - Categorias de gasto por partido
+-- Mostra em quais tipos de despesa cada partido concentra seus gastos.
+-- =======================================================================
+\qecho
+\qecho Q11.e - Categorias de gasto por partido (consolidado)
+
+WITH gastos_categoria AS (
+    SELECT
+        g.sigla_partido,
+        g.descricao_despesa,
+        COUNT(*) AS qtd_lancamentos,
+        COUNT(DISTINCT g.id_deputado) AS qtd_deputados,
+        SUM(g.valor_liquido) AS gasto_total
+    FROM gastos g
+    WHERE g.valor_liquido > 0
+      AND g.sigla_partido IS NOT NULL
+      AND g.sigla_partido != ''
+      AND g.descricao_despesa IS NOT NULL
+      AND g.descricao_despesa != ''
+    GROUP BY g.sigla_partido, g.descricao_despesa
+),
+totais_partido AS (
+    SELECT
+        sigla_partido,
+        SUM(gasto_total) AS gasto_total_partido
+    FROM gastos_categoria
+    GROUP BY sigla_partido
+),
+ranked AS (
+    SELECT
+        gc.sigla_partido,
+        gc.descricao_despesa,
+        gc.qtd_lancamentos,
+        gc.qtd_deputados,
+        gc.gasto_total,
+        ROUND(gc.gasto_total * 100.0 / NULLIF(tp.gasto_total_partido, 0), 2) AS pct_gasto_partido,
+        RANK() OVER (
+            PARTITION BY gc.sigla_partido
+            ORDER BY gc.gasto_total DESC
+        ) AS posicao_categoria
+    FROM gastos_categoria gc
+    JOIN totais_partido tp ON tp.sigla_partido = gc.sigla_partido
+)
+SELECT
+    posicao_categoria,
+    sigla_partido,
+    descricao_despesa,
+    qtd_lancamentos,
+    qtd_deputados,
+    gasto_total,
+    pct_gasto_partido
+FROM ranked
+WHERE posicao_categoria <= 10
+ORDER BY sigla_partido, posicao_categoria, descricao_despesa;
+
+\qecho
+\qecho Q11.e - Categorias de gasto por partido por ano
+
+WITH gastos_categoria_ano AS (
+    SELECT
+        g.ano_dados,
+        g.sigla_partido,
+        g.descricao_despesa,
+        COUNT(*) AS qtd_lancamentos,
+        COUNT(DISTINCT g.id_deputado) AS qtd_deputados,
+        SUM(g.valor_liquido) AS gasto_total
+    FROM gastos g
+    WHERE g.valor_liquido > 0
+      AND g.sigla_partido IS NOT NULL
+      AND g.sigla_partido != ''
+      AND g.descricao_despesa IS NOT NULL
+      AND g.descricao_despesa != ''
+    GROUP BY g.ano_dados, g.sigla_partido, g.descricao_despesa
+),
+totais_partido_ano AS (
+    SELECT
+        ano_dados,
+        sigla_partido,
+        SUM(gasto_total) AS gasto_total_partido
+    FROM gastos_categoria_ano
+    GROUP BY ano_dados, sigla_partido
+),
+ranked AS (
+    SELECT
+        gc.ano_dados,
+        gc.sigla_partido,
+        gc.descricao_despesa,
+        gc.qtd_lancamentos,
+        gc.qtd_deputados,
+        gc.gasto_total,
+        ROUND(gc.gasto_total * 100.0 / NULLIF(tp.gasto_total_partido, 0), 2) AS pct_gasto_partido,
+        RANK() OVER (
+            PARTITION BY gc.ano_dados, gc.sigla_partido
+            ORDER BY gc.gasto_total DESC
+        ) AS posicao_categoria
+    FROM gastos_categoria_ano gc
+    JOIN totais_partido_ano tp
+      ON tp.ano_dados = gc.ano_dados
+     AND tp.sigla_partido = gc.sigla_partido
+)
+SELECT
+    ano_dados,
+    posicao_categoria,
+    sigla_partido,
+    descricao_despesa,
+    qtd_lancamentos,
+    qtd_deputados,
+    gasto_total,
+    pct_gasto_partido
+FROM ranked
+WHERE posicao_categoria <= 10
+ORDER BY ano_dados, sigla_partido, posicao_categoria, descricao_despesa;
