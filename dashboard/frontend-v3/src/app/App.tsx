@@ -610,11 +610,11 @@ function ReferenceHome({
             </p>
 
             <p
-              className="mt-5 text-[13px] leading-relaxed"
+              className="mt-5 text-[15px] font-semibold leading-relaxed"
               style={{
-                color: isDark ? "rgba(243,239,232,0.72)" : "rgba(15,23,42,0.68)",
+                color: isDark ? "rgba(243,239,232,0.96)" : "rgba(15,23,42,0.90)",
                 fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.12em",
+                letterSpacing: "0.08em",
               }}
             >
               — Pesquisa restrita a Deputados Federais. Não abrange senadores,

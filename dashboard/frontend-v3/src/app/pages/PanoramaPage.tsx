@@ -768,11 +768,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           >
             <div className="border-t border-border">
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
-                <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+                <table className="min-w-full text-left text-sm" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Foto", "Deputado", "Partido", "UF", "Total Gasto"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-bold uppercase text-foreground"
                           style={col === "#" && !isDark ? { color: RED } : undefined}>{col}</th>
                       ))}
                     </tr>
@@ -792,8 +792,8 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                               <img src={depPhoto(id)} alt="" className="h-9 w-7 object-cover object-top" style={{ filter: "grayscale(50%)" }} onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
                             </td>
                             <td className="whitespace-nowrap px-4 py-2 font-medium" style={{ color: "var(--foreground)", fontFamily: SERIF }}>{str(dep, "nome")}</td>
-                            <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_partido")}</td>
-                            <td className="px-4 py-2 text-muted-foreground">{str(dep, "sigla_uf")}</td>
+                            <td className="px-4 py-2 font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{str(dep, "sigla_partido")}</td>
+                            <td className="px-4 py-2 font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{str(dep, "sigla_uf")}</td>
                             <td className="px-4 py-2 text-right font-bold" style={{ color: isFirst ? RED : "var(--foreground)" }}>{fmtCurrency(raw(dep, "gasto_total"))}</td>
                           </tr>
                         );
@@ -1049,11 +1049,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           >
             <div className="border-t border-border">
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
-                <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+                <table className="min-w-full text-left text-sm" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Categoria", "Total Gasto", "Lançamentos", "% Total"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-bold uppercase text-foreground"
                           style={col === "#" && !isDark ? { color: RED } : undefined}>{col}</th>
                       ))}
                     </tr>
@@ -1083,7 +1083,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                               <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
                                 {fmtCurrency(total)}
                               </td>
-                              <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
+                              <td className="whitespace-nowrap px-4 py-2.5 text-right font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>
                                 {lances.toLocaleString("pt-BR")}
                               </td>
                               <td className="px-4 py-2.5">
@@ -1271,11 +1271,11 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           >
             <div className="border-t border-border">
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
-                <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+                <table className="min-w-full text-left text-sm" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Eixo Temático", "Proposições", "Aprovadas", "% Total"].map((col) => (
-                        <th key={col} className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-bold uppercase text-foreground"
                           style={col === "#" && !isDark ? { color: RED } : undefined}>{col}</th>
                       ))}
                     </tr>
@@ -1303,7 +1303,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                               <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold" style={{ color: isTop ? RED : "var(--foreground)" }}>
                                 {total.toLocaleString("pt-BR")}
                               </td>
-                              <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">
+                              <td className="whitespace-nowrap px-4 py-2.5 text-right font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>
                                 {aprov.toLocaleString("pt-BR")}
                               </td>
                               <td className="px-4 py-2.5">
@@ -1505,13 +1505,13 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           >
             <div className="border-t border-border">
               <div className="overflow-x-auto" style={{ maxHeight: 440, overflowY: "auto" }}>
-                <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+                <table className="min-w-full text-left text-sm" style={{ fontFamily: MONO }}>
                   <thead style={{ background: "var(--secondary)", position: "sticky", top: 0, zIndex: 1 }}>
                     <tr>
                       {["#", "Foto", "Deputado", "Partido", "UF", "Ano", "Score CB", "Gasto"].map((col) => (
                         <th
                           key={col}
-                          className="whitespace-nowrap px-4 py-3 font-normal uppercase text-muted-foreground"
+                          className="whitespace-nowrap px-4 py-3 font-bold uppercase text-foreground"
                           style={col === "#" && !isDark ? { color: RED } : col === "Score CB" ? { color: RED } : undefined}
                         >
                           {col}
@@ -1535,13 +1535,13 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
                                 className="h-7 w-7 rounded-full object-cover" style={{ border: `1px solid ${color}` }} />
                             </td>
                             <td className="whitespace-nowrap px-4 py-2.5 font-medium" style={{ color: "var(--foreground)" }}>{str(r, "nome")}</td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "sigla_partido")}</td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "sigla_uf")}</td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-muted-foreground">{str(r, "ano_dados")}</td>
+                            <td className="whitespace-nowrap px-4 py-2.5 font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{str(r, "sigla_partido")}</td>
+                            <td className="whitespace-nowrap px-4 py-2.5 font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{str(r, "sigla_uf")}</td>
+                            <td className="whitespace-nowrap px-4 py-2.5 font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{str(r, "ano_dados")}</td>
                             <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold tabular-nums" style={{ color: isTop ? RED : "var(--foreground)" }}>
                               {scoreCbRow.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-2.5 text-right text-muted-foreground">{fmtCurrency(raw(r, "gasto_total"))}</td>
+                            <td className="whitespace-nowrap px-4 py-2.5 text-right font-medium" style={{ color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{fmtCurrency(raw(r, "gasto_total"))}</td>
                           </tr>
                         );
                       })

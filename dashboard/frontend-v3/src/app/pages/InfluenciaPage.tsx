@@ -429,7 +429,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
     Promise.all([
       fetchMeta(),
       fetchAllQ8Pages(),
-      fetchQuestion("q10", q10Year ? { anos: [q10Year] } : {}, { page: 1, pageSize: 100, sortBy: "pct_alinhamento" }),
+      fetchQuestion("q10", {}, { page: 1, pageSize: 100, sortBy: "pct_alinhamento" }),
     ])
       .then(([meta, q8Payload, q10Payload]) => {
         if (!mounted) return;
@@ -444,7 +444,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         if (mounted) setLoading(false);
       });
     return () => { mounted = false; };
-  }, [q10Year]);
+  }, []);
 
   const q8Summary = q8?.summary_cards ?? [];
   const q8FullRanking = useMemo(() => {
@@ -1374,21 +1374,34 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   shape={(props: { cx?: number; cy?: number; payload?: Q10Point }) => {
                     const { cx = 0, cy = 0, payload } = props;
                     if (!payload) return <g />;
-                    const color = IDEOLOGY_COLORS[payload.ideologia] ?? "#555";
-                    const isRobust = payload.votos >= ROBUST_MIN_VOTES;
-                    const r = isRobust ? 6 : 3.5;
+                    const searchQ   = normalizeText(q10PartySearch);
+                    const isMatch   = !q10PartyActive || normalizeText(payload.sigla).includes(searchQ);
+                    const color     = IDEOLOGY_COLORS[payload.ideologia] ?? "#555";
+                    const isRobust  = payload.votos >= ROBUST_MIN_VOTES;
+                    const r         = isMatch ? (isRobust ? 7 : 4) : (isRobust ? 4 : 2.5);
+                    const dotOpacity = !q10PartyActive
+                      ? (isRobust ? 0.92 : 0.48)
+                      : (isMatch ? 1 : 0.1);
                     const textFill   = isDark ? "#e8e4dc" : "#111111";
                     const shadowFill = isDark ? "#000000" : "#ffffff";
+                    const showLabel  = isMatch;
                     return (
                       <g>
-                        <circle cx={cx} cy={cy} r={r} fill={color} opacity={isRobust ? 0.92 : 0.48} stroke={isRobust ? (isDark ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.7)") : "none"} strokeWidth={1} />
-                        {/* halo branco/preto para legibilidade sobre qualquer fundo */}
-                        <text x={cx + r + 5} y={cy + 4} fontSize={isRobust ? 10 : 9} fontFamily={MONO} fontWeight={isRobust ? "700" : "500"} fill={shadowFill} stroke={shadowFill} strokeWidth={3} strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
-                          {payload.sigla}
-                        </text>
-                        <text x={cx + r + 5} y={cy + 4} fontSize={isRobust ? 10 : 9} fontFamily={MONO} fontWeight={isRobust ? "700" : "500"} fill={textFill} style={{ pointerEvents: "none", userSelect: "none" }}>
-                          {payload.sigla}
-                        </text>
+                        {/* anel de destaque ao buscar */}
+                        {q10PartyActive && isMatch && (
+                          <circle cx={cx} cy={cy} r={r + 4} fill="none" stroke={color} strokeWidth={1.5} opacity={0.5} />
+                        )}
+                        <circle cx={cx} cy={cy} r={r} fill={color} opacity={dotOpacity} stroke={isRobust && isMatch ? (isDark ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.8)") : "none"} strokeWidth={1} />
+                        {showLabel && (
+                          <>
+                            <text x={cx + r + 5} y={cy + 4} fontSize={isRobust ? 10 : 9} fontFamily={MONO} fontWeight={isRobust ? "700" : "500"} fill={shadowFill} stroke={shadowFill} strokeWidth={3} strokeLinejoin="round" style={{ pointerEvents: "none", userSelect: "none" }}>
+                              {payload.sigla}
+                            </text>
+                            <text x={cx + r + 5} y={cy + 4} fontSize={isRobust ? 10 : 9} fontFamily={MONO} fontWeight={isRobust ? "700" : "500"} fill={textFill} style={{ pointerEvents: "none", userSelect: "none" }}>
+                              {payload.sigla}
+                            </text>
+                          </>
+                        )}
                       </g>
                     );
                   }}

@@ -1261,7 +1261,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
 
     const filtersForBackend = {
       deputados: [selectedDeputy.value],
-      anos: selectedYear ? [selectedYear] : [],
+      anos: [],
     };
     const years = filters.anos.length ? filters.anos : ["2023", "2024", "2025", "2026"].map((year) => ({ value: year, label: year }));
 
@@ -1294,7 +1294,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
     return () => {
       mounted = false;
     };
-  }, [selectedDeputy, selectedYear, filters.anos]);
+  }, [selectedDeputy, filters.anos]);
 
   const handleSelectDeputy = (deputy: DeputySelection) => {
     setSelectedDeputy(deputy);
