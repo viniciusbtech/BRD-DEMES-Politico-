@@ -1,0 +1,28 @@
+Q9 v2.1 - Classificacao dos partidos
+
+Q9 v2.1 - Partidos por ideologia
+sigla_partido | ideologia | deputados_com_voto | votos_registrados
+--------------+-----------+--------------------+------------------
+PCDOB         | esquerda  | 11                 | 7962             
+PDT           | esquerda  | 23                 | 16108            
+PSB           | esquerda  | 23                 | 14054            
+PSOL          | esquerda  | 16                 | 12444            
+PT            | esquerda  | 76                 | 64867            
+PV            | esquerda  | 8                  | 4534             
+REDE          | esquerda  | 8                  | 1324             
+AVANTE        | centro    | 10                 | 6442             
+CIDADANIA     | centro    | 5                  | 3010             
+MDB           | centro    | 63                 | 34715            
+MISSAO        | centro    | 1                  | 67               
+PODE          | centro    | 40                 | 14260            
+PRD           | centro    | 9                  | 2736             
+PSD           | centro    | 78                 | 37880            
+PSDB          | centro    | 26                 | 11905            
+SOLIDARIEDADE | centro    | 12                 | 4130             
+UNIAO         | centro    | 95                 | 51868            
+NOVO          | direita   | 5                  | 4243             
+PL            | direita   | 140                | 85540            
+PP            | direita   | 77                 | 43203            
+REPUBLICANOS  | direita   | 80                 | 40123            
+(21 rows)
+

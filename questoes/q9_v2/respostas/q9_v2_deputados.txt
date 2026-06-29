@@ -1,0 +1,831 @@
+Q9 v2.4 - Tendencia de voto observada do deputado
+
+Q9 v2.4 - Vies estimado por deputado
+id_deputado | nome                                | partido       | ideologia_partido | votos_validos | alinhamento_esquerda | alinhamento_centro | alinhamento_direita | vies_estimado       
+------------+-------------------------------------+---------------+-------------------+---------------+----------------------+--------------------+---------------------+---------------------
+220588      | Roberto Duarte                      | REPUBLICANOS  | direita           | 1317          | 49.1                 | 73.9               | 77.6                | direita             
+74041       | Luiz Couto                          | PT            | esquerda          | 1315          | 99.2                 | 72.9               | 39.6                | esquerda            
+220543      | Ricardo Ayres                       | REPUBLICANOS  | direita           | 1255          | 74.3                 | 94.0               | 66.0                | centro              
+178873      | Helder Salomão                      | PT            | esquerda          | 1200          | 98.8                 | 73.8               | 39.4                | esquerda            
+91228       | Waldemar Oliveira                   | AVANTE        | centro            | 1196          | 83.4                 | 89.7               | 56.5                | centro              
+204512      | Delegado Marcelo Freitas            | UNIAO         | centro            | 1183          | 64.5                 | 89.0               | 69.7                | centro              
+160575      | Erika Kokay                         | PT            | esquerda          | 1174          | 96.6                 | 72.5               | 40.5                | esquerda            
+191923      | Flávio Nogueira                     | PT            | esquerda          | 1170          | 97.9                 | 77.2               | 42.5                | esquerda            
+220654      | Delegado Paulo Bilynskyj            | PL            | direita           | 1168          | 20.1                 | 46.9               | 82.2                | direita             
+74171       | Chico Alencar                       | PSOL          | esquerda          | 1165          | 85.6                 | 63.2               | 37.4                | esquerda            
+204404      | Lucas Redecker                      | PSDB          | centro            | 1150          | 37.9                 | 59.6               | 76.2                | direita             
+226179      | Gisela Simona                       | UNIAO         | centro            | 1144          | 62.4                 | 82.3               | 68.0                | centro              
+220547      | Marcos Pollon                       | PL            | direita           | 1139          | 19.8                 | 49.8               | 84.1                | direita             
+178887      | Rubens Pereira Júnior               | PT            | esquerda          | 1139          | 98.8                 | 76.7               | 42.9                | esquerda            
+69871       | Bacelar                             | PV            | esquerda          | 1125          | 98.2                 | 75.7               | 42.9                | esquerda            
+220598      | Tarcísio Motta                      | PSOL          | esquerda          | 1125          | 85.3                 | 65.3               | 38.8                | esquerda            
+220529      | Gilson Daniel                       | PODE          | centro            | 1124          | 85.0                 | 86.7               | 55.4                | centro              
+220583      | Delegado Fabio Costa                | PP            | direita           | 1111          | 36.0                 | 59.4               | 82.4                | direita             
+74160       | Patrus Ananias                      | PT            | esquerda          | 1106          | 98.5                 | 73.2               | 39.8                | esquerda            
+188097      | Merlong Solano                      | PT            | esquerda          | 1104          | 98.6                 | 80.5               | 46.5                | esquerda            
+204501      | Alencar Santana                     | PT            | esquerda          | 1101          | 97.7                 | 75.9               | 41.2                | esquerda            
+73801       | Renildo Calheiros                   | PCDOB         | esquerda          | 1100          | 97.4                 | 76.0               | 43.1                | esquerda            
+220612      | Bebeto                              | PP            | direita           | 1097          | 78.8                 | 94.9               | 65.6                | centro              
+220615      | Pastor Henrique Vieira              | PSOL          | esquerda          | 1094          | 86.3                 | 63.8               | 36.0                | esquerda            
+74057       | Alice Portugal                      | PCDOB         | esquerda          | 1093          | 98.0                 | 76.9               | 44.0                | esquerda            
+220576      | Alfredo Gaspar                      | UNIAO         | centro            | 1091          | 28.1                 | 51.1               | 77.7                | direita             
+204365      | Gilson Marques                      | NOVO          | direita           | 1087          | 18.4                 | 38.9               | 73.6                | direita             
+123086      | Átila Lira                          | PP            | direita           | 1083          | 78.3                 | 94.4               | 64.9                | centro              
+220578      | Josenildo                           | PDT           | esquerda          | 1081          | 89.1                 | 85.7               | 53.7                | esquerda            
+109429      | Benes Leocádio                      | UNIAO         | centro            | 1078          | 74.4                 | 95.7               | 67.5                | centro              
+204394      | Gervásio Maia                       | PSB           | esquerda          | 1076          | 94.2                 | 82.0               | 47.0                | esquerda            
+74856       | Laura Carneiro                      | PSD           | centro            | 1067          | 88.8                 | 87.1               | 53.4                | esquerda            
+220701      | Delegado Matheus Laiola             | UNIAO         | centro            | 1066          | 79.1                 | 91.5               | 62.3                | centro              
+220652      | Delegado Palumbo                    | MDB           | centro            | 1063          | 25.1                 | 43.0               | 73.7                | direita             
+178986      | Nilto Tatto                         | PT            | esquerda          | 1063          | 98.3                 | 78.5               | 44.9                | esquerda            
+220666      | Coronel Meira                       | PL            | direita           | 1062          | 27.3                 | 51.9               | 86.4                | direita             
+220539      | Defensor Stélio Dener               | REPUBLICANOS  | direita           | 1062          | 78.8                 | 90.6               | 62.6                | centro              
+221148      | Alfredinho                          | PT            | esquerda          | 1059          | 98.7                 | 79.9               | 47.0                | esquerda            
+204426      | Carlos Veras                        | PT            | esquerda          | 1058          | 99.1                 | 76.5               | 44.0                | esquerda            
+220527      | Jack Rocha                          | PT            | esquerda          | 1058          | 99.0                 | 78.6               | 44.6                | esquerda            
+74848       | Jandira Feghali                     | PCDOB         | esquerda          | 1058          | 97.7                 | 77.8               | 44.4                | esquerda            
+220561      | Delegada Katarina                   | PSD           | centro            | 1051          | 80.0                 | 91.0               | 61.8                | centro              
+74084       | Raimundo Santos                     | PSD           | centro            | 1049          | 59.2                 | 77.9               | 76.7                | centro              
+220574      | Cabo Gilberto Silva                 | PL            | direita           | 1048          | 23.0                 | 46.1               | 80.8                | direita             
+220683      | Beto Richa                          | PSDB          | centro            | 1047          | 73.4                 | 90.3               | 63.5                | centro              
+220708      | Gabriel Nunes                       | PSD           | centro            | 1046          | 86.4                 | 92.1               | 58.7                | centro              
+204387      | Sargento Fahur                      | PSD           | centro            | 1046          | 20.7                 | 41.1               | 74.0                | direita             
+73768       | Dilceu Sperafico                    | PP            | direita           | 1041          | 63.1                 | 83.3               | 75.4                | centro              
+220536      | Zé Haroldo Cathedral                | PSD           | centro            | 1040          | 79.7                 | 89.6               | 60.4                | centro              
+220571      | Daniel Agrobom                      | PL            | direita           | 1039          | 44.9                 | 64.1               | 85.2                | direita             
+178934      | Toninho Wandscheer                  | PP            | direita           | 1036          | 76.4                 | 95.0               | 65.3                | centro              
+220550      | Mauricio Marcon                     | PODE          | centro            | 1035          | 21.5                 | 48.0               | 80.1                | direita             
+98148       | Cobalchini                          | MDB           | centro            | 1034          | 52.8                 | 74.4               | 79.0                | direita             
+204553      | Pastor Sargento Isidório            | AVANTE        | centro            | 1033          | 89.7                 | 84.4               | 54.2                | esquerda            
+220667      | Pedro Campos                        | PSB           | esquerda          | 1033          | 95.4                 | 77.9               | 46.9                | esquerda            
+178835      | Afonso Motta                        | PDT           | esquerda          | 1032          | 85.4                 | 88.3               | 55.3                | centro              
+220668      | Maria Arraes                        | SOLIDARIEDADE | centro            | 1032          | 96.3                 | 78.7               | 44.1                | esquerda            
+204374      | Bia Kicis                           | PL            | direita           | 1031          | 22.6                 | 51.9               | 84.0                | direita             
+74858       | Lindbergh Farias                    | PT            | esquerda          | 1031          | 98.6                 | 75.9               | 42.7                | esquerda            
+204534      | Tabata Amaral                       | PSB           | esquerda          | 1031          | 84.6                 | 68.9               | 46.2                | esquerda            
+220595      | Coronel Fernanda                    | PL            | direita           | 1029          | 27.6                 | 56.9               | 90.3                | direita             
+160556      | Padre João                          | PT            | esquerda          | 1028          | 99.6                 | 79.1               | 44.5                | esquerda            
+220635      | Bruno Ganem                         | PODE          | centro            | 1027          | 77.6                 | 88.2               | 61.2                | centro              
+204369      | Caroline de Toni                    | PL            | direita           | 1026          | 18.7                 | 46.1               | 79.1                | direita             
+220546      | Rodolfo Nogueira                    | PL            | direita           | 1026          | 21.3                 | 45.6               | 82.3                | direita             
+221338      | Professora Luciene Cavalcante       | PSOL          | esquerda          | 1025          | 85.2                 | 64.0               | 36.6                | esquerda            
+205550      | Jorge Braz                          | REPUBLICANOS  | direita           | 1023          | 74.6                 | 92.4               | 67.2                | centro              
+141470      | José Guimarães                      | PT            | esquerda          | 1023          | 98.2                 | 77.8               | 44.5                | esquerda            
+220690      | Capitão Alden                       | PL            | direita           | 1021          | 25.9                 | 48.7               | 83.4                | direita             
+220599      | Marcelo Crivella                    | REPUBLICANOS  | direita           | 1019          | 72.5                 | 89.5               | 66.3                | centro              
+161440      | Pezenti                             | MDB           | centro            | 1019          | 25.8                 | 45.9               | 79.2                | direita             
+156190      | Marcel van Hattem                   | NOVO          | direita           | 1017          | 19.0                 | 38.9               | 73.5                | direita             
+220691      | Diego Coronel                       | PSD           | centro            | 1015          | 82.3                 | 92.9               | 60.8                | centro              
+220662      | Lucas Ramos                         | PSB           | esquerda          | 1015          | 93.2                 | 83.4               | 50.4                | esquerda            
+160538      | Bohn Gass                           | PT            | esquerda          | 1014          | 99.0                 | 79.0               | 44.9                | esquerda            
+220594      | Coronel Assis                       | UNIAO         | centro            | 1014          | 25.3                 | 50.5               | 80.7                | direita             
+220671      | Dilvanda Faro                       | PT            | esquerda          | 1014          | 98.5                 | 81.2               | 46.9                | esquerda            
+81055       | Márcio Jerry                        | PCDOB         | esquerda          | 1012          | 98.1                 | 78.1               | 44.5                | esquerda            
+220641      | Rodrigo Gambale                     | PODE          | centro            | 1012          | 80.2                 | 91.3               | 60.2                | centro              
+74574       | Paulo Magalhães                     | PSD           | centro            | 1010          | 82.4                 | 92.2               | 61.1                | centro              
+220544      | Antonio Andrade                     | REPUBLICANOS  | direita           | 1009          | 76.2                 | 93.5               | 67.7                | centro              
+204462      | Chris Tonietto                      | PL            | direita           | 1009          | 20.8                 | 50.5               | 84.6                | direita             
+209787      | Nikolas Ferreira                    | PL            | direita           | 1009          | 21.4                 | 44.0               | 81.1                | direita             
+204355      | Da Vitoria                          | PP            | direita           | 1008          | 70.3                 | 89.2               | 72.5                | centro              
+220551      | Franciane Bayer                     | REPUBLICANOS  | direita           | 1007          | 57.6                 | 77.3               | 72.5                | centro              
+204398      | Felipe Francischini                 | UNIAO         | centro            | 1006          | 40.3                 | 61.9               | 83.6                | direita             
+220688      | Dr. Francisco                       | PT            | esquerda          | 1005          | 98.2                 | 81.0               | 46.6                | esquerda            
+73579       | Alberto Fraga                       | PL            | direita           | 1002          | 30.6                 | 52.4               | 86.8                | direita             
+220621      | Sargento Gonçalves                  | PL            | direita           | 1002          | 22.8                 | 46.2               | 82.4                | direita             
+220686      | Duarte Jr.                          | PSB           | esquerda          | 1000          | 83.5                 | 76.6               | 52.7                | esquerda            
+220559      | Julia Zanatta                       | PL            | direita           | 1000          | 18.4                 | 47.2               | 81.8                | direita             
+204492      | Paulo Guedes                        | PT            | esquerda          | 1000          | 98.7                 | 80.9               | 46.0                | esquerda            
+204356      | Amaro Neto                          | REPUBLICANOS  | direita           | 999           | 75.6                 | 93.7               | 65.9                | centro              
+160548      | Jonas Donizette                     | PSB           | esquerda          | 999           | 90.3                 | 84.6               | 53.7                | esquerda            
+73604       | Rui Falcão                          | PT            | esquerda          | 999           | 97.8                 | 78.1               | 42.7                | esquerda            
+220530      | Messias Donato                      | REPUBLICANOS  | direita           | 998           | 27.6                 | 47.9               | 77.8                | direita             
+160601      | Pr. Marco Feliciano                 | PL            | direita           | 998           | 25.1                 | 52.8               | 88.3                | direita             
+220632      | Ana Pimentel                        | PT            | esquerda          | 997           | 98.7                 | 79.3               | 45.9                | esquerda            
+204368      | Fabio Schiochet                     | UNIAO         | centro            | 995           | 45.1                 | 64.6               | 79.9                | direita             
+204540      | Maria Rosas                         | REPUBLICANOS  | direita           | 995           | 71.5                 | 88.8               | 70.4                | centro              
+220590      | Coronel Ulysses                     | UNIAO         | centro            | 994           | 35.9                 | 55.4               | 80.6                | direita             
+204456      | Gutemberg Reis                      | MDB           | centro            | 994           | 77.4                 | 89.0               | 62.4                | centro              
+220533      | Prof. Reginaldo Veras               | PV            | esquerda          | 994           | 95.2                 | 77.3               | 45.0                | esquerda            
+220620      | Rosângela Reis                      | PL            | direita           | 994           | 42.8                 | 63.7               | 89.9                | direita             
+220656      | Fernanda Pessoa                     | UNIAO         | centro            | 993           | 71.8                 | 93.6               | 65.8                | centro              
+139285      | Lídice da Mata                      | PSB           | esquerda          | 993           | 95.9                 | 76.7               | 44.6                | esquerda            
+160666      | Félix Mendonça Júnior               | PDT           | esquerda          | 992           | 82.3                 | 90.8               | 59.3                | centro              
+121948      | Adriano do Baldy                    | PP            | direita           | 991           | 80.5                 | 95.9               | 64.2                | centro              
+220553      | Denise Pessôa                       | PT            | esquerda          | 990           | 97.8                 | 78.6               | 46.0                | esquerda            
+220605      | Bandeira de Mello                   | PSB           | esquerda          | 989           | 94.0                 | 79.2               | 46.8                | esquerda            
+220618      | Sargento Portugal                   | PODE          | centro            | 988           | 59.5                 | 76.4               | 70.5                | centro              
+224117      | Gabriel Mota                        | REPUBLICANOS  | direita           | 987           | 77.4                 | 94.0               | 65.5                | centro              
+220607      | Max Lemos                           | PDT           | esquerda          | 987           | 88.3                 | 89.0               | 55.6                | centro              
+220653      | Fábio Teruel                        | MDB           | centro            | 986           | 63.6                 | 71.5               | 67.8                | centro              
+220696      | Ivoneide Caetano                    | PT            | esquerda          | 985           | 99.1                 | 81.4               | 48.5                | esquerda            
+74159       | Odair Cunha                         | PT            | esquerda          | 985           | 98.3                 | 83.0               | 48.1                | esquerda            
+204351      | Dr. Luiz Ovando                     | PP            | direita           | 984           | 51.5                 | 71.5               | 77.0                | direita             
+220606      | Reimont                             | PT            | esquerda          | 984           | 98.8                 | 79.0               | 44.4                | esquerda            
+220644      | Rosangela Moro                      | UNIAO         | centro            | 984           | 28.6                 | 49.5               | 76.1                | direita             
+220714      | Adail Filho                         | REPUBLICANOS  | direita           | 983           | 77.5                 | 94.4               | 65.9                | centro              
+160665      | Augusto Coutinho                    | REPUBLICANOS  | direita           | 982           | 81.1                 | 94.1               | 62.9                | centro              
+220626      | Rafael Simoes                       | UNIAO         | centro            | 979           | 57.0                 | 80.9               | 76.0                | centro              
+220556      | Ana Paula Lima                      | PT            | esquerda          | 978           | 99.0                 | 79.7               | 45.3                | esquerda            
+73433       | Arlindo Chinaglia                   | PT            | esquerda          | 978           | 99.1                 | 80.2               | 46.1                | esquerda            
+204460      | Carlos Jordy                        | PL            | direita           | 977           | 19.7                 | 43.1               | 81.8                | direita             
+220619      | Delegado Ramagem                    | PL            | direita           | 977           | 21.9                 | 48.9               | 85.0                | direita             
+204480      | Rogério Correia                     | PT            | esquerda          | 977           | 99.6                 | 79.3               | 46.5                | esquerda            
+178993      | Carlos Henrique Gaguim              | UNIAO         | centro            | 975           | 73.4                 | 91.8               | 67.1                | centro              
+220682      | Tadeu Veneri                        | PT            | esquerda          | 975           | 97.6                 | 74.7               | 44.3                | esquerda            
+204535      | Sâmia Bomfim                        | PSOL          | esquerda          | 974           | 84.6                 | 60.8               | 32.8                | esquerda            
+204388      | Bibo Nunes                          | PL            | direita           | 973           | 29.8                 | 51.2               | 86.6                | direita             
+171617      | Paulão                              | PT            | esquerda          | 972           | 99.4                 | 79.0               | 47.2                | esquerda            
+220608      | Cristiane Lopes                     | UNIAO         | centro            | 970           | 50.2                 | 68.1               | 75.2                | direita             
+141485      | Luiz Carlos Busato                  | UNIAO         | centro            | 969           | 72.4                 | 91.6               | 67.1                | centro              
+220534      | Fred Linhares                       | REPUBLICANOS  | direita           | 967           | 73.8                 | 92.2               | 69.8                | centro              
+178929      | Diego Garcia                        | REPUBLICANOS  | direita           | 966           | 54.2                 | 78.2               | 75.3                | centro              
+204486      | Mauro Benevides Filho               | PDT           | esquerda          | 964           | 91.4                 | 86.0               | 53.2                | esquerda            
+178910      | Joaquim Passarinho                  | PL            | direita           | 962           | 33.9                 | 53.6               | 86.9                | direita             
+141398      | Carlos Zarattini                    | PT            | esquerda          | 961           | 98.5                 | 77.8               | 43.5                | esquerda            
+141411      | Dagoberto Nogueira                  | PSDB          | centro            | 961           | 92.5                 | 86.7               | 51.8                | esquerda            
+220611      | General Pazuello                    | PL            | direita           | 960           | 30.8                 | 53.6               | 89.4                | direita             
+160535      | Marcon                              | PT            | esquerda          | 959           | 96.5                 | 78.7               | 46.4                | esquerda            
+220545      | Filipe Martins                      | PL            | direita           | 955           | 27.6                 | 50.7               | 87.2                | direita             
+224333      | Welter                              | PT            | esquerda          | 954           | 98.7                 | 77.1               | 44.3                | esquerda            
+220638      | Antonio Carlos Rodrigues            | PL            | direita           | 952           | 65.4                 | 74.2               | 67.9                | centro              
+204416      | Sanderson                           | PL            | direita           | 952           | 23.5                 | 46.1               | 81.7                | direita             
+220555      | Daiana Santos                       | PCDOB         | esquerda          | 950           | 96.5                 | 73.4               | 41.5                | esquerda            
+74060       | Daniel Almeida                      | PCDOB         | esquerda          | 950           | 97.5                 | 78.2               | 44.6                | esquerda            
+220584      | Murilo Galdino                      | REPUBLICANOS  | direita           | 950           | 81.7                 | 94.1               | 62.6                | centro              
+178829      | Capitão Augusto                     | PL            | direita           | 949           | 32.5                 | 53.1               | 87.5                | direita             
+73531       | Ivan Valente                        | PSOL          | esquerda          | 947           | 85.2                 | 65.3               | 36.9                | esquerda            
+204572      | Capitão Alberto Neto                | PL            | direita           | 946           | 27.6                 | 57.1               | 88.9                | direita             
+133439      | André Figueiredo                    | PDT           | esquerda          | 945           | 91.0                 | 86.2               | 54.4                | esquerda            
+220548      | Camila Jara                         | PT            | esquerda          | 945           | 97.0                 | 79.2               | 45.9                | esquerda            
+74374       | Geraldo Resende                     | PSDB          | centro            | 945           | 82.0                 | 88.0               | 58.3                | centro              
+220617      | Murillo Gouvea                      | UNIAO         | centro            | 945           | 77.2                 | 94.7               | 65.1                | centro              
+220558      | Zé Trovão                           | PL            | direita           | 945           | 22.0                 | 44.6               | 80.6                | direita             
+107970      | Ana Paula Leão                      | PP            | direita           | 942           | 49.5                 | 68.9               | 74.2                | direita             
+162067      | Kiko Celeguim                       | PT            | esquerda          | 941           | 97.9                 | 79.4               | 44.6                | esquerda            
+178987      | Orlando Silva                       | PCDOB         | esquerda          | 939           | 96.5                 | 73.6               | 40.8                | esquerda            
+74537       | Claudio Cajado                      | PP            | direita           | 937           | 77.3                 | 94.6               | 66.9                | centro              
+204412      | Dr. Zacharias Calil                 | UNIAO         | centro            | 936           | 47.2                 | 67.3               | 79.1                | direita             
+141408      | Cleber Verde                        | MDB           | centro            | 934           | 80.8                 | 93.5               | 62.6                | centro              
+204495      | Airton Faleiro                      | PT            | esquerda          | 933           | 99.1                 | 78.7               | 44.7                | esquerda            
+160559      | Alceu Moreira                       | MDB           | centro            | 933           | 52.9                 | 73.3               | 78.1                | direita             
+220675      | Antônio Doido                       | MDB           | centro            | 933           | 78.7                 | 93.5               | 64.5                | centro              
+204536      | Kim Kataguiri                       | UNIAO         | centro            | 933           | 23.5                 | 45.1               | 69.9                | direita             
+220650      | Paulo Alexandre Barbosa             | PSDB          | centro            | 933           | 68.8                 | 80.1               | 61.1                | centro              
+204457      | Juninho do Pneu                     | UNIAO         | centro            | 932           | 79.2                 | 95.3               | 65.7                | centro              
+160604      | Pedro Uczai                         | PT            | esquerda          | 932           | 98.2                 | 78.3               | 44.7                | esquerda            
+220549      | Any Ortiz                           | CIDADANIA     | centro            | 931           | 31.6                 | 50.7               | 77.4                | direita             
+220685      | Paulo Litro                         | PSD           | centro            | 931           | 72.1                 | 88.6               | 69.6                | centro              
+178881      | Aluisio Mendes                      | REPUBLICANOS  | direita           | 930           | 69.4                 | 90.3               | 69.4                | centro              
+220700      | Florentino Neto                     | PT            | esquerda          | 930           | 98.6                 | 81.3               | 46.9                | esquerda            
+73486       | Pompeo de Mattos                    | PDT           | esquerda          | 930           | 82.9                 | 87.5               | 56.6                | centro              
+180214      | Pastor Diniz                        | UNIAO         | centro            | 929           | 32.1                 | 53.5               | 81.2                | direita             
+204528      | Adriana Ventura                     | NOVO          | direita           | 927           | 20.5                 | 41.2               | 73.1                | direita             
+220659      | Dayany Bittencourt                  | UNIAO         | centro            | 927           | 34.0                 | 54.6               | 76.1                | direita             
+220602      | Dimas Gadelha                       | PT            | esquerda          | 927           | 98.9                 | 80.3               | 45.1                | esquerda            
+220663      | Eriberto Medeiros                   | PSB           | esquerda          | 927           | 91.4                 | 85.9               | 53.6                | esquerda            
+74428       | Mendonça Filho                      | UNIAO         | centro            | 927           | 40.9                 | 61.8               | 74.3                | direita             
+204407      | Fernanda Melchionna                 | PSOL          | esquerda          | 925           | 85.3                 | 62.1               | 33.9                | esquerda            
+220664      | Guilherme Uchoa                     | PSB           | esquerda          | 925           | 86.9                 | 87.9               | 57.5                | centro              
+88256       | Clodoaldo Magalhães                 | PV            | esquerda          | 924           | 98.4                 | 79.4               | 44.7                | esquerda            
+220568      | Gustavo Gayer                       | PL            | direita           | 924           | 20.0                 | 42.5               | 80.3                | direita             
+178931      | Luciano Ducci                       | PSB           | esquerda          | 924           | 91.6                 | 86.7               | 53.2                | esquerda            
+74283       | Vicentinho                          | PT            | esquerda          | 924           | 99.0                 | 79.1               | 44.4                | esquerda            
+204409      | Daniel Trzeciak                     | PSDB          | centro            | 923           | 46.8                 | 64.0               | 69.3                | direita             
+204445      | Fernando Mineiro                    | PT            | esquerda          | 923           | 99.2                 | 78.3               | 44.6                | esquerda            
+165470      | Rodrigo Valadares                   | UNIAO         | centro            | 922           | 26.8                 | 51.0               | 79.3                | direita             
+220538      | Albuquerque                         | REPUBLICANOS  | direita           | 921           | 77.3                 | 94.6               | 66.8                | centro              
+204504      | Cezinha de Madureira                | PSD           | centro            | 921           | 75.8                 | 92.8               | 65.3                | centro              
+204481      | Dr. Jaziel                          | PL            | direita           | 921           | 25.2                 | 51.2               | 85.3                | direita             
+178871      | Evair Vieira de Melo                | PP            | direita           | 921           | 19.4                 | 42.8               | 76.8                | direita             
+80815       | Leo Prates                          | PDT           | esquerda          | 920           | 90.0                 | 90.0               | 56.8                | esquerda            
+204479      | Nicoletti                           | UNIAO         | centro            | 920           | 22.7                 | 47.9               | 78.9                | direita             
+160629      | Romero Rodrigues                    | PODE          | centro            | 920           | 82.6                 | 93.8               | 61.6                | centro              
+218086      | Ely Santos                          | REPUBLICANOS  | direita           | 917           | 77.6                 | 94.3               | 66.0                | centro              
+220609      | Maurício Carvalho                   | UNIAO         | centro            | 917           | 44.8                 | 66.5               | 78.0                | direita             
+178985      | Miguel Lombardi                     | PL            | direita           | 917           | 32.1                 | 53.7               | 89.2                | direita             
+160599      | Dimas Fabiano                       | PP            | direita           | 916           | 75.5                 | 93.6               | 68.4                | centro              
+220591      | Meire Serafim                       | UNIAO         | centro            | 916           | 88.2                 | 90.3               | 56.1                | centro              
+204406      | Pedro Westphalen                    | PP            | direita           | 916           | 44.8                 | 66.0               | 82.2                | direita             
+220586      | Rafael Brito                        | MDB           | centro            | 914           | 85.7                 | 87.2               | 58.8                | centro              
+104552      | Socorro Neri                        | PP            | direita           | 914           | 81.4                 | 81.1               | 55.1                | esquerda            
+160673      | Giovani Cherini                     | PL            | direita           | 913           | 29.4                 | 50.8               | 85.0                | direita             
+74273       | Jefferson Campos                    | PL            | direita           | 913           | 31.4                 | 54.1               | 88.2                | direita             
+204526      | Luiz Philippe de Orleans e Bragança | PL            | direita           | 913           | 16.8                 | 42.2               | 76.6                | direita             
+160640      | Eros Biondini                       | PL            | direita           | 912           | 30.3                 | 51.3               | 87.7                | direita             
+204497      | Júnior Ferrari                      | PSD           | centro            | 912           | 75.5                 | 89.5               | 67.9                | centro              
+178983      | Marcio Alvino                       | PL            | direita           | 911           | 24.1                 | 45.2               | 81.6                | direita             
+204525      | Rosana Valle                        | PL            | direita           | 911           | 35.9                 | 56.2               | 84.0                | direita             
+204408      | Gustinho Ribeiro                    | REPUBLICANOS  | direita           | 910           | 78.9                 | 94.8               | 65.4                | centro              
+220695      | Rogéria Santos                      | REPUBLICANOS  | direita           | 910           | 76.6                 | 93.4               | 64.4                | centro              
+220613      | Roberto Monteiro Pai                | PL            | direita           | 909           | 33.6                 | 54.9               | 91.5                | direita             
+209189      | Joseildo Ramos                      | PT            | esquerda          | 908           | 98.2                 | 79.5               | 46.5                | esquerda            
+141531      | Rodrigo de Castro                   | UNIAO         | centro            | 908           | 78.5                 | 93.8               | 65.3                | centro              
+204473      | General Girão                       | PL            | direita           | 907           | 28.8                 | 49.9               | 82.5                | direita             
+204557      | Sidney Leite                        | PSD           | centro            | 907           | 75.3                 | 80.2               | 58.8                | centro              
+222429      | Luis Carlos Gomes                   | REPUBLICANOS  | direita           | 906           | 75.9                 | 92.2               | 65.7                | centro              
+74376       | Vander Loubet                       | PT            | esquerda          | 906           | 98.5                 | 79.4               | 46.4                | esquerda            
+220665      | Clarissa Tércio                     | PP            | direita           | 905           | 27.5                 | 49.2               | 81.8                | direita             
+74156       | Leonardo Monteiro                   | PT            | esquerda          | 905           | 97.9                 | 80.4               | 47.4                | esquerda            
+220673      | Delegado Caveira                    | PL            | direita           | 904           | 24.1                 | 46.6               | 82.7                | direita             
+150418      | Márcio Marinho                      | REPUBLICANOS  | direita           | 903           | 77.4                 | 93.7               | 67.6                | centro              
+204378      | Coronel Chrisóstomo                 | PL            | direita           | 898           | 27.2                 | 49.1               | 85.5                | direita             
+204367      | Daniel Freitas                      | PL            | direita           | 898           | 21.6                 | 45.1               | 80.0                | direita             
+204472      | José Medeiros                       | PL            | direita           | 898           | 28.5                 | 52.7               | 86.1                | direita             
+220604      | Marcos Tavares                      | PDT           | esquerda          | 898           | 87.8                 | 85.7               | 54.1                | esquerda            
+205476      | Charles Fernandes                   | PSD           | centro            | 897           | 85.1                 | 90.9               | 58.2                | centro              
+220694      | Ricardo Maia                        | MDB           | centro            | 897           | 82.8                 | 93.1               | 60.6                | centro              
+220640      | Juliana Cardoso                     | PT            | esquerda          | 896           | 97.1                 | 77.8               | 45.4                | esquerda            
+204498      | Olival Marques                      | MDB           | centro            | 896           | 67.7                 | 85.7               | 69.3                | centro              
+220528      | Dr. Victor Linhalis                 | PODE          | centro            | 895           | 81.0                 | 91.5               | 60.1                | centro              
+73701       | Benedita da Silva                   | PT            | esquerda          | 893           | 99.4                 | 78.9               | 45.0                | esquerda            
+160558      | Paulo Freire Costa                  | PL            | direita           | 892           | 30.3                 | 52.7               | 89.2                | direita             
+220628      | Mauricio do Vôlei                   | PL            | direita           | 891           | 28.6                 | 51.1               | 85.1                | direita             
+204485      | Luiz Carlos Motta                   | PL            | direita           | 890           | 41.1                 | 61.1               | 89.1                | direita             
+178857      | Jorge Solla                         | PT            | esquerda          | 889           | 98.7                 | 78.5               | 45.7                | esquerda            
+204453      | Natália Bonavides                   | PT            | esquerda          | 889           | 96.3                 | 75.8               | 44.9                | esquerda            
+141421      | Eduardo da Fonte                    | PP            | direita           | 887           | 79.4                 | 94.9               | 64.5                | centro              
+160610      | Valmir Assunção                     | PT            | esquerda          | 887           | 99.1                 | 79.4               | 44.2                | esquerda            
+220557      | Daniela Reinehr                     | PL            | direita           | 886           | 25.5                 | 47.5               | 81.2                | direita             
+160592      | Zeca Dirceu                         | PT            | esquerda          | 886           | 98.8                 | 79.7               | 46.2                | esquerda            
+220623      | Duda Salabert                       | PDT           | esquerda          | 884           | 89.5                 | 72.4               | 42.2                | esquerda            
+160758      | Domingos Sávio                      | PL            | direita           | 882           | 32.4                 | 56.6               | 92.0                | direita             
+74784       | Luiza Erundina                      | PSOL          | esquerda          | 875           | 88.3                 | 69.8               | 39.3                | esquerda            
+223128      | Rodrigo Estacho                     | PSD           | centro            | 875           | 56.0                 | 74.6               | 72.6                | centro              
+171786      | Miguel Ângelo                       | PT            | esquerda          | 874           | 99.0                 | 77.9               | 45.0                | esquerda            
+178997      | Moses Rodrigues                     | UNIAO         | centro            | 871           | 80.4                 | 96.8               | 65.4                | centro              
+160642      | Pastor Eurico                       | PL            | direita           | 871           | 27.1                 | 50.7               | 87.9                | direita             
+220658      | Luiz Gastão                         | PSD           | centro            | 870           | 76.7                 | 92.5               | 65.1                | centro              
+220699      | Castro Neto                         | PSD           | centro            | 868           | 84.0                 | 93.5               | 59.4                | centro              
+206018      | Célia Xakriabá                      | PSOL          | esquerda          | 867           | 84.9                 | 63.8               | 37.7                | esquerda            
+220554      | Alexandre Lindenmeyer               | PT            | esquerda          | 866           | 97.7                 | 77.3               | 44.1                | esquerda            
+98615       | Ismael                              | PSD           | centro            | 865           | 55.3                 | 72.7               | 71.7                | centro              
+220669      | Lula da Fonte                       | PP            | direita           | 864           | 80.6                 | 94.8               | 65.9                | centro              
+178970      | João Daniel                         | PT            | esquerda          | 863           | 97.8                 | 76.6               | 44.4                | esquerda            
+221328      | Adilson Barroso                     | PL            | direita           | 862           | 31.3                 | 50.0               | 87.5                | direita             
+220603      | Dani Cunha                          | UNIAO         | centro            | 860           | 72.4                 | 89.5               | 64.7                | centro              
+204431      | Marcos Aurélio Sampaio              | PSD           | centro            | 860           | 83.7                 | 95.3               | 61.7                | centro              
+141456      | Jilmar Tatto                        | PT            | esquerda          | 859           | 97.7                 | 80.3               | 48.2                | esquerda            
+220677      | Keniston Braga                      | MDB           | centro            | 859           | 81.0                 | 93.6               | 64.0                | centro              
+178866      | Luizianne Lins                      | PT            | esquerda          | 859           | 98.3                 | 79.3               | 44.5                | esquerda            
+220592      | Zezinho Barbary                     | PP            | direita           | 857           | 78.9                 | 94.6               | 63.8                | centro              
+220610      | Dr. Fernando Máximo                 | UNIAO         | centro            | 856           | 32.4                 | 52.7               | 79.3                | direita             
+66828       | Fausto Pinato                       | PP            | direita           | 856           | 77.6                 | 91.9               | 64.0                | centro              
+74141       | Josias Gomes                        | PT            | esquerda          | 855           | 98.5                 | 81.4               | 47.8                | esquerda            
+220670      | Iza Arruda                          | MDB           | centro            | 854           | 85.4                 | 93.1               | 62.9                | centro              
+178933      | Sergio Souza                        | MDB           | centro            | 854           | 66.5                 | 90.2               | 75.6                | centro              
+204515      | André Janones                       | AVANTE        | centro            | 853           | 98.0                 | 81.8               | 47.8                | esquerda            
+178963      | Covatti Filho                       | PP            | direita           | 852           | 33.6                 | 56.3               | 83.7                | direita             
+74554       | José Rocha                          | UNIAO         | centro            | 851           | 75.9                 | 94.4               | 67.8                | centro              
+160569      | Waldenor Pereira                    | PT            | esquerda          | 849           | 98.5                 | 78.1               | 44.9                | esquerda            
+220672      | Henderson Pinto                     | MDB           | centro            | 848           | 76.4                 | 92.9               | 66.4                | centro              
+220625      | Delegada Ione                       | AVANTE        | centro            | 844           | 66.5                 | 83.8               | 69.1                | centro              
+220569      | Silvye Alves                        | UNIAO         | centro            | 844           | 57.6                 | 74.8               | 73.6                | centro              
+157130      | Túlio Gadêlha                       | REDE          | esquerda          | 843           | 88.0                 | 71.5               | 42.6                | esquerda            
+220622      | Nely Aquino                         | PODE          | centro            | 842           | 81.8                 | 93.0               | 60.9                | centro              
+204379      | Acácio Favacho                      | MDB           | centro            | 840           | 76.2                 | 92.4               | 66.2                | centro              
+220573      | Dorinaldo Malafaia                  | PDT           | esquerda          | 840           | 92.1                 | 80.0               | 48.1                | esquerda            
+74467       | Damião Feliciano                    | UNIAO         | centro            | 839           | 77.9                 | 93.6               | 64.7                | centro              
+178895      | Misael Varella                      | PSD           | centro            | 838           | 78.4                 | 90.2               | 63.6                | centro              
+72442       | Felipe Carreras                     | PSB           | esquerda          | 836           | 89.4                 | 86.4               | 54.3                | esquerda            
+204422      | Ossesio Silva                       | REPUBLICANOS  | direita           | 835           | 78.4                 | 95.1               | 65.1                | centro              
+178946      | Soraya Santos                       | PL            | direita           | 834           | 35.3                 | 63.4               | 88.1                | direita             
+210989      | Bruno Farias                        | AVANTE        | centro            | 833           | 77.9                 | 94.5               | 68.5                | centro              
+74585       | Lincoln Portela                     | PL            | direita           | 833           | 31.2                 | 52.5               | 86.4                | direita             
+178858      | Mário Negromonte Jr.                | PP            | direita           | 833           | 85.2                 | 91.7               | 60.6                | centro              
+74398       | Maria do Rosário                    | PT            | esquerda          | 832           | 97.5                 | 75.5               | 41.7                | esquerda            
+136811      | Afonso Hamm                         | PP            | direita           | 831           | 46.3                 | 67.7               | 77.5                | direita             
+73441       | Celso Russomanno                    | REPUBLICANOS  | direita           | 831           | 75.0                 | 92.3               | 67.6                | centro              
+74550       | João Leão                           | PP            | direita           | 831           | 77.4                 | 93.5               | 66.8                | centro              
+220692      | Dal Barreto                         | UNIAO         | centro            | 830           | 78.1                 | 95.3               | 66.5                | centro              
+141487      | Luiz Fernando Faria                 | PSD           | centro            | 830           | 82.7                 | 94.5               | 60.6                | centro              
+160512      | Aureo Ribeiro                       | SOLIDARIEDADE | centro            | 827           | 76.9                 | 92.5               | 64.0                | centro              
+178843      | Marx Beltrão                        | PP            | direita           | 825           | 74.3                 | 91.6               | 66.9                | centro              
+204491      | Gilberto Abramo                     | REPUBLICANOS  | direita           | 823           | 76.2                 | 92.1               | 67.6                | centro              
+178860      | Paulo Azi                           | UNIAO         | centro            | 823           | 69.4                 | 88.0               | 66.8                | centro              
+220684      | Tião Medeiros                       | PP            | direita           | 823           | 63.9                 | 87.1               | 73.4                | centro              
+178992      | Vitor Lippi                         | PSDB          | centro            | 823           | 71.8                 | 86.6               | 64.0                | centro              
+220563      | Icaro de Valmir                     | PL            | direita           | 822           | 64.4                 | 82.4               | 79.0                | centro              
+204520      | Junio Amaral                        | PL            | direita           | 821           | 19.5                 | 42.3               | 78.0                | direita             
+141431      | Fernando Coelho Filho               | UNIAO         | centro            | 816           | 79.2                 | 96.7               | 65.7                | centro              
+178908      | Delegado Éder Mauro                 | PL            | direita           | 815           | 26.7                 | 56.8               | 88.8                | direita             
+220565      | Delegada Adriana Accorsi            | PT            | esquerda          | 813           | 99.1                 | 81.5               | 46.9                | esquerda            
+220645      | Erika Hilton                        | PSOL          | esquerda          | 813           | 85.6                 | 63.8               | 38.3                | esquerda            
+220552      | Zucco                               | PL            | direita           | 813           | 23.6                 | 50.3               | 84.9                | direita             
+215043      | Josivaldo JP                        | PSD           | centro            | 812           | 70.3                 | 88.9               | 70.6                | centro              
+133810      | Marcelo Moraes                      | PL            | direita           | 811           | 24.7                 | 46.4               | 83.0                | direita             
+220589      | Eduardo Velloso                     | UNIAO         | centro            | 810           | 47.0                 | 68.5               | 82.8                | direita             
+220526      | Gilvan da Federal                   | PL            | direita           | 808           | 25.2                 | 46.8               | 80.9                | direita             
+160518      | Weliton Prado                       | SOLIDARIEDADE | centro            | 807           | 79.1                 | 80.9               | 58.7                | centro              
+220570      | Dr. Ismael Alexandrino              | PSD           | centro            | 806           | 68.9                 | 85.4               | 68.5                | centro              
+123756      | Antônia Lúcia                       | REPUBLICANOS  | direita           | 803           | 77.0                 | 94.3               | 65.4                | centro              
+204459      | Daniela do Waguinho                 | UNIAO         | centro            | 802           | 94.9                 | 85.7               | 51.4                | esquerda            
+162332      | Luiz Nishimori                      | PSD           | centro            | 802           | 75.1                 | 90.0               | 65.6                | centro              
+220657      | André Fernandes                     | PL            | direita           | 800           | 24.6                 | 48.6               | 84.2                | direita             
+204364      | Eli Borges                          | PL            | direita           | 798           | 35.2                 | 55.8               | 85.6                | direita             
+74317       | Júlio Cesar                         | PSD           | centro            | 798           | 84.0                 | 94.2               | 62.7                | centro              
+220661      | Matheus Noronha                     | PL            | direita           | 798           | 44.5                 | 65.8               | 89.3                | direita             
+220582      | Daniel Barbosa                      | PP            | direita           | 797           | 90.7                 | 87.7               | 57.7                | esquerda            
+220648      | Marangoni                           | UNIAO         | centro            | 797           | 74.8                 | 92.3               | 64.1                | centro              
+204390      | Professor Alcides                   | PL            | direita           | 797           | 31.0                 | 53.1               | 88.0                | direita             
+141516      | Paulo Abi-Ackel                     | PSDB          | centro            | 795           | 74.1                 | 91.4               | 66.2                | centro              
+220532      | Rafael Prudente                     | MDB           | centro            | 795           | 71.8                 | 90.7               | 68.6                | centro              
+160598      | Flávia Morais                       | PDT           | esquerda          | 794           | 87.4                 | 86.1               | 52.9                | esquerda            
+220629      | Dandara                             | PT            | esquerda          | 792           | 98.2                 | 77.0               | 45.7                | esquerda            
+179001      | Márcio Biolchi                      | MDB           | centro            | 792           | 75.5                 | 90.9               | 67.0                | centro              
+220687      | Márcio Honaiser                     | PDT           | esquerda          | 792           | 83.3                 | 92.4               | 59.5                | centro              
+204573      | Otto Alencar Filho                  | PSD           | centro            | 792           | 80.2                 | 92.6               | 60.6                | centro              
+205865      | Reinhold Stephanes                  | PSD           | centro            | 792           | 38.1                 | 60.6               | 80.4                | direita             
+74371       | Rubens Otoni                        | PT            | esquerda          | 791           | 99.1                 | 81.4               | 47.5                | esquerda            
+92102       | Leur Lomanto Júnior                 | UNIAO         | centro            | 789           | 72.9                 | 93.9               | 66.9                | centro              
+220560      | Thiago de Joaldo                    | PP            | direita           | 789           | 71.0                 | 85.9               | 68.1                | centro              
+204559      | Zé Neto                             | PT            | esquerda          | 786           | 98.5                 | 81.0               | 44.5                | esquerda            
+160632      | Zé Silva                            | SOLIDARIEDADE | centro            | 786           | 81.4                 | 95.3               | 61.1                | centro              
+73778       | Luiz Carlos Hauly                   | PODE          | centro            | 784           | 76.0                 | 89.5               | 61.9                | centro              
+204444      | Helio Lopes                         | PL            | direita           | 783           | 29.2                 | 52.9               | 87.4                | direita             
+220676      | Andreia Siqueira                    | MDB           | centro            | 782           | 81.8                 | 94.5               | 61.1                | centro              
+220649      | Delegado da Cunha                   | PP            | direita           | 780           | 60.8                 | 81.8               | 77.9                | centro              
+122974      | Pedro Lucas Fernandes               | UNIAO         | centro            | 779           | 78.4                 | 95.9               | 67.5                | centro              
+204549      | AJ Albuquerque                      | PP            | direita           | 778           | 79.8                 | 95.8               | 64.1                | centro              
+152605      | Glauber Braga                       | PSOL          | esquerda          | 778           | 79.7                 | 59.9               | 32.9                | esquerda            
+204358      | Beto Pereira                        | PSDB          | centro            | 777           | 67.4                 | 85.3               | 67.8                | centro              
+204427      | Fernando Rodolfo                    | PL            | direita           | 773           | 37.5                 | 64.0               | 88.6                | direita             
+179000      | Marcelo Álvaro Antônio              | PL            | direita           | 771           | 32.8                 | 54.6               | 87.0                | direita             
+220655      | Mario Frias                         | PL            | direita           | 768           | 21.6                 | 43.8               | 80.3                | direita             
+66385       | Julio Arcoverde                     | PP            | direita           | 767           | 79.8                 | 94.0               | 65.2                | centro              
+220693      | Roberta Roma                        | PL            | direita           | 762           | 30.8                 | 53.3               | 88.3                | direita             
+178966      | Geovania de Sá                      | PSDB          | centro            | 761           | 33.6                 | 53.2               | 80.4                | direita             
+74090       | Átila Lins                          | PSD           | centro            | 761           | 83.3                 | 91.9               | 62.2                | centro              
+74253       | Julio Lopes                         | PP            | direita           | 759           | 80.0                 | 95.4               | 64.6                | centro              
+160517      | Paulo Folletto                      | PSB           | esquerda          | 759           | 89.9                 | 81.8               | 51.9                | esquerda            
+74044       | Wilson Santiago                     | REPUBLICANOS  | direita           | 759           | 80.0                 | 92.6               | 65.0                | centro              
+62881       | Danilo Forte                        | UNIAO         | centro            | 758           | 71.8                 | 88.8               | 65.7                | centro              
+226708      | Allan Garcês                        | PP            | direita           | 757           | 46.0                 | 66.7               | 84.9                | direita             
+198783      | Emanuel Pinheiro Neto               | MDB           | centro            | 755           | 88.1                 | 90.3               | 60.1                | centro              
+220624      | Robinson Faria                      | PL            | direita           | 754           | 73.9                 | 88.6               | 72.4                | centro              
+141391      | Arnaldo Jardim                      | CIDADANIA     | centro            | 753           | 73.3                 | 87.5               | 65.3                | centro              
+220567      | Jeferson Rodrigues                  | REPUBLICANOS  | direita           | 752           | 76.1                 | 94.4               | 66.9                | centro              
+141464      | José Airton Félix Cirilo            | PT            | esquerda          | 750           | 98.4                 | 80.0               | 44.1                | esquerda            
+204372      | Julio Cesar Ribeiro                 | REPUBLICANOS  | direita           | 750           | 73.5                 | 92.0               | 63.1                | centro              
+204539      | Hercílio Coelho Diniz               | MDB           | centro            | 747           | 74.8                 | 91.8               | 66.9                | centro              
+74299       | Leônidas Cristino                   | PDT           | esquerda          | 747           | 92.2                 | 84.1               | 49.5                | esquerda            
+204464      | Talíria Petrone                     | PSOL          | esquerda          | 747           | 85.0                 | 62.0               | 36.7                | esquerda            
+141480      | Lázaro Botelho                      | PP            | direita           | 746           | 81.6                 | 95.3               | 65.7                | centro              
+220712      | Fausto Jr.                          | UNIAO         | centro            | 745           | 75.7                 | 94.9               | 64.3                | centro              
+160591      | Vinicius Gurgel                     | PL            | direita           | 743           | 46.3                 | 67.7               | 88.4                | direita             
+204474      | Juarez Costa                        | MDB           | centro            | 742           | 73.5                 | 90.8               | 63.9                | centro              
+220566      | Lêda Borges                         | PSDB          | centro            | 741           | 76.2                 | 90.7               | 63.8                | centro              
+178876      | Célio Silveira                      | MDB           | centro            | 738           | 73.3                 | 90.0               | 67.5                | centro              
+137070      | Vicentinho Júnior                   | PP            | direita           | 738           | 73.7                 | 91.5               | 68.0                | centro              
+204567      | Raimundo Costa                      | PODE          | centro            | 734           | 81.7                 | 89.8               | 58.2                | centro              
+220681      | Fábio Macedo                        | PODE          | centro            | 731           | 83.4                 | 91.5               | 56.5                | centro              
+220704      | Carol Dartora                       | PT            | esquerda          | 730           | 99.0                 | 78.2               | 47.8                | esquerda            
+220715      | Amom Mandel                         | CIDADANIA     | centro            | 729           | 71.1                 | 74.8               | 58.8                | centro              
+141450      | Hugo Leal                           | PSD           | centro            | 728           | 67.2                 | 83.1               | 67.2                | centro              
+74158       | Mário Heringer                      | PDT           | esquerda          | 728           | 89.0                 | 90.5               | 55.6                | centro              
+153423      | Renilce Nicodemos                   | MDB           | centro            | 726           | 81.5                 | 92.6               | 63.5                | centro              
+220585      | Mersinho Lucena                     | PP            | direita           | 723           | 75.8                 | 95.2               | 66.4                | centro              
+141459      | João Maia                           | PP            | direita           | 719           | 79.1                 | 96.7               | 63.8                | centro              
+220651      | Simone Marquetto                    | MDB           | centro            | 719           | 62.9                 | 81.9               | 75.0                | centro              
+220639      | Guilherme Boulos                    | PSOL          | esquerda          | 716           | 84.4                 | 67.9               | 37.7                | esquerda            
+160635      | Ruy Carneiro                        | PODE          | centro            | 714           | 87.0                 | 87.3               | 56.3                | centro              
+204488      | Célio Studart                       | PSD           | centro            | 711           | 83.0                 | 77.6               | 51.5                | esquerda            
+178989      | Renata Abreu                        | PODE          | centro            | 705           | 78.3                 | 90.6               | 59.9                | centro              
+160161      | Marcelo Queiroz                     | PP            | direita           | 704           | 83.5                 | 93.3               | 63.5                | centro              
+160976      | Tiririca                            | PL            | direita           | 704           | 82.1                 | 90.1               | 61.6                | centro              
+161550      | Emidinho Madeira                    | PL            | direita           | 701           | 33.8                 | 57.8               | 90.0                | direita             
+98057       | Lafayette de Andrada                | REPUBLICANOS  | direita           | 700           | 63.7                 | 88.3               | 74.0                | centro              
+92776       | Stefano Aguiar                      | PSD           | centro            | 700           | 72.4                 | 89.7               | 70.1                | centro              
+138286      | Luciano Alves                       | PSD           | centro            | 699           | 76.7                 | 88.8               | 62.9                | centro              
+220702      | Geraldo Mendes                      | UNIAO         | centro            | 695           | 70.2                 | 89.9               | 68.5                | centro              
+198197      | Greyce Elias                        | AVANTE        | centro            | 691           | 48.2                 | 70.9               | 79.2                | direita             
+226837      | Saulo Pedroso                       | PSD           | centro            | 690           | 78.6                 | 89.3               | 60.3                | centro              
+220540      | Duda Ramos                          | MDB           | centro            | 689           | 77.4                 | 89.1               | 65.3                | centro              
+160600      | Arthur Oliveira Maia                | UNIAO         | centro            | 688           | 71.8                 | 93.5               | 70.6                | centro              
+204570      | Pastor Gil                          | PL            | direita           | 686           | 36.4                 | 59.8               | 91.5                | direita             
+163321      | Ronaldo Nogueira                    | REPUBLICANOS  | direita           | 686           | 71.7                 | 88.3               | 64.9                | centro              
+220707      | Amanda Gentil                       | PP            | direita           | 683           | 82.7                 | 94.0               | 65.4                | centro              
+141555      | Vinicius Carvalho                   | REPUBLICANOS  | direita           | 682           | 73.8                 | 90.5               | 67.2                | centro              
+74161       | Reginaldo Lopes                     | PT            | esquerda          | 681           | 98.7                 | 79.3               | 47.1                | esquerda            
+220564      | Yandra Moura                        | UNIAO         | centro            | 674           | 78.0                 | 94.4               | 66.6                | centro              
+204441      | Otoni de Paula                      | MDB           | centro            | 672           | 61.2                 | 77.7               | 72.5                | centro              
+220577      | Augusto Puppio                      | MDB           | centro            | 669           | 83.4                 | 94.6               | 62.9                | centro              
+220646      | Felipe Becari                       | UNIAO         | centro            | 668           | 79.8                 | 88.9               | 57.0                | centro              
+204571      | Alex Santana                        | REPUBLICANOS  | direita           | 659           | 74.7                 | 89.2               | 68.9                | centro              
+220631      | Samuel Viana                        | REPUBLICANOS  | direita           | 658           | 76.7                 | 94.8               | 65.0                | centro              
+204423      | André Ferreira                      | PL            | direita           | 657           | 35.0                 | 55.4               | 92.1                | direita             
+220630      | Pedro Aihara                        | PRD           | centro            | 657           | 67.3                 | 84.5               | 67.0                | centro              
+160588      | Diego Andrade                       | PSD           | centro            | 655           | 75.6                 | 91.0               | 66.7                | centro              
+204489      | Robério Monteiro                    | PDT           | esquerda          | 653           | 90.4                 | 88.2               | 52.4                | esquerda            
+227433      | Douglas Viegas                      | UNIAO         | centro            | 648           | 73.0                 | 81.8               | 58.6                | centro              
+74262       | Carlos Sampaio                      | PSD           | centro            | 646           | 55.3                 | 72.4               | 71.1                | centro              
+204560      | Adolfo Viana                        | PSDB          | centro            | 644           | 77.3                 | 94.4               | 65.4                | centro              
+178975      | Baleia Rossi                        | MDB           | centro            | 642           | 77.9                 | 94.9               | 65.9                | centro              
+178954      | Lucio Mosquini                      | MDB           | centro            | 640           | 51.2                 | 73.4               | 78.3                | direita             
+220674      | Dra. Alessandra Haber               | MDB           | centro            | 636           | 77.5                 | 94.0               | 64.9                | centro              
+74356       | Silas Câmara                        | REPUBLICANOS  | direita           | 635           | 75.7                 | 92.3               | 68.5                | centro              
+220647      | Mauricio Neves                      | PP            | direita           | 634           | 73.0                 | 91.6               | 68.8                | centro              
+220537      | Helena Lima                         | MDB           | centro            | 633           | 83.3                 | 92.1               | 63.7                | centro              
+204411      | Filipe Barros                       | PL            | direita           | 629           | 26.4                 | 51.5               | 83.9                | direita             
+160527      | Aguinaldo Ribeiro                   | PP            | direita           | 628           | 81.5                 | 96.7               | 63.1                | centro              
+204506      | Marcos Pereira                      | REPUBLICANOS  | direita           | 626           | 76.7                 | 91.9               | 66.1                | centro              
+220531      | Gilvan Maximo                       | REPUBLICANOS  | direita           | 623           | 78.8                 | 93.4               | 65.5                | centro              
+204410      | Luisa Canziani                      | PSD           | centro            | 615           | 59.8                 | 80.7               | 75.4                | centro              
+204360      | Silvia Cristina                     | PP            | direita           | 614           | 49.3                 | 69.9               | 78.2                | direita             
+220572      | Marussa Boldrin                     | MDB           | centro            | 610           | 64.6                 | 89.3               | 78.5                | centro              
+178964      | Heitor Schuch                       | PSB           | esquerda          | 605           | 88.8                 | 84.1               | 53.4                | esquerda            
+143942      | Caio Vianna                         | PSD           | centro            | 600           | 82.2                 | 93.3               | 60.3                | centro              
+141458      | João Carlos Bacelar                 | PL            | direita           | 596           | 89.1                 | 88.3               | 57.6                | esquerda            
+220581      | Luciano Amaral                      | PV            | esquerda          | 593           | 96.5                 | 88.9               | 57.7                | esquerda            
+74454       | Eunício Oliveira                    | MDB           | centro            | 592           | 82.8                 | 91.7               | 62.7                | centro              
+220587      | Gerlen Diniz                        | PP            | direita           | 589           | 51.6                 | 66.9               | 72.8                | direita             
+220642      | Delegado Bruno Lima                 | PP            | direita           | 588           | 76.4                 | 84.7               | 61.2                | centro              
+143632      | Domingos Neto                       | PSD           | centro            | 588           | 83.8                 | 92.2               | 60.5                | centro              
+178927      | Aliel Machado                       | PV            | esquerda          | 587           | 92.3                 | 78.0               | 48.0                | esquerda            
+204395      | Pedro Lupion                        | PP            | direita           | 585           | 37.8                 | 68.5               | 84.4                | direita             
+122158      | Pedro Paulo                         | PSD           | centro            | 585           | 80.2                 | 86.5               | 57.8                | centro              
+204511      | David Soares                        | UNIAO         | centro            | 581           | 47.3                 | 68.7               | 70.1                | direita             
+166402      | Magda Mofatto                       | PRD           | centro            | 581           | 26.3                 | 48.0               | 84.2                | direita             
+74043       | Wellington Roberto                  | PL            | direita           | 581           | 38.2                 | 59.9               | 89.8                | direita             
+220660      | Yury do Paredão                     | MDB           | centro            | 580           | 82.8                 | 93.4               | 61.4                | centro              
+204419      | Glaustin da Fokus                   | PODE          | centro            | 577           | 71.9                 | 85.3               | 65.0                | centro              
+73692       | Osmar Terra                         | MDB           | centro            | 576           | 26.2                 | 44.4               | 81.1                | direita             
+204518      | Dr. Frederico                       | PRD           | centro            | 573           | 28.1                 | 51.0               | 84.3                | direita             
+74646       | Aécio Neves                         | PSDB          | centro            | 571           | 72.5                 | 87.7               | 65.0                | centro              
+220542      | Alexandre Guimarães                 | MDB           | centro            | 561           | 64.3                 | 85.7               | 75.2                | centro              
+220597      | Thiago Flores                       | REPUBLICANOS  | direita           | 561           | 41.5                 | 60.4               | 81.1                | direita             
+204574      | Junior Lourenço                     | PL            | direita           | 559           | 78.5                 | 92.3               | 59.0                | centro              
+178884      | Hildo Rocha                         | MDB           | centro            | 558           | 78.1                 | 85.8               | 54.7                | centro              
+74079       | José Priante                        | MDB           | centro            | 558           | 83.5                 | 94.6               | 60.9                | centro              
+220600      | Lebrão                              | UNIAO         | centro            | 553           | 75.4                 | 91.7               | 68.4                | centro              
+220697      | Jadyel Alencar                      | REPUBLICANOS  | direita           | 549           | 76.1                 | 96.2               | 63.2                | centro              
+220580      | Professora Goreth                   | PDT           | esquerda          | 545           | 93.8                 | 86.2               | 55.0                | esquerda            
+204533      | Idilvan Alencar                     | PDT           | esquerda          | 542           | 91.3                 | 80.4               | 54.6                | esquerda            
+220703      | Neto Carletto                       | PP            | direita           | 542           | 84.3                 | 94.6               | 67.9                | centro              
+204362      | Ricardo Guidi                       | PL            | direita           | 540           | 26.3                 | 47.8               | 85.7                | direita             
+220689      | Detinha                             | PL            | direita           | 533           | 45.0                 | 67.9               | 89.3                | direita             
+74095       | Pauderney Avelino                   | UNIAO         | centro            | 533           | 78.0                 | 91.7               | 60.6                | centro              
+74075       | Elcione Barbalho                    | MDB           | centro            | 528           | 93.6                 | 84.8               | 53.0                | esquerda            
+204455      | Luiz Lima                           | PL            | direita           | 524           | 31.3                 | 50.0               | 82.4                | direita             
+219585      | Marco Brasil                        | PP            | direita           | 519           | 77.5                 | 91.5               | 73.0                | centro              
+220706      | Padovani                            | UNIAO         | centro            | 517           | 44.7                 | 68.7               | 80.3                | direita             
+204563      | Josimar Maranhãozinho               | PL            | direita           | 516           | 45.7                 | 69.0               | 89.1                | direita             
+178896      | Newton Cardoso Jr                   | MDB           | centro            | 516           | 70.0                 | 89.1               | 71.1                | centro              
+204482      | Euclydes Pettersen                  | REPUBLICANOS  | direita           | 505           | 77.0                 | 93.3               | 69.5                | centro              
+92699       | Fernando Monteiro                   | PP            | direita           | 504           | 81.9                 | 95.0               | 70.0                | centro              
+204507      | Carla Zambelli                      | PL            | direita           | 503           | 25.8                 | 44.7               | 78.1                | direita             
+220579      | Silvia Waiãpi                       | PL            | direita           | 503           | 24.5                 | 43.9               | 82.7                | direita             
+204541      | Eduardo Bismarck                    | PDT           | esquerda          | 499           | 89.8                 | 83.8               | 56.1                | esquerda            
+178943      | Marcos Soares                       | UNIAO         | centro            | 497           | 59.6                 | 73.8               | 67.0                | centro              
+204508      | Igor Timo                           | PSD           | centro            | 496           | 82.5                 | 95.4               | 56.5                | centro              
+214694      | Jorge Goetten                       | REPUBLICANOS  | direita           | 496           | 77.0                 | 96.6               | 69.0                | centro              
+221378      | Reginete Bispo                      | PT            | esquerda          | 491           | 98.0                 | 77.2               | 49.5                | esquerda            
+220713      | Saullo Vianna                       | UNIAO         | centro            | 487           | 81.3                 | 91.8               | 67.6                | centro              
+230768      | Zé Adriano                          | PP            | direita           | 484           | 74.0                 | 93.4               | 57.2                | centro              
+230767      | Rodrigo da Zaeli                    | PL            | direita           | 483           | 25.1                 | 48.2               | 88.8                | direita             
+178972      | Alex Manente                        | CIDADANIA     | centro            | 479           | 69.3                 | 88.7               | 71.4                | centro              
+178947      | Sóstenes Cavalcante                 | PL            | direita           | 478           | 28.0                 | 54.2               | 87.7                | direita             
+160510      | Luis Tibé                           | AVANTE        | centro            | 474           | 82.7                 | 93.9               | 63.9                | centro              
+74400       | Paulo Pimenta                       | PT            | esquerda          | 474           | 98.5                 | 75.7               | 35.9                | esquerda            
+204455      | Luiz Lima                           | NOVO          | direita           | 472           | 16.3                 | 38.1               | 75.2                | direita             
+220616      | Luciano Vieira                      | REPUBLICANOS  | direita           | 470           | 74.3                 | 93.4               | 65.1                | centro              
+213762      | Carla Dickson                       | UNIAO         | centro            | 464           | 40.3                 | 62.3               | 80.6                | direita             
+230765      | Enfermeira Rejane                   | PCDOB         | esquerda          | 459           | 96.9                 | 74.7               | 35.3                | esquerda            
+74383       | Giacobo                             | PL            | direita           | 456           | 33.8                 | 61.2               | 91.7                | direita             
+160545      | Alexandre Leite                     | UNIAO         | centro            | 452           | 73.9                 | 86.1               | 74.3                | centro              
+221339      | Dr. Benjamim                        | UNIAO         | centro            | 451           | 81.8                 | 93.3               | 67.8                | centro              
+221329      | Ricardo Abrão                       | UNIAO         | centro            | 440           | 73.0                 | 93.6               | 63.6                | centro              
+160552      | Danrlei de Deus Hinterholz          | PSD           | centro            | 437           | 46.0                 | 65.4               | 76.4                | direita             
+220627      | Paulinho Freire                     | UNIAO         | centro            | 436           | 63.8                 | 78.2               | 77.3                | centro              
+204517      | Zé Vitor                            | PL            | direita           | 433           | 41.8                 | 69.5               | 85.7                | direita             
+171623      | Fabio Reis                          | PSD           | centro            | 427           | 82.9                 | 95.3               | 66.0                | centro              
+107283      | Gleisi Hoffmann                     | PT            | esquerda          | 426           | 98.1                 | 81.7               | 52.3                | esquerda            
+204524      | Pinheirinho                         | PP            | direita           | 426           | 66.4                 | 91.8               | 81.0                | centro              
+220703      | Neto Carletto                       | AVANTE        | centro            | 421           | 78.9                 | 94.8               | 55.1                | centro              
+214694      | Jorge Goetten                       | PL            | direita           | 419           | 39.1                 | 62.1               | 88.3                | direita             
+229432      | Luiz Fernando Vampiro               | MDB           | centro            | 415           | 25.8                 | 51.6               | 83.9                | direita             
+231911      | Lenir de Assis                      | PT            | esquerda          | 414           | 98.6                 | 73.9               | 33.1                | esquerda            
+220581      | Luciano Amaral                      | PSD           | centro            | 410           | 78.3                 | 95.9               | 59.3                | centro              
+204508      | Igor Timo                           | PODE          | centro            | 405           | 84.4                 | 93.3               | 69.1                | centro              
+204566      | Marreca Filho                       | PRD           | centro            | 405           | 82.7                 | 86.7               | 57.8                | centro              
+175765      | Ribamar Silva                       | PSD           | centro            | 399           | 73.2                 | 88.0               | 58.9                | centro              
+160553      | Antonio Brito                       | PSD           | centro            | 396           | 89.6                 | 94.4               | 68.2                | centro              
+141518      | Paulinho da Força                   | SOLIDARIEDADE | centro            | 396           | 65.9                 | 82.6               | 61.1                | centro              
+204361      | Carlos Chiodini                     | MDB           | centro            | 392           | 71.7                 | 88.0               | 74.5                | centro              
+92346       | Eduardo Bolsonaro                   | PL            | direita           | 389           | 27.2                 | 46.8               | 80.7                | direita             
+220575      | Sonize Barbosa                      | PL            | direita           | 388           | 51.8                 | 64.9               | 80.2                | direita             
+220633      | Ricardo Salles                      | NOVO          | direita           | 384           | 13.8                 | 32.6               | 75.0                | direita             
+230957      | João Cury                           | MDB           | centro            | 378           | 79.9                 | 92.3               | 57.7                | centro              
+222142      | Coronel Telhada                     | PP            | direita           | 377           | 30.8                 | 49.1               | 76.1                | direita             
+103758      | Luciano Azevedo                     | PSD           | centro            | 376           | 79.8                 | 89.1               | 66.8                | centro              
+204391      | José Nelto                          | UNIAO         | centro            | 374           | 78.3                 | 91.2               | 63.1                | centro              
+220624      | Robinson Faria                      | PP            | direita           | 368           | 72.3                 | 95.7               | 64.7                | centro              
+204396      | Vermelho                            | PL            | direita           | 360           | 45.3                 | 61.4               | 87.8                | direita             
+220593      | Abilio Brunini                      | PL            | direita           | 357           | 30.5                 | 49.9               | 79.3                | direita             
+178937      | Altineu Côrtes                      | PL            | direita           | 350           | 36.9                 | 70.3               | 89.1                | direita             
+73788       | Ricardo Barros                      | PP            | direita           | 344           | 72.7                 | 95.6               | 61.6                | centro              
+220552      | Zucco                               | REPUBLICANOS  | direita           | 343           | 24.5                 | 44.0               | 71.1                | direita             
+160674      | Hugo Motta                          | REPUBLICANOS  | direita           | 342           | 82.5                 | 95.0               | 73.4                | centro              
+178886      | Juscelino Filho                     | UNIAO         | centro            | 337           | 81.0                 | 94.1               | 53.7                | centro              
+227660      | Nitinho                             | PSD           | centro            | 335           | 80.3                 | 91.9               | 61.8                | centro              
+220597      | Thiago Flores                       | MDB           | centro            | 331           | 58.3                 | 72.5               | 79.2                | direita             
+204436      | Isnaldo Bulhões Jr.                 | MDB           | centro            | 324           | 82.7                 | 92.3               | 64.2                | centro              
+178854      | Elmar Nascimento                    | UNIAO         | centro            | 321           | 70.4                 | 94.4               | 73.2                | centro              
+160641      | Professora Marcivania               | PCDOB         | esquerda          | 317           | 95.3                 | 76.7               | 42.0                | esquerda            
+204391      | José Nelto                          | PP            | direita           | 316           | 76.3                 | 92.4               | 69.0                | centro              
+220601      | Washington Quaquá                   | PT            | esquerda          | 313           | 99.0                 | 85.6               | 56.5                | esquerda            
+74478       | Luciano Bivar                       | UNIAO         | centro            | 308           | 85.7                 | 82.5               | 57.1                | esquerda            
+204494      | Fred Costa                          | PRD           | centro            | 305           | 80.7                 | 95.4               | 62.3                | centro              
+213274      | Ricardo Silva                       | PSD           | centro            | 305           | 77.0                 | 91.5               | 72.8                | centro              
+74696       | Alberto Mourão                      | MDB           | centro            | 304           | 75.3                 | 91.4               | 67.4                | centro              
+204449      | Nelson Barbudo                      | PL            | direita           | 303           | 26.4                 | 53.5               | 92.1                | direita             
+204360      | Silvia Cristina                     | PL            | direita           | 303           | 43.2                 | 60.1               | 81.5                | direita             
+220596      | Amália Barros                       | PL            | direita           | 299           | 31.8                 | 48.8               | 81.9                | direita             
+220633      | Ricardo Salles                      | PL            | direita           | 299           | 22.4                 | 47.5               | 76.9                | direita             
+141533      | Rodrigo Rollemberg                  | PSB           | esquerda          | 297           | 92.3                 | 76.4               | 43.4                | esquerda            
+160561      | Missionário José Olimpio            | PL            | direita           | 295           | 21.4                 | 41.4               | 86.4                | direita             
+178831      | André Abdon                         | PP            | direita           | 292           | 73.6                 | 97.3               | 63.7                | centro              
+204448      | Luiz Antônio Corrêa                 | PP            | direita           | 292           | 73.3                 | 94.2               | 69.5                | centro              
+220616      | Luciano Vieira                      | PL            | direita           | 290           | 67.9                 | 82.4               | 80.0                | centro              
+74270       | Gilberto Nascimento                 | PSD           | centro            | 289           | 58.1                 | 88.6               | 81.0                | centro              
+143084      | Tiago Dimas                         | PODE          | centro            | 285           | 71.9                 | 95.4               | 66.0                | centro              
+204450      | Doutor Luizinho                     | PP            | direita           | 280           | 70.7                 | 96.1               | 75.0                | centro              
+178909      | Hélio Leite                         | UNIAO         | centro            | 280           | 78.9                 | 91.4               | 72.9                | centro              
+230762      | Pastor Claudio Mariano              | UNIAO         | centro            | 277           | 62.8                 | 93.5               | 73.6                | centro              
+74262       | Carlos Sampaio                      | PSDB          | centro            | 273           | 64.5                 | 76.9               | 70.0                | centro              
+73692       | Osmar Terra                         | PL            | direita           | 272           | 32.0                 | 57.0               | 90.1                | direita             
+73806       | Roseana Sarney                      | MDB           | centro            | 270           | 93.3                 | 94.4               | 64.8                | centro              
+204396      | Vermelho                            | PP            | direita           | 263           | 52.1                 | 80.6               | 71.9                | centro              
+220542      | Alexandre Guimarães                 | REPUBLICANOS  | direita           | 262           | 76.7                 | 87.8               | 72.5                | centro              
+233594      | Rafael Fera                         | PODE          | centro            | 260           | 53.5                 | 80.8               | 71.5                | centro              
+178962      | Carlos Gomes                        | REPUBLICANOS  | direita           | 257           | 75.5                 | 90.7               | 67.3                | centro              
+116379      | Darci de Matos                      | PSD           | centro            | 255           | 74.1                 | 88.6               | 77.3                | centro              
+89536       | Prof. Paulo Fernando                | REPUBLICANOS  | direita           | 255           | 48.2                 | 65.5               | 73.3                | direita             
+220630      | Pedro Aihara                        | PATRIOTA      | nao classificado  | 253           | 70.8                 | 82.2               | 74.7                | centro              
+220631      | Samuel Viana                        | PL            | direita           | 252           | 69.8                 | 84.5               | 86.1                | direita             
+92699       | Fernando Monteiro                   | REPUBLICANOS  | direita           | 250           | 76.0                 | 93.6               | 62.0                | centro              
+220697      | Jadyel Alencar                      | PV            | esquerda          | 225           | 97.3                 | 86.2               | 63.1                | esquerda            
+204550      | Júnior Mano                         | PSB           | esquerda          | 222           | 83.8                 | 82.9               | 50.9                | esquerda            
+204518      | Dr. Frederico                       | PATRIOTA      | nao classificado  | 216           | 29.2                 | 49.1               | 79.2                | direita             
+220614      | Dr. Daniel Soranz                   | PSD           | centro            | 215           | 81.4                 | 78.6               | 58.1                | esquerda            
+204550      | Júnior Mano                         | PL            | direita           | 207           | 74.9                 | 91.3               | 80.2                | centro              
+204566      | Marreca Filho                       | PATRIOTA      | nao classificado  | 204           | 90.7                 | 93.1               | 66.2                | centro              
+225730      | Enfermeira Ana Paula                | PODE          | centro            | 194           | 84.0                 | 91.8               | 50.0                | centro              
+227991      | Dr Flávio                           | PL            | direita           | 186           | 36.0                 | 60.8               | 95.2                | direita             
+204476      | Chiquinho Brazão                    | UNIAO         | centro            | 183           | 73.8                 | 85.8               | 68.3                | centro              
+227310      | Silvio Antonio                      | PL            | direita           | 180           | 37.2                 | 51.7               | 88.9                | direita             
+141459      | João Maia                           | PL            | direita           | 178           | 67.4                 | 80.3               | 78.1                | centro              
+220634      | Marcelo Lima                        | PSB           | esquerda          | 178           | 91.0                 | 83.1               | 59.0                | esquerda            
+166402      | Magda Mofatto                       | PL            | direita           | 172           | 32.0                 | 53.5               | 84.9                | direita             
+233598      | Samuel Santos                       | PODE          | centro            | 172           | 75.0                 | 92.4               | 60.5                | centro              
+74065       | Fatima Pelaes                       | REPUBLICANOS  | direita           | 152           | 77.0                 | 94.1               | 64.5                | centro              
+217480      | Jones Moura                         | PSD           | centro            | 152           | 84.2                 | 98.0               | 66.4                | centro              
+160976      | Tiririca                            | PSD           | centro            | 151           | 74.2                 | 95.4               | 66.2                | centro              
+128760      | Paulo Marinho Jr                    | PL            | direita           | 148           | 42.6                 | 56.8               | 84.5                | direita             
+73808       | Sérgio Brito                        | PSD           | centro            | 146           | 82.2                 | 86.3               | 52.7                | centro              
+233592      | Paulo Lemos                         | PSOL          | esquerda          | 144           | 86.1                 | 67.4               | 43.8                | esquerda            
+166402      | Magda Mofatto                       | PATRIOTA      | nao classificado  | 141           | 27.0                 | 44.0               | 63.8                | direita             
+234310      | Ricardo Galvão                      | REDE          | esquerda          | 139           | 86.3                 | 64.0               | 40.3                | esquerda            
+204425      | Silvio Costa Filho                  | REPUBLICANOS  | direita           | 136           | 85.3                 | 90.4               | 64.0                | centro              
+220698      | Beto Preto                          | PSD           | centro            | 134           | 73.9                 | 91.0               | 69.4                | centro              
+229939      | Newton Bonin                        | UNIAO         | centro            | 128           | 84.4                 | 95.3               | 68.8                | centro              
+204395      | Pedro Lupion                        | REPUBLICANOS  | direita           | 127           | 33.9                 | 71.7               | 92.9                | direita             
+225730      | Enfermeira Ana Paula                | PDT           | esquerda          | 123           | 92.7                 | 80.5               | 51.2                | esquerda            
+204496      | Celso Sabino                        | UNIAO         | centro            | 122           | 88.5                 | 91.8               | 57.4                | centro              
+92699       | Fernando Monteiro                   | PSD           | centro            | 122           | 86.1                 | 87.7               | 55.7                | centro              
+204494      | Fred Costa                          | PATRIOTA      | nao classificado  | 122           | 84.4                 | 95.1               | 69.7                | centro              
+178905      | Fabio Garcia                        | UNIAO         | centro            | 121           | 37.2                 | 63.6               | 81.8                | direita             
+226075      | Priscila Costa                      | PL            | direita           | 120           | 21.7                 | 43.3               | 84.2                | direita             
+220550      | Mauricio Marcon                     | PL            | direita           | 118           | 25.4                 | 43.2               | 83.9                | direita             
+225727      | Flavinha                            | MDB           | centro            | 117           | 67.5                 | 80.3               | 59.0                | centro              
+164360      | Carmen Zanotto                      | CIDADANIA     | centro            | 116           | 57.8                 | 72.4               | 82.8                | direita             
+208297      | Katia Dias                          | REPUBLICANOS  | direita           | 110           | 80.9                 | 89.1               | 41.8                | centro              
+226410      | Márcio Correa                       | MDB           | centro            | 109           | 37.6                 | 56.0               | 76.1                | direita             
+204522      | Marco Bertaiolli                    | PSD           | centro            | 107           | 75.7                 | 84.1               | 71.0                | centro              
+100689      | Hildo do Candango                   | REPUBLICANOS  | direita           | 106           | 87.7                 | 93.4               | 70.8                | centro              
+229585      | Elisangela Araujo                   | PT            | esquerda          | 103           | 99.0                 | 88.3               | 50.5                | esquerda            
+233218      | Nelinho Freitas                     | MDB           | centro            | 102           | 75.5                 | 95.1               | 61.8                | centro              
+160541      | Arthur Lira                         | PP            | direita           | 101           | 60.4                 | 98.0               | 85.1                | centro              
+204531      | Guilherme Derrite                   | PP            | direita           | 98            | 17.3                 | 51.0               | 84.7                | direita             
+204376      | Coronel Armando                     | PL            | direita           | 95            | 16.8                 | 36.8               | 88.4                | direita             
+160629      | Romero Rodrigues                    | PSC           | nao classificado  | 95            | 88.4                 | 92.6               | 56.8                | centro              
+160161      | Marcelo Queiroz                     | PSDB          | centro            | 94            | 92.6                 | 87.2               | 45.7                | esquerda            
+234788      | Heloísa Helena                      | REDE          | esquerda          | 93            | 90.3                 | 79.6               | 43.0                | esquerda            
+178882      | André Fufuca                        | PP            | direita           | 92            | 76.1                 | 95.7               | 75.0                | centro              
+204362      | Ricardo Guidi                       | PSD           | centro            | 92            | 33.7                 | 53.3               | 77.2                | direita             
+77003       | Sergio Santos Rodrigues             | PODE          | centro            | 91            | 68.1                 | 97.8               | 69.2                | centro              
+228837      | Juliana Kolankiewicz                | MDB           | centro            | 90            | 50.0                 | 82.2               | 85.6                | direita             
+204353      | Aline Gurgel                        | REPUBLICANOS  | direita           | 89            | 77.5                 | 98.9               | 62.9                | centro              
+227324      | Henrique Júnior                     | PL            | direita           | 88            | 88.6                 | 95.5               | 68.2                | centro              
+226553      | Eliane Braz                         | PSD           | centro            | 87            | 85.1                 | 98.9               | 74.7                | centro              
+228797      | Júlio Oliveira                      | PP            | direita           | 87            | 80.5                 | 96.6               | 79.3                | centro              
+227275      | Mariana Carvalho                    | REPUBLICANOS  | direita           | 87            | 60.9                 | 65.5               | 75.9                | direita             
+178945      | Rosangela Gomes                     | REPUBLICANOS  | direita           | 86            | 68.6                 | 94.2               | 73.3                | centro              
+234253      | Lucas Abrahao                       | REDE          | esquerda          | 84            | 95.2                 | 71.4               | 45.2                | esquerda            
+154178      | Milton Vieira                       | REPUBLICANOS  | direita           | 84            | 61.9                 | 83.3               | 77.4                | centro              
+227401      | Dr Fabio Rueda                      | UNIAO         | centro            | 83            | 72.3                 | 77.1               | 80.7                | direita             
+160635      | Ruy Carneiro                        | PSC           | nao classificado  | 83            | 85.5                 | 90.4               | 53.0                | centro              
+229259      | Pedro Tourinho                      | PT            | esquerda          | 81            | 100.0                | 84.0               | 58.0                | esquerda            
+230177      | Tadeu Oliveira                      | PL            | direita           | 81            | 60.5                 | 79.0               | 86.4                | direita             
+220705      | Deltan Dallagnol                    | PODE          | centro            | 80            | 28.8                 | 53.8               | 81.2                | direita             
+230088      | Dra. Mayra Pinheiro                 | PL            | direita           | 80            | 25.0                 | 46.2               | 78.8                | direita             
+74052       | Bosco Costa                         | PL            | direita           | 79            | 77.2                 | 87.3               | 79.7                | centro              
+234406      | Elmano Férrer                       | PP            | direita           | 79            | 53.2                 | 96.2               | 86.1                | centro              
+225386      | Renan Ferreirinha                   | PSD           | centro            | 79            | 89.9                 | 97.5               | 58.2                | centro              
+220008      | Eliza Virgínia                      | PP            | direita           | 78            | 30.8                 | 79.5               | 89.7                | direita             
+223398      | Ulisses Guimarães                   | MDB           | centro            | 78            | 62.8                 | 84.6               | 71.8                | centro              
+229106      | Carla Ayres                         | PT            | esquerda          | 76            | 98.7                 | 82.9               | 60.5                | esquerda            
+220616      | Luciano Vieira                      | PSDB          | centro            | 75            | 77.3                 | 96.0               | 62.7                | centro              
+204376      | Coronel Armando                     | PP            | direita           | 73            | 45.2                 | 72.6               | 86.3                | direita             
+220660      | Yury do Paredão                     | PL            | direita           | 73            | 54.8                 | 68.5               | 86.3                | direita             
+68720       | Fábio Henrique                      | UNIAO         | centro            | 72            | 83.3                 | 93.1               | 70.8                | centro              
+229225      | Michele Collins                     | PP            | direita           | 72            | 52.8                 | 65.3               | 83.3                | direita             
+115200      | Raniery Paulino                     | REPUBLICANOS  | direita           | 72            | 80.6                 | 91.7               | 63.9                | centro              
+212625      | Dr. Gonçalo                         | PODE          | centro            | 71            | 88.7                 | 93.0               | 74.6                | centro              
+204387      | Sargento Fahur                      | PL            | direita           | 70            | 18.6                 | 40.0               | 75.7                | direita             
+228941      | Daniel José                         | PODE          | centro            | 69            | 29.0                 | 47.8               | 68.1                | direita             
+229333      | Gláucia Santiago                    | PL            | direita           | 68            | 38.2                 | 57.4               | 86.8                | direita             
+228616      | Dr. Remy Soares                     | PP            | direita           | 67            | 68.7                 | 91.0               | 67.2                | centro              
+204419      | Glaustin da Fokus                   | PSC           | nao classificado  | 67            | 73.1                 | 80.6               | 62.7                | centro              
+122195      | Leonardo Gadelha                    | PODE          | centro            | 67            | 95.5                 | 91.0               | 70.1                | esquerda            
+227800      | Duarte Gonçalves Jr                 | REPUBLICANOS  | direita           | 66            | 74.2                 | 86.4               | 68.2                | centro              
+234388      | Fabiano Cazeca                      | PRD           | centro            | 66            | 59.1                 | 84.8               | 66.7                | centro              
+204536      | Kim Kataguiri                       | MISSAO        | centro            | 66            | 21.2                 | 24.2               | 59.1                | direita             
+227323      | Luciano Galego                      | PL            | direita           | 64            | 42.2                 | 53.1               | 84.4                | direita             
+204479      | Nicoletti                           | PL            | direita           | 64            | 21.9                 | 40.6               | 81.2                | direita             
+182146      | Wolmer Araújo                       | SOLIDARIEDADE | centro            | 61            | 93.4                 | 93.4               | 57.4                | esquerda            
+229112      | Pedro Jr                            | PL            | direita           | 60            | 35.0                 | 61.7               | 91.7                | direita             
+235088      | Ribeiro Neto                        | PRD           | centro            | 60            | 88.3                 | 93.3               | 46.7                | centro              
+204514      | Coronel Tadeu                       | PL            | direita           | 59            | 10.2                 | 47.5               | 81.4                | direita             
+228272      | Délio Pinheiro                      | PDT           | esquerda          | 57            | 77.2                 | 84.2               | 57.9                | centro              
+229082      | Lucyana Genésio                     | PDT           | esquerda          | 57            | 98.2                 | 91.2               | 66.7                | esquerda            
+160621      | Sandro Alex                         | PSD           | centro            | 57            | 57.9                 | 89.5               | 77.2                | centro              
+234673      | Vanderlan Alves                     | UNIAO         | centro            | 57            | 75.4                 | 87.7               | 59.6                | centro              
+178992      | Vitor Lippi                         | PSD           | centro            | 57            | 77.2                 | 93.0               | 61.4                | centro              
+160508      | Afonso Florence                     | PT            | esquerda          | 53            | 98.1                 | 54.7               | 28.3                | esquerda            
+220594      | Coronel Assis                       | PL            | direita           | 52            | 30.8                 | 61.5               | 92.3                | direita             
+204504      | Cezinha de Madureira                | PL            | direita           | 50            | 48.0                 | 74.0               | 86.0                | direita             
+220652      | Delegado Palumbo                    | PODE          | centro            | 50            | 34.0                 | 60.0               | 88.0                | direita             
+204356      | Amaro Neto                          | PP            | direita           | 49            | 73.5                 | 100.0              | 69.4                | centro              
+141408      | Cleber Verde                        | REPUBLICANOS  | direita           | 49            | 73.5                 | 98.0               | 63.3                | centro              
+227370      | Felipe Saliba                       | PATRIOTA      | nao classificado  | 49            | 59.2                 | 67.3               | 73.5                | direita             
+220713      | Saullo Vianna                       | MDB           | centro            | 49            | 75.5                 | 95.9               | 63.3                | centro              
+235776      | Sérgio Turra                        | PP            | direita           | 49            | 28.6                 | 63.3               | 81.6                | direita             
+220660      | Yury do Paredão                     | S.PART.       | nao classificado  | 49            | 73.5                 | 93.9               | 69.4                | centro              
+229069      | Capitão Samuel                      | PP            | direita           | 48            | 60.4                 | 79.2               | 70.8                | centro              
+220691      | Diego Coronel                       | REPUBLICANOS  | direita           | 48            | 66.7                 | 91.7               | 72.9                | centro              
+137070      | Vicentinho Júnior                   | PSDB          | centro            | 47            | 63.8                 | 85.1               | 74.5                | centro              
+227370      | Felipe Saliba                       | PRD           | centro            | 46            | 43.5                 | 47.8               | 84.8                | direita             
+220567      | Jeferson Rodrigues                  | PSDB          | centro            | 46            | 67.4                 | 95.7               | 71.7                | centro              
+204404      | Lucas Redecker                      | PSD           | centro            | 45            | 31.1                 | 66.7               | 82.2                | direita             
+220714      | Adail Filho                         | MDB           | centro            | 44            | 77.3                 | 93.2               | 65.9                | centro              
+204474      | Juarez Costa                        | REPUBLICANOS  | direita           | 44            | 63.6                 | 90.9               | 65.9                | centro              
+171139      | Loreny                              | SOLIDARIEDADE | centro            | 44            | 72.7                 | 84.1               | 59.1                | centro              
+220668      | Maria Arraes                        | PSB           | esquerda          | 44            | 93.2                 | 63.6               | 34.1                | esquerda            
+157130      | Túlio Gadêlha                       | PSD           | centro            | 44            | 100.0                | 68.2               | 43.2                | esquerda            
+234673      | Vanderlan Alves                     | SOLIDARIEDADE | centro            | 44            | 70.5                 | 97.7               | 70.5                | centro              
+204515      | André Janones                       | REDE          | esquerda          | 43            | 97.7                 | 67.4               | 46.5                | esquerda            
+220605      | Bandeira de Mello                   | PV            | esquerda          | 43            | 100.0                | 69.8               | 44.2                | esquerda            
+204398      | Felipe Francischini                 | PODE          | centro            | 43            | 34.9                 | 74.4               | 90.7                | direita             
+220642      | Delegado Bruno Lima                 | PODE          | centro            | 42            | 61.9                 | 90.5               | 71.4                | centro              
+178832      | Leandre                             | PSD           | centro            | 42            | 66.7                 | 97.6               | 73.8                | centro              
+220643      | Sônia Guajajara                     | PSOL          | esquerda          | 42            | 97.6                 | 69.0               | 47.6                | esquerda            
+235712      | Vavá                                | AVANTE        | centro            | 42            | 71.4                 | 97.6               | 71.4                | centro              
+220530      | Messias Donato                      | UNIAO         | centro            | 41            | 36.6                 | 70.7               | 87.8                | direita             
+220630      | Pedro Aihara                        | PP            | direita           | 41            | 65.9                 | 92.7               | 68.3                | centro              
+220603      | Dani Cunha                          | PL            | direita           | 40            | 37.5                 | 67.5               | 97.5                | direita             
+220686      | Duarte Jr.                          | AVANTE        | centro            | 40            | 75.0                 | 82.5               | 62.5                | centro              
+198783      | Emanuel Pinheiro Neto               | PSD           | centro            | 40            | 75.0                 | 92.5               | 65.0                | centro              
+220644      | Rosangela Moro                      | PL            | direita           | 40            | 27.5                 | 57.5               | 85.0                | direita             
+222565      | Soldado Noelio                      | UNIAO         | centro            | 40            | 25.0                 | 30.0               | 85.0                | direita             
+220646      | Felipe Becari                       | PODE          | centro            | 39            | 74.4                 | 87.2               | 59.0                | centro              
+224117      | Gabriel Mota                        | UNIAO         | centro            | 39            | 69.2                 | 100.0              | 71.8                | centro              
+204394      | Gervásio Maia                       | PCDOB         | esquerda          | 39            | 94.9                 | 71.8               | 38.5                | esquerda            
+220563      | Icaro de Valmir                     | REPUBLICANOS  | direita           | 39            | 59.0                 | 87.2               | 76.9                | centro              
+235620      | Ilacir Bicalho                      | REPUBLICANOS  | direita           | 39            | 61.5                 | 87.2               | 79.5                | centro              
+204457      | Juninho do Pneu                     | PSDB          | centro            | 39            | 66.7                 | 97.4               | 74.4                | centro              
+74428       | Mendonça Filho                      | PL            | direita           | 39            | 33.3                 | 69.2               | 94.9                | direita             
+178858      | Mário Negromonte Jr.                | PSB           | esquerda          | 39            | 79.5                 | 87.2               | 61.5                | centro              
+141488      | Paulo Teixeira                      | PT            | esquerda          | 39            | 100.0                | 64.1               | 38.5                | esquerda            
+234673      | Vanderlan Alves                     | REPUBLICANOS  | direita           | 39            | 84.6                 | 87.2               | 53.8                | centro              
+141411      | Dagoberto Nogueira                  | PP            | direita           | 38            | 92.1                 | 76.3               | 47.4                | esquerda            
+220539      | Defensor Stélio Dener               | UNIAO         | centro            | 38            | 60.5                 | 100.0              | 71.1                | centro              
+220656      | Fernanda Pessoa                     | PSD           | centro            | 38            | 68.4                 | 100.0              | 76.3                | centro              
+98615       | Ismael                              | PL            | direita           | 38            | 44.7                 | 73.7               | 97.4                | direita             
+220637      | Marina Silva                        | REDE          | esquerda          | 38            | 97.4                 | 68.4               | 47.4                | esquerda            
+204489      | Robério Monteiro                    | PSB           | esquerda          | 38            | 78.9                 | 81.6               | 55.3                | centro              
+141555      | Vinicius Carvalho                   | PL            | direita           | 38            | 34.2                 | 65.8               | 100.0               | direita             
+160632      | Zé Silva                            | UNIAO         | centro            | 38            | 65.8                 | 92.1               | 78.9                | centro              
+204541      | Eduardo Bismarck                    | PV            | esquerda          | 37            | 97.3                 | 73.0               | 43.2                | esquerda            
+235869      | João Carlos                         | REPUBLICANOS  | direita           | 37            | 56.8                 | 86.5               | 75.7                | centro              
+204486      | Mauro Benevides Filho               | UNIAO         | centro            | 37            | 78.4                 | 89.2               | 62.2                | centro              
+204390      | Professor Alcides                   | PSDB          | centro            | 37            | 67.6                 | 89.2               | 75.7                | centro              
+235088      | Ribeiro Neto                        | SOLIDARIEDADE | centro            | 37            | 75.7                 | 94.6               | 64.9                | centro              
+221329      | Ricardo Abrão                       | PSDB          | centro            | 37            | 59.5                 | 94.6               | 78.4                | centro              
+204459      | Daniela do Waguinho                 | REPUBLICANOS  | direita           | 36            | 77.8                 | 83.3               | 61.1                | centro              
+220623      | Duda Salabert                       | PSOL          | esquerda          | 36            | 94.4                 | 58.3               | 36.1                | esquerda            
+141487      | Luiz Fernando Faria                 | UNIAO         | centro            | 36            | 55.6                 | 91.7               | 75.0                | centro              
+204558      | Marcelo Nilo                        | REPUBLICANOS  | direita           | 36            | 63.9                 | 94.4               | 75.0                | centro              
+160642      | Pastor Eurico                       | PSDB          | centro            | 36            | 41.7                 | 72.2               | 91.7                | direita             
+204408      | Gustinho Ribeiro                    | PP            | direita           | 35            | 68.6                 | 100.0              | 71.4                | centro              
+204533      | Idilvan Alencar                     | PSB           | esquerda          | 35            | 85.7                 | 74.3               | 48.6                | esquerda            
+74478       | Luciano Bivar                       | MDB           | centro            | 35            | 97.1                 | 71.4               | 45.7                | esquerda            
+178866      | Luizianne Lins                      | REDE          | esquerda          | 35            | 94.3                 | 80.0               | 54.3                | esquerda            
+204431      | Marcos Aurélio Sampaio              | MDB           | centro            | 35            | 71.4                 | 88.6               | 62.9                | centro              
+233592      | Paulo Lemos                         | PT            | esquerda          | 35            | 100.0                | 62.9               | 40.0                | esquerda            
+165470      | Rodrigo Valadares                   | PL            | direita           | 35            | 37.1                 | 71.4               | 100.0               | direita             
+204496      | Celso Sabino                        | PDT           | esquerda          | 34            | 79.4                 | 85.3               | 52.9                | centro              
+220608      | Cristiane Lopes                     | PODE          | centro            | 34            | 52.9                 | 88.2               | 73.5                | centro              
+220631      | Samuel Viana                        | UNIAO         | centro            | 34            | 52.9                 | 91.2               | 91.2                | direita             
+123756      | Antônia Lúcia                       | MDB           | centro            | 33            | 69.7                 | 90.9               | 60.6                | centro              
+62881       | Danilo Forte                        | PP            | direita           | 33            | 66.7                 | 84.8               | 81.8                | centro              
+204364      | Eli Borges                          | REPUBLICANOS  | direita           | 33            | 48.5                 | 75.8               | 78.8                | direita             
+204427      | Fernando Rodolfo                    | PRD           | centro            | 33            | 66.7                 | 93.9               | 72.7                | centro              
+220537      | Helena Lima                         | PSD           | centro            | 33            | 66.7                 | 100.0              | 66.7                | centro              
+220672      | Henderson Pinto                     | UNIAO         | centro            | 33            | 60.6                 | 97.0               | 81.8                | centro              
+74295       | Inácio Arruda                       | PCDOB         | esquerda          | 33            | 97.0                 | 72.7               | 39.4                | esquerda            
+204574      | Junior Lourenço                     | MDB           | centro            | 33            | 66.7                 | 93.9               | 69.7                | centro              
+178943      | Marcos Soares                       | PSDB          | centro            | 32            | 59.4                 | 90.6               | 71.9                | centro              
+220560      | Thiago de Joaldo                    | REPUBLICANOS  | direita           | 32            | 62.5                 | 90.6               | 81.2                | centro              
+220536      | Zé Haroldo Cathedral                | UNIAO         | centro            | 32            | 68.8                 | 96.9               | 78.1                | centro              
+220585      | Mersinho Lucena                     | PSD           | centro            | 31            | 61.3                 | 100.0              | 71.0                | centro              
+220617      | Murillo Gouvea                      | PSDB          | centro            | 31            | 58.1                 | 93.5               | 74.2                | centro              
+204498      | Olival Marques                      | PODE          | centro            | 31            | 58.1                 | 93.5               | 74.2                | centro              
+178886      | Juscelino Filho                     | PSDB          | centro            | 30            | 70.0                 | 100.0              | 80.0                | centro              
+98057       | Lafayette de Andrada                | PL            | direita           | 30            | 36.7                 | 70.0               | 100.0               | direita             
+204441      | Otoni de Paula                      | PSD           | centro            | 30            | 63.3                 | 96.7               | 80.0                | centro              
+204567      | Raimundo Costa                      | PSD           | centro            | 30            | 63.3                 | 93.3               | 73.3                | centro              
+204358      | Beto Pereira                        | REPUBLICANOS  | direita           | 29            | 48.3                 | 86.2               | 72.4                | centro              
+220699      | Castro Neto                         | MDB           | centro            | 29            | 93.1                 | 79.3               | 44.8                | esquerda            
+220610      | Dr. Fernando Máximo                 | PL            | direita           | 29            | 34.5                 | 75.9               | 93.1                | direita             
+220674      | Dra. Alessandra Haber               | PODE          | centro            | 29            | 69.0                 | 100.0              | 69.0                | centro              
+220589      | Eduardo Velloso                     | SOLIDARIEDADE | centro            | 29            | 51.7                 | 86.2               | 93.1                | direita             
+129618      | Gorete Pereira                      | MDB           | centro            | 29            | 86.2                 | 86.2               | 48.3                | esquerda            
+178954      | Lucio Mosquini                      | PL            | direita           | 29            | 31.0                 | 72.4               | 100.0               | direita             
+220715      | Amom Mandel                         | REPUBLICANOS  | direita           | 28            | 64.3                 | 82.1               | 71.4                | centro              
+235800      | Jorge Araújo                        | PP            | direita           | 28            | 60.7                 | 100.0              | 78.6                | centro              
+220676      | Andreia Siqueira                    | PSB           | esquerda          | 27            | 70.4                 | 81.5               | 63.0                | centro              
+178929      | Diego Garcia                        | UNIAO         | centro            | 27            | 44.4                 | 92.6               | 81.5                | centro              
+220664      | Guilherme Uchoa                     | PSD           | centro            | 27            | 63.0                 | 100.0              | 81.5                | centro              
+178964      | Heitor Schuch                       | PSD           | centro            | 27            | 77.8                 | 100.0              | 74.1                | centro              
+220687      | Márcio Honaiser                     | SOLIDARIEDADE | centro            | 27            | 63.0                 | 96.3               | 66.7                | centro              
+220685      | Paulo Litro                         | UNIAO         | centro            | 27            | 63.0                 | 100.0              | 81.5                | centro              
+220544      | Antonio Andrade                     | PSDB          | centro            | 26            | 46.2                 | 92.3               | 84.6                | centro              
+220571      | Daniel Agrobom                      | PSD           | centro            | 26            | 34.6                 | 80.8               | 88.5                | direita             
+204511      | David Soares                        | PODE          | centro            | 26            | 61.5                 | 92.3               | 80.8                | centro              
+220566      | Lêda Borges                         | REPUBLICANOS  | direita           | 26            | 57.7                 | 92.3               | 92.3                | direita             
+228042      | Naumi Amorim                        | PSD           | centro            | 26            | 92.3                 | 88.5               | 61.5                | esquerda            
+220597      | Thiago Flores                       | UNIAO         | centro            | 26            | 34.6                 | 65.4               | 96.2                | direita             
+204353      | Aline Gurgel                        | UNIAO         | centro            | 25            | 72.0                 | 100.0              | 76.0                | centro              
+210989      | Bruno Farias                        | REPUBLICANOS  | direita           | 25            | 52.0                 | 72.0               | 88.0                | direita             
+204412      | Dr. Zacharias Calil                 | MDB           | centro            | 25            | 32.0                 | 80.0               | 92.0                | direita             
+178871      | Evair Vieira de Melo                | REPUBLICANOS  | direita           | 25            | 24.0                 | 68.0               | 92.0                | direita             
+74374       | Geraldo Resende                     | UNIAO         | centro            | 25            | 52.0                 | 100.0              | 84.0                | centro              
+230764      | Ivan Júnior                         | UNIAO         | centro            | 25            | 100.0                | 100.0              | 56.0                | esquerda            
+220634      | Marcelo Lima                        | S.PART.       | nao classificado  | 25            | 80.0                 | 76.0               | 60.0                | esquerda            
+204449      | Nelson Barbudo                      | PODE          | centro            | 25            | 44.0                 | 80.0               | 96.0                | direita             
+220549      | Any Ortiz                           | PP            | direita           | 24            | 37.5                 | 87.5               | 91.7                | direita             
+204433      | Marcelo Calero                      | PSD           | centro            | 24            | 100.0                | 91.7               | 62.5                | esquerda            
+220572      | Marussa Boldrin                     | REPUBLICANOS  | direita           | 24            | 50.0                 | 87.5               | 95.8                | direita             
+220576      | Alfredo Gaspar                      | PL            | direita           | 23            | 34.8                 | 73.9               | 78.3                | direita             
+213762      | Carla Dickson                       | PL            | direita           | 23            | 34.8                 | 82.6               | 91.3                | direita             
+66828       | Fausto Pinato                       | UNIAO         | centro            | 23            | 39.1                 | 69.6               | 69.6                | direita             
+198197      | Greyce Elias                        | PL            | direita           | 23            | 30.4                 | 78.3               | 95.7                | direita             
+215043      | Josivaldo JP                        | UNIAO         | centro            | 23            | 43.5                 | 87.0               | 87.0                | direita             
+220607      | Max Lemos                           | UNIAO         | centro            | 23            | 52.2                 | 100.0              | 73.9                | centro              
+74043       | Wellington Roberto                  | PSD           | centro            | 23            | 47.8                 | 87.0               | 87.0                | direita             
+220638      | Antonio Carlos Rodrigues            | PODE          | centro            | 22            | 50.0                 | 100.0              | 72.7                | centro              
+234840      | Cristiano Furlan                    | REDE          | esquerda          | 22            | 86.4                 | 72.7               | 40.9                | esquerda            
+220625      | Delegada Ione                       | PL            | direita           | 22            | 22.7                 | 72.7               | 100.0               | direita             
+204508      | Igor Timo                           | UNIAO         | centro            | 22            | 59.1                 | 95.5               | 77.3                | centro              
+175765      | Ribamar Silva                       | PODE          | centro            | 22            | 50.0                 | 100.0              | 81.8                | centro              
+220651      | Simone Marquetto                    | PP            | direita           | 22            | 50.0                 | 86.4               | 86.4                | direita             
+220649      | Delegado da Cunha                   | UNIAO         | centro            | 21            | 47.6                 | 100.0              | 81.0                | centro              
+220648      | Marangoni                           | PODE          | centro            | 21            | 61.9                 | 95.2               | 71.4                | centro              
+220650      | Paulo Alexandre Barbosa             | PSD           | centro            | 21            | 47.6                 | 95.2               | 76.2                | centro              
+204518      | Dr. Frederico                       | PL            | direita           | 20            | 25.0                 | 75.0               | 100.0               | direita             
+220528      | Dr. Victor Linhalis                 | PSB           | esquerda          | 20            | 55.0                 | 95.0               | 70.0                | centro              
+160598      | Flávia Morais                       | MDB           | centro            | 20            | 65.0                 | 95.0               | 75.0                | centro              
+178843      | Marx Beltrão                        | UNIAO         | centro            | 20            | 70.0                 | 100.0              | 70.0                | centro              
+178966      | Geovania de Sá                      | REPUBLICANOS  | direita           | 19            | 10.5                 | 68.4               | 89.5                | amostra insuficiente
+204410      | Luisa Canziani                      | UNIAO         | centro            | 19            | 42.1                 | 89.5               | 94.7                | amostra insuficiente
+220540      | Duda Ramos                          | PODE          | centro            | 18            | 44.4                 | 94.4               | 83.3                | amostra insuficiente
+80815       | Leo Prates                          | REPUBLICANOS  | direita           | 18            | 55.6                 | 88.9               | 83.3                | amostra insuficiente
+225846      | Itamar Paim                         | PL            | direita           | 16            | 37.5                 | 81.2               | 100.0               | amostra insuficiente
+220706      | Padovani                            | PP            | direita           | 12            | 50.0                 | 75.0               | 91.7                | amostra insuficiente
+160518      | Weliton Prado                       | PSD           | centro            | 11            | 54.5                 | 90.9               | 72.7                | amostra insuficiente
+204531      | Guilherme Derrite                   | PL            | direita           | 10            | 40.0                 | 40.0               | 90.0                | amostra insuficiente
+74270       | Gilberto Nascimento                 | PODE          | centro            | 8             | 50.0                 | 75.0               | 75.0                | amostra insuficiente
+182146      | Wolmer Araújo                       | PATRIOTA      | nao classificado  | 6             | 66.7                 | 100.0              | 66.7                | amostra insuficiente
+227800      | Duarte Gonçalves Jr                 | PODE          | centro            | 5             | 100.0                | 100.0              | 60.0                | amostra insuficiente
+220607      | Max Lemos                           | PROS          | nao classificado  | 5             | 100.0                | 100.0              | 80.0                | amostra insuficiente
+220607      | Max Lemos                           | SOLIDARIEDADE | centro            | 5             | 80.0                 | 80.0               | 40.0                | amostra insuficiente
+74270       | Gilberto Nascimento                 | PSC           | nao classificado  | 4             | 50.0                 | 50.0               | 75.0                | amostra insuficiente
+220706      | Padovani                            | PL            | direita           | 4             | 25.0                 | 25.0               | 100.0               | amostra insuficiente
+160518      | Weliton Prado                       | PROS          | nao classificado  | 4             | 100.0                | 100.0              | 75.0                | amostra insuficiente
+235620      | Ilacir Bicalho                      | PODE          | centro            | 2             | 100.0                | 100.0              | 100.0               | amostra insuficiente
+204476      | Chiquinho Brazão                    | S.PART.       | nao classificado  | 1             | 100.0                | 100.0              | 0.0                 | amostra insuficiente
+230764      | Ivan Junior                         | UNIAO         | centro            | 1             | 100.0                | 100.0              | 0.0                 | amostra insuficiente
+215043      | Josivaldo Jp                        | PSD           | centro            | 1             | 0.0                  | 0.0                | 0.0                 | amostra insuficiente
+220706      | Padovani                            | REPUBLICANOS  | direita           | 1             | 100.0                | 100.0              | 100.0               | amostra insuficiente
+(824 rows)
+

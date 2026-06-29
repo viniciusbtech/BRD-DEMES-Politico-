@@ -3,7 +3,7 @@ from typing import Any
 
 from .base import QuestionAdapter
 from ..filter_engine import FilterEngine, FilterState
-from ..models import ChartSpec, TableSpec, QuestionPayload, SummaryCard, EmptyState, QueryPanel
+from ..models import ChartSpec, TableSpec, TableColumn, QuestionPayload, SummaryCard, EmptyState, QueryPanel
 
 
 class Q1Adapter(QuestionAdapter):
@@ -1819,6 +1819,303 @@ class Q11ExtraAdapter(QuestionAdapter):
         )
 
 
+class Q9V2FullTableAdapter(QuestionAdapter):
+    """Adapter simples para endpoints Q9 v2 que precisam expor mais linhas."""
+
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        main_rows = self.main_table.rows if self.main_table else []
+        filtered_rows = FilterEngine.apply_filters(
+            main_rows,
+            state,
+            self.context.question.supported_filters,
+        )
+        sorted_rows = FilterEngine.apply_sort(filtered_rows, state.sort_by, state.sort_dir)
+
+        page_size = 2000 if self.context.question.id in {"q9_v2_deputado", "q9_v2_votacoes"} else state.page_size
+        if self.context.question.id == "q9_v2_votos" and state.search:
+            page_size = 2000
+        paged_rows = FilterEngine.apply_pagination(sorted_rows, state.page, page_size)
+
+        table_state = FilterState(
+            anos=state.anos,
+            eixos=state.eixos,
+            partidos=state.partidos,
+            ufs=state.ufs,
+            deputados=state.deputados,
+            escolaridade=state.escolaridade,
+            search=state.search,
+            sort_by=state.sort_by,
+            sort_dir=state.sort_dir,
+            page=state.page,
+            page_size=page_size,
+        )
+        table_spec = self._build_table_spec(
+            title=self.main_table.title if self.main_table else "Tabela principal",
+            columns=self.main_table.columns if self.main_table else [],
+            rows=paged_rows,
+            total=len(sorted_rows),
+            state=table_state,
+        )
+        complement_specs = self._build_complements(table_state)
+        has_data = table_spec.total > 0 or any(spec.total > 0 for spec in complement_specs)
+
+        return QuestionPayload(
+            question_id=self.context.question.id,
+            title=self.context.question.title,
+            description=self.context.question.description,
+            filters_supported=self.context.question.supported_filters,
+            filters_applied={
+                "anos": state.anos,
+                "eixos": state.eixos,
+                "partidos": state.partidos,
+                "ufs": state.ufs,
+                "deputados": state.deputados,
+                "search": state.search,
+                "sort_by": state.sort_by,
+                "sort_dir": state.sort_dir,
+                "page": state.page,
+                "page_size": page_size,
+            },
+            summary_cards=self._build_summary_cards(),
+            chart_spec=self.build_chart_spec(filtered_rows),
+            table_spec=table_spec,
+            complement_tables=complement_specs,
+            query_panel=QueryPanel(
+                sql_path=self.context.sql_path,
+                sql_text=self.context.sql_text,
+                explanation=self.context.question.explanation,
+            ),
+            warnings=self.warnings,
+            empty_state=EmptyState(
+                is_empty=not has_data,
+                message="Sem dados para os filtros selecionados." if not has_data else "",
+            ),
+            dataset_version=self.context.dataset_version,
+            generated_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+
+class Q9CorrelacaoAdapter(QuestionAdapter):
+    """Correlacao partido x proposta (Q9.2) — 27 mil linhas.
+
+    Filtra server-side por ano (coluna 'ano') e partido (coluna 'partido')
+    antes de paginar. O FilterEngine usa 'ano_dados'/'sigla_partido' como
+    nomes de coluna — aqui as colunas se chamam 'ano' e 'partido', por isso
+    a filtragem é feita manualmente antes de chamar o pai.
+    """
+
+    _PAGE_SIZE = 5_000
+
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        main_rows = self.main_table.rows if self.main_table else []
+
+        # Filtro manual por colunas 'ano' e 'partido' (nomes diferentes do COLUMN_MAP)
+        anos_set = set(state.anos) if state.anos else set()
+        partidos_set = set(state.partidos) if state.partidos else set()
+        search_q = state.search.lower().strip() if state.search else ""
+
+        filtered: list[dict[str, Any]] = [
+            row for row in main_rows
+            if (not anos_set or str(row.get("ano", "")) in anos_set)
+            and (not partidos_set or str(row.get("partido", "")) in partidos_set)
+            and (
+                not search_q
+                or search_q in str(row.get("proposicao", "")).lower()
+                or search_q in str(row.get("id_votacao", "")).lower()
+                or search_q in str(row.get("partido", "")).lower()
+            )
+        ]
+
+        sorted_rows = FilterEngine.apply_sort(filtered, state.sort_by, state.sort_dir)
+        paged_rows = FilterEngine.apply_pagination(sorted_rows, state.page, self._PAGE_SIZE)
+
+        table_spec = self._build_table_spec(
+            title="Correlacao partido x proposta",
+            columns=self.main_table.columns if self.main_table else [],
+            rows=paged_rows,
+            total=len(sorted_rows),
+            state=state,
+        )
+        has_data = table_spec.total > 0
+
+        return QuestionPayload(
+            question_id=self.context.question.id,
+            title=self.context.question.title,
+            description=self.context.question.description,
+            filters_supported=self.context.question.supported_filters,
+            filters_applied={
+                "anos": state.anos,
+                "eixos": state.eixos,
+                "partidos": state.partidos,
+                "ufs": state.ufs,
+                "deputados": state.deputados,
+                "search": state.search,
+                "sort_by": state.sort_by,
+                "sort_dir": state.sort_dir,
+                "page": state.page,
+                "page_size": state.page_size,
+            },
+            summary_cards=self._build_summary_cards(),
+            chart_spec=self.build_chart_spec(filtered),
+            table_spec=table_spec,
+            complement_tables=[],
+            query_panel=QueryPanel(
+                sql_path=self.context.sql_path,
+                sql_text=self.context.sql_text,
+                explanation=self.context.question.explanation,
+            ),
+            warnings=self.warnings,
+            empty_state=EmptyState(
+                is_empty=not has_data,
+                message="Sem dados para os filtros selecionados." if not has_data else "",
+            ),
+            dataset_version=self.context.dataset_version,
+            generated_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+
+class Q9ViesFinalAdapter(QuestionAdapter):
+    """Score de vies ideologico individual por votos divisivos (Q9.4).
+
+    Tabela principal: id_deputado | nome | partido | ideologia_partido |
+                      votos_em_polarizadas | votos_com_esquerda | votos_com_direita |
+                      pct_com_esquerda | pct_com_direita | score_vies | vies_final | metodo
+
+    Complement [0]: distribuicao de vies por partido (esquerda/centro/direita por sigla)
+    Complement [1]: dissidentes (vies_final != ideologia_partido, metodo == comportamento)
+    """
+
+    def build_payload(self, state: FilterState) -> QuestionPayload:
+        main_rows = self.main_table.rows if self.main_table else []
+        filtered_rows = FilterEngine.apply_filters(
+            main_rows,
+            state,
+            self.context.question.supported_filters,
+        )
+        sorted_rows = FilterEngine.apply_sort(filtered_rows, state.sort_by, state.sort_dir)
+        paged_rows = FilterEngine.apply_pagination(sorted_rows, state.page, 2000)
+
+        table_spec = self._build_table_spec(
+            title="Score de vies por votos divisivos",
+            columns=self.main_table.columns if self.main_table else [],
+            rows=paged_rows,
+            total=len(sorted_rows),
+            state=state,
+        )
+        complement_specs = self._build_vies_complements(main_rows)
+        has_data = table_spec.total > 0
+
+        return QuestionPayload(
+            question_id=self.context.question.id,
+            title=self.context.question.title,
+            description=self.context.question.description,
+            filters_supported=self.context.question.supported_filters,
+            filters_applied={
+                "anos": state.anos,
+                "eixos": state.eixos,
+                "partidos": state.partidos,
+                "ufs": state.ufs,
+                "deputados": state.deputados,
+                "search": state.search,
+                "sort_by": state.sort_by,
+                "sort_dir": state.sort_dir,
+                "page": state.page,
+                "page_size": 2000,
+            },
+            summary_cards=self._build_summary_cards(),
+            chart_spec=self.build_chart_spec(filtered_rows),
+            table_spec=table_spec,
+            complement_tables=complement_specs,
+            query_panel=QueryPanel(
+                sql_path=self.context.sql_path,
+                sql_text=self.context.sql_text,
+                explanation=self.context.question.explanation,
+            ),
+            warnings=self.warnings,
+            empty_state=EmptyState(
+                is_empty=not has_data,
+                message=(
+                    "Execute questoes/q9_v2/scripts/gerar_q9_v2.py para gerar os dados de vies."
+                    if not has_data
+                    else ""
+                ),
+            ),
+            dataset_version=self.context.dataset_version,
+            generated_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+    def _build_vies_complements(self, rows: list[dict[str, Any]]) -> list[TableSpec]:
+        from collections import Counter as _Counter
+        from collections import defaultdict as _defaultdict
+        from .base import _humanize_label
+
+        # Complement 0: distribuicao de vies por partido
+        partido_vies: dict[str, _Counter] = _defaultdict(_Counter)
+        for row in rows:
+            partido = str(row.get("partido") or "")
+            vies = str(row.get("vies_final") or "")
+            if partido and vies:
+                partido_vies[partido][vies] += 1
+
+        dist_rows: list[dict[str, Any]] = []
+        for partido, counter in sorted(partido_vies.items()):
+            total = sum(counter.values())
+            dist_rows.append({
+                "partido": partido,
+                "esquerda": counter.get("esquerda", 0),
+                "centro": counter.get("centro", 0),
+                "direita": counter.get("direita", 0),
+                "total": total,
+            })
+        dist_rows.sort(key=lambda r: -int(r["total"]))
+
+        dist_spec = TableSpec(
+            title="Distribuicao de vies por partido",
+            columns=[
+                TableColumn(key="partido", label="Partido"),
+                TableColumn(key="esquerda", label="Esquerda"),
+                TableColumn(key="centro", label="Centro"),
+                TableColumn(key="direita", label="Direita"),
+                TableColumn(key="total", label="Total"),
+            ],
+            rows=dist_rows,
+            total=len(dist_rows),
+            page=1,
+            page_size=len(dist_rows) or 1,
+        )
+
+        # Complement 1: dissidentes (vies_final comportamental != ideologia do partido)
+        diss_rows = [
+            row for row in rows
+            if str(row.get("metodo") or "") == "comportamento"
+            and str(row.get("vies_final") or "") not in ("", "nao classificado")
+            and str(row.get("ideologia_partido") or "") not in ("", "nao classificado")
+            and str(row.get("vies_final") or "") != str(row.get("ideologia_partido") or "")
+        ]
+
+        _campo_val: dict[str, int] = {"esquerda": 0, "centro": 50, "direita": 100}
+        diss_rows.sort(
+            key=lambda r: abs(
+                _campo_val.get(str(r.get("vies_final") or ""), 50)
+                - _campo_val.get(str(r.get("ideologia_partido") or ""), 50)
+            ),
+            reverse=True,
+        )
+
+        col_names = self.main_table.columns if self.main_table else []
+        diss_col_specs = [TableColumn(key=c, label=_humanize_label(c)) for c in col_names]
+        diss_spec = TableSpec(
+            title="Dissidentes (vies comportamental diferente da ideologia do partido)",
+            columns=diss_col_specs,
+            rows=diss_rows[:500],
+            total=len(diss_rows),
+            page=1,
+            page_size=500,
+        )
+
+        return [dist_spec, diss_spec]
+
+
 ADAPTERS_BY_ID = {
     "q1": Q1Adapter,
     "q2": Q2Adapter,
@@ -1829,6 +2126,12 @@ ADAPTERS_BY_ID = {
     "q7": Q7Adapter,
     "q8": Q8Adapter,
     "q9": Q9Adapter,
+    "q9_v2_deputado": Q9V2FullTableAdapter,
+    "q9_v2_votacoes": Q9V2FullTableAdapter,
+    "q9_v2_votos": Q9V2FullTableAdapter,
+    "q9_vies_final": Q9ViesFinalAdapter,
+    "q9_1_classificar_partidos": QuestionAdapter,
+    "q9_v2_correlacao": Q9CorrelacaoAdapter,
     "q10": Q10Adapter,
     "q11": Q11Adapter,
     "q11_extra": Q11ExtraAdapter,

@@ -115,11 +115,12 @@ class FilterEngine:
         }
         if not normalized:
             return rows
-        if not any("sigla_partido" in row for row in rows):
+        party_columns = ("sigla_partido", "partido")
+        if not any(any(column in row for column in party_columns) for row in rows):
             return rows
         output: list[dict[str, Any]] = []
         for row in rows:
-            if normalize_party(row.get("sigla_partido")) in normalized:
+            if any(normalize_party(row.get(column)) in normalized for column in party_columns):
                 output.append(row)
         return output
 
@@ -167,4 +168,3 @@ def _sortable_value(value: Any) -> Any:
     if isinstance(value, (int, float)):
         return (0, value)
     return (0, str(value).lower())
-

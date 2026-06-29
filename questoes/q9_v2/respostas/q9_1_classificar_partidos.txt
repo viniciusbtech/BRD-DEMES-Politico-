@@ -1,0 +1,28 @@
+Q9.1 - Classificacao dupla dos partidos: declarada + comportamental
+
+Q9.1 - Classificacao dupla: declarada vs comportamental
+sigla_partido | ideologia_declarada | ideologia_comportamental | score_medio | dissidente | deputados_com_voto | votos_registrados
+--------------+---------------------+--------------------------+-------------+------------+--------------------+------------------
+PCDOB         | esquerda            | esquerda                 | 2.7         | -          | 11                 | 7962             
+PDT           | esquerda            | esquerda                 | 14.5        | -          | 23                 | 16108            
+PSB           | esquerda            | esquerda                 | 16.4        | -          | 23                 | 14054            
+PSOL          | esquerda            | esquerda                 | 6.8         | -          | 16                 | 12444            
+PT            | esquerda            | esquerda                 | 1.2         | -          | 76                 | 64867            
+PV            | esquerda            | esquerda                 | 3.6         | -          | 8                  | 4534             
+REDE          | esquerda            | esquerda                 | 7.5         | -          | 8                  | 1324             
+AVANTE        | centro              | esquerda                 | 32.7        | SIM        | 10                 | 6442             
+CIDADANIA     | centro              | centro                   | 55.4        | -          | 5                  | 3010             
+MDB           | centro              | centro                   | 42.1        | -          | 63                 | 34715            
+MISSAO        | centro              | direita                  | 83.7        | SIM        | 1                  | 67               
+PODE          | centro              | centro                   | 47.6        | -          | 40                 | 14260            
+PRD           | centro              | centro                   | 55.4        | -          | 9                  | 2736             
+PSD           | centro              | esquerda                 | 39.2        | SIM        | 78                 | 37880            
+PSDB          | centro              | centro                   | 47.6        | -          | 26                 | 11905            
+SOLIDARIEDADE | centro              | esquerda                 | 34.4        | SIM        | 12                 | 4130             
+UNIAO         | centro              | centro                   | 52.7        | -          | 95                 | 51868            
+NOVO          | direita             | direita                  | 94.7        | -          | 5                  | 4243             
+PL            | direita             | direita                  | 88.5        | -          | 140                | 85540            
+PP            | direita             | centro                   | 49.7        | SIM        | 77                 | 43203            
+REPUBLICANOS  | direita             | centro                   | 46.6        | SIM        | 80                 | 40123            
+(21 rows)
+
