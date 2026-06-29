@@ -299,6 +299,26 @@ const abrevCat = (s: string) =>
     .trim();
 
 type PanoramaSection = "deputados" | "categorias" | "eixos" | "custo-beneficio" | "metodologia";
+type CatYearFilter = "global" | "2023" | "2024" | "2025" | "2026";
+
+const CAT_YEAR_OPTIONS: Array<{ value: CatYearFilter; label: string }> = [
+  { value: "global", label: "Global" },
+  { value: "2023", label: "2023" },
+  { value: "2024", label: "2024" },
+  { value: "2025", label: "2025" },
+  { value: "2026", label: "2026" },
+];
+
+const sortCategoryRows = (rows: Row[]) => [...rows].sort((a, b) => raw(b, "total_gasto") - raw(a, "total_gasto"));
+
+const findCategoryTable = (payload: QuestionPayload, scope: "annual" | "global") =>
+  payload.complement_tables.find((table) => {
+    const title = table.title.toLowerCase();
+    const hasCategoryColumns = table.columns.some((column) => column.key === "descricao_despesa")
+      && table.columns.some((column) => column.key === "total_gasto");
+    if (!hasCategoryColumns || !title.includes("categoria")) return false;
+    return scope === "global" ? title.includes("global") : !title.includes("global");
+  });
 
 export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNavigateDeputado, onNavigateRecorte }: PanoramaPageProps) {
   const { theme } = useTheme();
@@ -347,22 +367,36 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
   // Seção 01B — Categorias globais de gasto
   const CAT_PAGE_SIZE = 10;
-  const [catTop10, setCatTop10] = useState<Row[]>([]);
-  const [catAllRows, setCatAllRows] = useState<Row[]>([]);
+  const [catGlobalRows, setCatGlobalRows] = useState<Row[]>([]);
+  const [catAnnualRows, setCatAnnualRows] = useState<Row[]>([]);
+  const [catYearFilter, setCatYearFilter] = useState<CatYearFilter>("global");
   const [catTableOpen, setCatTableOpen] = useState(false);
   const [catTablePage, setCatTablePage] = useState(1);
   const catTableRef = useRef<HTMLDivElement>(null);
   const [catSearch, setCatSearch] = useState("");
   const [catSearchPage, setCatSearchPage] = useState(1);
 
-  const catOptions = useMemo(() => catAllRows.map((r) => str(r, "descricao_despesa")).filter(Boolean), [catAllRows]);
+  const catAllRows = useMemo(() => {
+    if (catYearFilter === "global") return catGlobalRows;
+    return sortCategoryRows(catAnnualRows.filter((r) => str(r, "ano_dados") === catYearFilter));
+  }, [catAnnualRows, catGlobalRows, catYearFilter]);
+
+  const catTop10 = useMemo(() => catAllRows.slice(0, 10), [catAllRows]);
+
+  const catOptions = useMemo(() => {
+    const set = new Set<string>();
+    catAllRows.forEach((r) => { const v = str(r, "descricao_despesa"); if (v) set.add(v); });
+    return Array.from(set).sort();
+  }, [catAllRows]);
 
   const catFilteredRows = useMemo(() => {
     if (!catSearch) return catAllRows;
     return catAllRows.filter((r) => str(r, "descricao_despesa") === catSearch);
   }, [catAllRows, catSearch]);
 
-  useEffect(() => { setCatSearchPage(1); }, [catSearch]);
+  const catScopeLabel = catYearFilter === "global" ? "CEAP CONSOLIDADA 2023-2026" : `CEAP ${catYearFilter}`;
+
+  useEffect(() => { setCatSearchPage(1); }, [catSearch, catYearFilter]);
 
   // Seção 01C — Eixos de atuação (temas legislativos)
   const EIXO_PAGE_SIZE = 10;
@@ -373,6 +407,8 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   const eixoTableRef = useRef<HTMLDivElement>(null);
   const [eixoSearch, setEixoSearch] = useState("");
   const [eixoSearchPage, setEixoSearchPage] = useState(1);
+  const [eixoYear, setEixoYear] = useState("");
+  const [eixoLoading, setEixoLoading] = useState(false);
 
   const eixoOptions = useMemo(() => eixoAllRows.map((r) => str(r, "tema")).filter(Boolean), [eixoAllRows]);
 
@@ -382,6 +418,20 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
   }, [eixoAllRows, eixoSearch]);
 
   useEffect(() => { setEixoSearchPage(1); }, [eixoSearch]);
+
+  useEffect(() => {
+    setEixoLoading(true);
+    setEixoSearch("");
+    const filters = eixoYear ? { anos: [eixoYear] } : {};
+    fetchQuestion("q2", filters, { page: 1, pageSize: 5 })
+      .then((payload) => {
+        const eixos = (payload.complement_tables[0]?.rows ?? []) as Row[];
+        setEixoAllRows(eixos);
+        setEixoTop10(eixos.slice(0, 10));
+      })
+      .catch(() => {})
+      .finally(() => setEixoLoading(false));
+  }, [eixoYear]);
 
   // Seção 01D — Custo-benefício
   const CB_PAGE_SIZE = 15;
@@ -474,22 +524,13 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
       .then(setGastoAllRows)
       .catch(() => {});
 
-    // Carrega categorias globais (complement_tables[2] do Q13)
-    fetchQuestion("q13", {}, { page: 1, pageSize: 25 })
+    // Carrega categorias globais e por ano (Q13)
+    fetchQuestion("q13", {}, { page: 1, pageSize: 100 })
       .then((payload) => {
-        const globalCat = (payload.complement_tables[2]?.rows ?? []) as Row[];
-        const sorted = [...globalCat].sort((a, b) => raw(b, "total_gasto") - raw(a, "total_gasto"));
-        setCatAllRows(sorted);
-        setCatTop10(sorted.slice(0, 10));
-      })
-      .catch(() => {});
-
-    // Carrega eixos temáticos agregados (complement_tables[0] do Q2)
-    fetchQuestion("q2", {}, { page: 1, pageSize: 5 })
-      .then((payload) => {
-        const eixos = (payload.complement_tables[0]?.rows ?? []) as Row[];
-        setEixoAllRows(eixos);
-        setEixoTop10(eixos.slice(0, 10));
+        const annualCat = (findCategoryTable(payload, "annual")?.rows ?? []) as Row[];
+        const globalCat = (findCategoryTable(payload, "global")?.rows ?? []) as Row[];
+        setCatAnnualRows(annualCat);
+        setCatGlobalRows(sortCategoryRows(globalCat));
       })
       .catch(() => {});
 
@@ -869,7 +910,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
 
       {/* ── Seção 01B — Categorias ───────────────────────── */}
       {activeSection === "categorias" && (
-      <Section n="01B" tag="CATEGORIAS" title="No geral, onde os deputados mais gastam?" sub="CEAP CONSOLIDADA 2023-2026 · TODAS AS CATEGORIAS DE DESPESA · TOP 10">
+      <Section n="01B" tag="CATEGORIAS" title="No geral, onde os deputados mais gastam?" sub={`${catScopeLabel} · TODAS AS CATEGORIAS DE DESPESA · TOP 10`}>
 
         {/* Treemap de categorias */}
         {catTop10.length > 0 ? (() => {
@@ -1008,6 +1049,17 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
         {/* Filtro de categorias */}
         <div className="mb-4 flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Periodo</label>
+            <select
+              value={catYearFilter}
+              onChange={(e) => setCatYearFilter(e.target.value as CatYearFilter)}
+              className="h-9 border px-3 text-[13px] outline-none"
+              style={{ fontFamily: MONO, borderColor: catYearFilter !== "global" ? RED : "var(--border)", color: "var(--foreground)", background: "var(--card)", minWidth: 150 }}
+            >
+              {CAT_YEAR_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Filtrar categoria</label>
             <select
               value={catSearch}
@@ -1129,7 +1181,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
       <Section n="01C" tag="EIXOS DE ATUAÇÃO" title="Quais os principais temas de atuação dos deputados?" sub="PRODUÇÃO LEGISLATIVA 2023-2026 · TODOS OS DEPUTADOS E PARTIDOS · TOP 10 EIXOS">
 
         {/* Gráfico de barras horizontal */}
-        {eixoTop10.length > 0 ? (() => {
+        {eixoTop10.length > 0 && !eixoLoading ? (() => {
           const maxVal = raw(eixoTop10[0], "qtd_proposicoes") || 1;
           const barData = eixoTop10.map((r, i) => ({
             name: str(r, "tema"),
@@ -1223,9 +1275,41 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           );
         })() : (
           <div className="mb-10 flex h-24 items-center justify-center border border-border text-xs text-muted-foreground" style={{ fontFamily: MONO, background: "var(--card)" }}>
-            CARREGANDO...
+            {eixoLoading ? "CARREGANDO..." : "SEM DADOS"}
           </div>
         )}
+
+        {/* Filtro por ano */}
+        <div className="mb-5">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>Ano</p>
+          <div className="flex flex-wrap gap-2">
+            {(["", "2023", "2024", "2025", "2026"] as const).map((y) => {
+              const label = y === "" ? "Global" : y;
+              const active = eixoYear === y;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setEixoYear(y)}
+                  className="h-9 border px-4 text-[12px] font-bold uppercase tracking-wide transition-colors"
+                  style={{
+                    fontFamily: MONO,
+                    background: active ? RED : "transparent",
+                    color: active ? "#fff" : "var(--foreground)",
+                    borderColor: active ? RED : "var(--border)",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+            {eixoLoading && (
+              <span className="self-center text-[11px] text-muted-foreground" style={{ fontFamily: MONO }}>
+                CARREGANDO...
+              </span>
+            )}
+          </div>
+        </div>
 
         {/* Filtro de eixos */}
         <div className="mb-4 flex flex-wrap items-end gap-3">
@@ -1406,7 +1490,7 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
             </button>
           )}
           {hasCbFilter && (
-            <span className="text-[11px] text-muted-foreground" style={{ fontFamily: MONO }}>
+            <span className="text-sm font-bold" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
               {filteredCbRows.length} deputado{filteredCbRows.length !== 1 ? "s" : ""} encontrado{filteredCbRows.length !== 1 ? "s" : ""}
             </span>
           )}
@@ -1421,6 +1505,83 @@ export default function PanoramaPage({ onNavigateHome, onNavigateRecortes, onNav
           metric={(r) => getCbPercentile(r).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
           rounded
         />
+
+        {/* ── Metodologia colapsável ── */}
+        <div className="mb-8 border border-border" style={{ background: "var(--card)" }}>
+          <button
+            type="button"
+            onClick={() => toggleMetodo("cb-inline")}
+            className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-[0.28em]" style={{ fontFamily: MONO, color: RED }}>COMO O ÍNDICE É CALCULADO</span>
+              <span className="hidden text-[11px] text-muted-foreground md:inline" style={{ fontFamily: MONO }}>
+                · CB = Benefício ÷ Gasto^1,08 · Score CB = percentil no ranking
+              </span>
+            </div>
+            <span className="ml-4 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>
+              {metodoOpen["cb-inline"] ? "▲ RECOLHER" : "▼ EXPANDIR"}
+            </span>
+          </button>
+
+          {metodoOpen["cb-inline"] && (
+            <div className="border-t border-border px-5 py-5" style={{ background: isDark ? "rgba(196,18,48,0.04)" : "rgba(196,18,48,0.02)" }}>
+              {/* Fórmula */}
+              <div className="mb-5 border-l-2 py-2 pl-4" style={{ borderColor: RED }}>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: RED, fontFamily: MONO }}>Fórmula</p>
+                <p className="mt-1 text-sm font-bold leading-relaxed" style={{ color: "var(--foreground)", fontFamily: MONO }}>
+                  CB = Benefício ÷ Gasto^1,08 · onde Benefício = qualidade_proposicoes + (presença_total × 0,1)
+                </p>
+              </div>
+              {/* 6 passos */}
+              <ol className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[
+                  {
+                    n: "01",
+                    titulo: "Pontuação por tipo de proposição",
+                    corpo: "Cada proposição recebe um peso base conforme seu tipo: PEC vale 12 pts, PLP vale 10, MPV e MSC valem 9, PL vale 7, decretos legislativos valem 5, requerimentos e indicações valem 1,5, demais tipos valem 3. Tipos mais difíceis de aprovar e de maior impacto normativo recebem pontuação maior.",
+                  },
+                  {
+                    n: "02",
+                    titulo: "Bônus por situação e desconto simbólico",
+                    corpo: "A situação da proposição adiciona pontos: aprovada/sancionada/promulgada +24 pts, tramitando ativamente +6 pts, arquivada ou retirada +0 pts. Projetos com termos como 'homenagem', 'data comemorativa', 'título honorífico' ou 'sessão solene' recebem multiplicador de 0,45 — penalizando produção sem impacto substantivo.",
+                  },
+                  {
+                    n: "03",
+                    titulo: "Peso de autoria compartilhada",
+                    corpo: "Ser o autor principal (único ou primeiro assinante) vale peso 1,0. O 2º ao 5º co-autor valem 0,55. Demais co-autores valem 0,25. Isso evita que assinar centenas de projetos alheios inflacione o score — a contribuição real conta mais que a quantidade de assinaturas.",
+                  },
+                  {
+                    n: "04",
+                    titulo: "Presença em eventos parlamentares",
+                    corpo: "O total de eventos em que o deputado compareceu (sessões plenárias, comissões, audiências) entra no numerador com peso de apenas 0,1. A presença é um sinal positivo de engajamento, mas representa no máximo ~10% do benefício — a produção legislativa domina o cálculo.",
+                  },
+                  {
+                    n: "05",
+                    titulo: "Denominador com penalização exponencial",
+                    corpo: "O denominador usa Gasto^1,08 em vez do gasto simples. Isso cria uma curva progressiva: quem gasta o dobro não divide por 2×, mas por 2^1,08 ≈ 2,11×. Quem gasta muito tem o denominador crescendo mais rápido que os próprios gastos — deputados de alto custo são penalizados de forma não-linear.",
+                  },
+                  {
+                    n: "06",
+                    titulo: "Score CB — leitura por percentil",
+                    corpo: "O valor bruto (ex: 0,096) é convertido em percentil para facilitar a leitura. Score CB = ((total de deputados − posição no ranking) ÷ total) × 100. Um Score de 97,3 significa que aquele deputado supera 97,3% dos demais. Excluídos do índice: gasto ≤ R$40 mil ou sem proposições pontuáveis.",
+                  },
+                ].map((passo) => (
+                  <li key={passo.n} className="flex gap-3">
+                    <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{passo.n}</span>
+                    <div>
+                      <p className="mb-1 text-[13px] font-bold leading-snug" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{passo.titulo}</p>
+                      <p className="text-[13px] font-medium leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.82 }}>{passo.corpo}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-5 border-t border-border pt-4 text-[12px] font-medium leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.65 }}>
+                O índice mede eficiência de custo dentro das métricas disponíveis em dados públicos — não a qualidade política ou ética de um mandato. Score alto pode resultar de gasto muito baixo, de alta produção legislativa qualificada, ou da combinação dos dois. Consulte a aba <strong>Metodologia</strong> para a documentação completa.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Ranking top 10 */}
         <div className="mb-10 flex flex-col gap-3">

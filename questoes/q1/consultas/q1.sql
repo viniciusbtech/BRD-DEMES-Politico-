@@ -6,7 +6,9 @@ WITH gastos_totais AS (
         id_deputado,
         SUM(valor_liquido) AS gasto_total
     FROM gastos
+    WHERE valor_liquido > 0
     GROUP BY id_deputado
+    HAVING SUM(valor_liquido) > 10000
 ),
 perfil_por_partido AS (
     SELECT
@@ -16,6 +18,7 @@ perfil_por_partido AS (
         COUNT(*) AS ocorrencias,
         SUM(valor_liquido) AS gasto_no_partido
     FROM gastos
+    WHERE valor_liquido > 0
     GROUP BY id_deputado, sigla_uf, sigla_partido
 ),
 perfil_dominante AS (

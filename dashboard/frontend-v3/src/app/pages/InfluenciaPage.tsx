@@ -879,7 +879,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                         <strong className="text-sm font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{block.name}</strong>
                         <span className="text-xs font-black" style={{ fontFamily: MONO, color: block.color }}>{fmtNum(block.partyCount)} partidos</span>
                       </div>
-                      <p className="mt-2 text-xs leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                      <p className="mt-2 text-sm font-medium leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.94 }}>
                         {block.parties}
                       </p>
                     </div>
@@ -897,7 +897,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   15 maiores graus ponderados
                 </h3>
               </div>
-              <p className="max-w-md text-xs font-medium leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+              <p className="max-w-md text-sm font-semibold leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.95 }}>
                 Grau ponderado alto indica muitas conexoes fortes no padrao de voto. Nao e cargo formal: e centralidade comportamental no grafo.
               </p>
             </div>
@@ -997,12 +997,12 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
 
                   {block.anchors.length ? (
                     <>
-                      <p className="mb-2 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>DEPUTADOS-ANCORA</p>
-                      <ul className="space-y-1">
+                      <p className="mb-2 text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: isDark ? "rgba(240,236,228,0.9)" : "#222" }}>DEPUTADOS-ANCORA</p>
+                      <ul className="space-y-1.5">
                         {block.anchors.map((anchor) => (
-                          <li key={anchor.nome} className="text-xs text-foreground">
+                          <li key={anchor.nome} className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
                             {anchor.nome}
-                            {anchor.partido ? <span className="text-muted-foreground"> · {anchor.partido}{anchor.uf ? `-${anchor.uf}` : ""}</span> : null}
+                            {anchor.partido ? <span className="font-medium" style={{ color: isDark ? "rgba(240,236,228,0.78)" : "#444" }}> · {anchor.partido}{anchor.uf ? `-${anchor.uf}` : ""}</span> : null}
                           </li>
                         ))}
                       </ul>
@@ -1010,7 +1010,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   ) : null}
 
                   {block.partyCount ? (
-                    <p className="mt-4 text-[11px] text-muted-foreground" style={{ fontFamily: MONO }}>{block.partyCount} PARTIDOS PRESENTES</p>
+                    <p className="mt-4 text-sm font-bold" style={{ fontFamily: MONO, color: isDark ? "rgba(240,236,228,0.88)" : "#222" }}>{block.partyCount} PARTIDOS PRESENTES</p>
                   ) : null}
                 </div>
               ))}
@@ -1023,10 +1023,10 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             <div key={finding.n} className="flex flex-col bg-background p-6" style={isDark ? undefined : q8PanelStyle}>
               <span className="mb-3 text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.3)" }}>{finding.n}</span>
               <h4 className="mb-3 text-lg font-black leading-tight" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{finding.title}</h4>
-              <p className="text-xs leading-relaxed text-muted-foreground">{finding.body}</p>
+              <p className="text-sm font-medium leading-relaxed" style={{ color: isDark ? "rgba(240,236,228,0.9)" : "#222" }}>{finding.body}</p>
               {finding.chips.length ? (
                 <div className="mt-4">
-                  <p className="mb-2 text-[10px] tracking-widest text-muted-foreground" style={{ fontFamily: MONO }}>{finding.chipsLabel}</p>
+                  <p className="mb-2 text-xs font-bold tracking-widest" style={{ fontFamily: MONO, color: isDark ? "rgba(240,236,228,0.82)" : "#444" }}>{finding.chipsLabel}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {finding.chips.map((chip) => (
                       <span key={chip} className="border px-2 py-0.5 text-[10px] font-bold" style={{ fontFamily: MONO, borderColor: isDark ? "rgba(196,18,48,0.35)" : "rgba(0,127,255,0.35)", color: isDark ? "#f0ece4" : "#007fff" }}>{chip}</span>
@@ -1067,7 +1067,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 type="category"
                 dataKey="nome"
                 width={148}
-                tick={{ fill: isDark ? "rgba(240,236,228,0.75)" : "#1a1a1a", fontSize: 11, fontFamily: MONO }}
+                tick={{ fill: isDark ? "#e8e4dc" : "#111111", fontSize: 13, fontFamily: MONO, fontWeight: 600 }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -1215,16 +1215,16 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <div className="border px-3 py-2.5" style={{ borderColor: "rgba(196,18,48,0.25)", background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.6)" }}>
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>① NOVO GRÁFICO</p>
-                <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>Diagrama de dispersão: eixo X = alinhamento (%), eixo Y = volume da amostra. Você vê confiabilidade e disciplina ao mesmo tempo.</p>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>① NOVO GRÁFICO</p>
+                <p className="mt-1.5 text-sm font-medium leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.96 }}>Diagrama de dispersão: eixo X = alinhamento (%), eixo Y = volume da amostra. Você vê confiabilidade e disciplina ao mesmo tempo.</p>
               </div>
               <div className="border px-3 py-2.5" style={{ borderColor: "rgba(196,18,48,0.25)", background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.6)" }}>
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>② MODO ROBUSTO</p>
-                <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>Toggle abaixo filtra apenas partidos com amostra suficiente, tornando o topo do ranking comparável e estatisticamente confiável.</p>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>② MODO ROBUSTO</p>
+                <p className="mt-1.5 text-sm font-medium leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.96 }}>Toggle abaixo filtra apenas partidos com amostra suficiente, tornando o topo do ranking comparável e estatisticamente confiável.</p>
               </div>
               <div className="border px-3 py-2.5" style={{ borderColor: "rgba(196,18,48,0.25)", background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.6)" }}>
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>③ LEITURA DOS PONTOS</p>
-                <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>Ponto canto superior-direito = alta disciplina + amostra grande = resultado confiável. Canto inferior-direito = alta disciplina mas amostra pequena = suspeito.</p>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>③ LEITURA DOS PONTOS</p>
+                <p className="mt-1.5 text-sm font-medium leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.96 }}>Ponto canto superior-direito = alta disciplina + amostra grande = resultado confiável. Canto inferior-direito = alta disciplina mas amostra pequena = suspeito.</p>
               </div>
             </div>
           </div>
@@ -1314,21 +1314,21 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                   Math.max(50, Math.floor((q10ScatterData.length ? Math.min(...q10ScatterData.map((d) => d.x)) : 80) - 3)),
                   100.5,
                 ]}
-                tick={{ fill: isDark ? "#888880" : "#555", fontSize: 10, fontFamily: MONO }}
+                tick={{ fill: isDark ? "#c8c4bc" : "#333", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
                 axisLine={{ stroke: isDark ? "rgba(240,236,228,0.08)" : "rgba(0,0,0,0.08)" }}
                 tickLine={false}
                 tickFormatter={(v: number) => `${v}%`}
-                label={{ value: "% ALINHAMENTO À ORIENTAÇÃO PARTIDÁRIA", position: "insideBottom", offset: -36, fill: isDark ? "#666" : "#888", fontSize: 10, fontFamily: MONO }}
+                label={{ value: "% ALINHAMENTO À ORIENTAÇÃO PARTIDÁRIA", position: "insideBottom", offset: -36, fill: isDark ? "#aaa8a0" : "#444", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
               />
               <YAxis
                 type="number"
                 dataKey="yLog"
                 domain={[0, "auto"]}
-                tick={{ fill: isDark ? "#888880" : "#555", fontSize: 10, fontFamily: MONO }}
+                tick={{ fill: isDark ? "#c8c4bc" : "#333", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
                 axisLine={{ stroke: isDark ? "rgba(240,236,228,0.08)" : "rgba(0,0,0,0.08)" }}
                 tickLine={false}
                 tickFormatter={(v: number) => fmtNum(Math.round(Math.pow(10, v)))}
-                label={{ value: "VOTOS COM DIRETRIZ (log)", angle: -90, position: "insideLeft", offset: 12, fill: isDark ? "#666" : "#888", fontSize: 10, fontFamily: MONO }}
+                label={{ value: "VOTOS COM DIRETRIZ (log)", angle: -90, position: "insideLeft", offset: 12, fill: isDark ? "#aaa8a0" : "#444", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
               />
               <Tooltip
                 cursor={{ strokeDasharray: "3 3", stroke: isDark ? "rgba(240,236,228,0.2)" : "rgba(0,0,0,0.1)" }}
@@ -1357,14 +1357,14 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 y={Math.log10(ROBUST_MIN_VOTES + 1)}
                 stroke={isDark ? "rgba(196,18,48,0.3)" : "rgba(196,18,48,0.2)"}
                 strokeDasharray="5 4"
-                label={{ value: `≥ ${ROBUST_MIN_VOTES} votos → AMOSTRA ROBUSTA`, position: "insideTopRight", fontSize: 9, fontFamily: MONO, fill: isDark ? "rgba(196,18,48,0.7)" : RED }}
+                label={{ value: `≥ ${ROBUST_MIN_VOTES} votos → AMOSTRA ROBUSTA`, position: "insideTopRight", fontSize: 11, fontFamily: MONO, fontWeight: 700, fill: isDark ? "rgba(196,18,48,0.9)" : RED }}
               />
               {/* Linha de referência: alta disciplina (95%) */}
               <ReferenceLine
                 x={95}
                 stroke={isDark ? "rgba(240,236,228,0.12)" : "rgba(0,0,0,0.1)"}
                 strokeDasharray="5 4"
-                label={{ value: "95%", position: "insideTopLeft", fontSize: 9, fontFamily: MONO, fill: isDark ? "rgba(240,236,228,0.4)" : "#999" }}
+                label={{ value: "95%", position: "insideTopLeft", fontSize: 11, fontFamily: MONO, fontWeight: 700, fill: isDark ? "rgba(240,236,228,0.7)" : "#555" }}
               />
               {/* Um Scatter por ideologia para colorir corretamente */}
               {Object.entries(q10ByIdeology).map(([ideo, data]) => (
@@ -1412,7 +1412,7 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
         </div>
 
         {/* Nota do gráfico */}
-        <p className="mb-10 text-xs" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.5 }}>
+        <p className="mb-10 text-sm font-medium" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
           Passe o mouse sobre cada ponto para ver os detalhes. Pontos maiores e opacos = amostra robusta (≥{ROBUST_MIN_VOTES} votos, com rótulo). Pontos menores e semi-transparentes = amostra pequena. A linha tracejada vermelha marca o limiar de amostra robusta. Escala do eixo Y é logarítmica.
         </p>
 
