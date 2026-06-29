@@ -26,7 +26,7 @@ type Row = Record<string, unknown>;
 
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
-const RED = "#c41230";
+const RED = "#e00836";
 const ANOS_LEGISLATURA = ["2023", "2024", "2025", "2026"];
 
 const IDEOLOGY_COLORS: Record<string, string> = {
@@ -163,22 +163,22 @@ function CollapsibleMethod({ n, title, sub, open, onToggle, children }: {
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
+        className="flex w-full items-center justify-between px-5 py-5 text-left transition-colors hover:bg-white/[0.03] md:px-6"
         style={{ background: "var(--card)" }}
       >
         <div className="flex items-baseline gap-3">
-          <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>{n}</span>
+          <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: RED }}>{n}</span>
           <div>
-            <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{title}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{sub}</p>
+            <p className="text-base font-black leading-tight md:text-lg" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{title}</p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] md:text-[13px]" style={{ fontFamily: MONO, color: RED }}>{sub}</p>
           </div>
         </div>
-        <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+        <span className="ml-4 shrink-0 text-sm font-black md:text-base" style={{ fontFamily: MONO, color: RED }}>
           {open ? "▲ RECOLHER" : "▼ EXPANDIR"}
         </span>
       </button>
       {open && (
-        <div className="border-t border-border px-5 py-7" style={{ background: "var(--card)" }}>
+        <div className="border-t border-border px-5 py-6 md:px-6" style={{ background: "var(--card)" }}>
           {children}
         </div>
       )}
@@ -188,13 +188,13 @@ function CollapsibleMethod({ n, title, sub, open, onToggle, children }: {
 
 function MethodSteps({ steps }: { steps: { n: string; title: string; body: string }[] }) {
   return (
-    <ol className="max-w-2xl space-y-4">
+    <ol className="max-w-3xl space-y-4">
       {steps.map((step) => (
         <li key={step.n} className="flex gap-4">
           <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
           <div>
-            <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{step.title}</p>
-            <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
+            <p className="mb-1 text-sm font-bold leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{step.title}</p>
+            <p className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>{step.body}</p>
           </div>
         </li>
       ))}
@@ -1326,8 +1326,8 @@ export default function ViesPage({ onNavigateHome, onNavigateRecortes, onNavigat
 
       {/* ── METODOLOGIA ── */}
       {activeSection === "metodologia" && (
-      <section className="border-t border-border px-6 py-10 md:px-14" style={{ background: "var(--card)" }}>
-        <p className="mb-5 text-xs tracking-[0.35em] text-muted-foreground" style={{ fontFamily: MONO }}>METODOLOGIA — COMO CHEGAMOS AQUI</p>
+      <section className="border-b border-border px-6 py-14 md:px-14" style={{ background: "var(--card)" }}>
+        <p className="mb-8 text-sm font-black uppercase tracking-[0.35em] md:text-base" style={{ fontFamily: MONO, color: RED }}>METODOLOGIA — COMO CHEGAMOS AQUI</p>
 
         <CollapsibleMethod n="9.1" title="CLASSIFICACAO DOS PARTIDOS POR IDEOLOGIA" sub="Como mapeamos o espectro politico de cada partido" open={methQ91Open} onToggle={() => setMethQ91Open((v) => !v)}>
           <MethodSteps steps={[

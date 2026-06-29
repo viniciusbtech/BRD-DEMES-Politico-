@@ -4,12 +4,14 @@ CREATE OR REPLACE TEMP VIEW resposta_perfil_deputado_ano_q12 AS
 WITH base AS (
     SELECT
         ano_dados,
-        id_deputado,
-        sigla_uf,
-        sigla_partido,
+        g.id_deputado,
+        g.sigla_uf,
+        g.sigla_partido,
         COUNT(*) AS ocorrencias
-    FROM gastos
-    GROUP BY ano_dados, id_deputado, sigla_uf, sigla_partido
+    FROM gastos g
+    JOIN deputados d ON d.id_deputado = g.id_deputado
+    WHERE d.id_legislatura_final = 57
+    GROUP BY ano_dados, g.id_deputado, g.sigla_uf, g.sigla_partido
 ),
 ranked AS (
     SELECT
@@ -31,12 +33,14 @@ WHERE posicao = 1;
 CREATE OR REPLACE TEMP VIEW resposta_perfil_deputado_global_q12 AS
 WITH base AS (
     SELECT
-        id_deputado,
-        sigla_uf,
-        sigla_partido,
+        g.id_deputado,
+        g.sigla_uf,
+        g.sigla_partido,
         COUNT(*) AS ocorrencias
-    FROM gastos
-    GROUP BY id_deputado, sigla_uf, sigla_partido
+    FROM gastos g
+    JOIN deputados d ON d.id_deputado = g.id_deputado
+    WHERE d.id_legislatura_final = 57
+    GROUP BY g.id_deputado, g.sigla_uf, g.sigla_partido
 ),
 ranked AS (
     SELECT
@@ -61,7 +65,7 @@ SELECT
     d.nome,
     perfil.sigla_uf,
     perfil.sigla_partido,
-    REPLACE(g.fornecedor, '|', '/') AS fornecedor,
+    REPLACE(REPLACE(g.fornecedor, '|', '/'), CHR(8211), '-') AS fornecedor,
     COUNT(*) AS qtd_lancamentos,
     SUM(g.valor_liquido) AS total_pago
 FROM gastos g
@@ -70,13 +74,15 @@ LEFT JOIN resposta_perfil_deputado_ano_q12 perfil
     ON perfil.ano_dados = g.ano_dados
    AND perfil.id_deputado = g.id_deputado
 WHERE g.fornecedor IS NOT NULL
+  AND d.id_legislatura_final = 57
+  AND g.valor_liquido > 0
 GROUP BY
     g.ano_dados,
     d.id_deputado,
     d.nome,
     perfil.sigla_uf,
     perfil.sigla_partido,
-    REPLACE(g.fornecedor, '|', '/');
+    REPLACE(REPLACE(g.fornecedor, '|', '/'), CHR(8211), '-');
 
 \o /respostas/q12_deputado_fornecedor.txt
 \qecho Q12 - deputado x fornecedor

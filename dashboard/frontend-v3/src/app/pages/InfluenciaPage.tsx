@@ -587,6 +587,29 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
     };
   }, [graphCommunities, voteGraph]);
 
+  const q8BridgeDeputies = useMemo(() => {
+    return (voteGraph?.nodes ?? [])
+      .map((node) => ({
+        id: String(node.id ?? node.id_deputado ?? node.nome ?? node.name ?? ""),
+        nome: String(node.nome ?? node.name ?? node.id ?? ""),
+        partido: String(node.partido ?? node.sigla_partido ?? ""),
+        uf: String(node.uf ?? node.sigla_uf ?? ""),
+        community: String(node.community ?? ""),
+        grau: Number(node.grau_ponderado ?? 0),
+        conexoes: Number(node.qtd_conexoes ?? 0),
+      }))
+      .filter((node) => node.id && node.nome)
+      .sort((a, b) => b.grau - a.grau)
+      .slice(0, 15);
+  }, [voteGraph]);
+
+  const q8MostMixedBlocks = useMemo(() => {
+    return leidenSynthesis.blocks
+      .filter((block) => block.partyCount > 0)
+      .sort((a, b) => b.partyCount - a.partyCount)
+      .slice(0, 3);
+  }, [leidenSynthesis]);
+
   type InfluenciaSection = "influencia" | "voto-revelou" | "ranking" | "disciplina" | "metodologia";
   const [activeSection, setActiveSection] = useState<InfluenciaSection>("influencia");
   const RED = "#e00836";
@@ -785,6 +808,92 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 </p>
               )}
             </div>
+          </div>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="grid gap-5">
+            <div className="border border-border p-6" style={{ ...q8PanelStyle, borderLeft: `4px solid ${RED}` }}>
+              <p className="mb-3 text-[13px] font-black uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: RED }}>RESUMO DO MAPA</p>
+              <h3 className="text-2xl font-black leading-tight md:text-3xl" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>
+                {fmtNum(leidenSynthesis.totalDeputies || (voteGraph?.nodes?.length ?? 0))} deputados em {fmtNum(leidenSynthesis.blocks.length || graphCommunities.length)} blocos de voto.
+              </h3>
+              <p className="mt-4 text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.9 }}>
+                Esses grupos nao foram montados por partido, UF ou ideologia declarada. Eles aparecem quando deputados votam de forma parecida em votacoes que realmente dividiram o plenario.
+              </p>
+              <div className="mt-5 grid grid-cols-2 gap-px border border-border" style={q8SoftGridStyle}>
+                <StatCard label="NOS DO GRAFO" value={fmtNum(voteGraph?.nodes?.length ?? 0)} />
+                <StatCard label="ARESTAS FORTES" value={fmtNum(voteGraph?.links?.length ?? 0)} />
+              </div>
+            </div>
+
+            <div className="border border-border p-6" style={q8PanelStyle}>
+              <p className="mb-3 text-[13px] font-black uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: RED }}>PARTIDO FORMAL X VOTO REAL</p>
+              <p className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.9 }}>
+                O partido mostra a organizacao formal da Camara. O grafo mostra o comportamento real em votacao. Quando uma comunidade mistura muitos partidos, ela indica uma coalizao pratica que atravessa legendas; quando mistura poucos, sugere um bloco mais fechado ou disciplinado.
+              </p>
+              {q8MostMixedBlocks.length ? (
+                <div className="mt-5 space-y-3">
+                  {q8MostMixedBlocks.map((block) => (
+                    <div key={block.id} className="border border-border p-4" style={{ background: isDark ? "#0d0d0d" : "#ffffff", borderLeft: `3px solid ${block.color}` }}>
+                      <div className="flex items-center justify-between gap-4">
+                        <strong className="text-sm font-black" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>{block.name}</strong>
+                        <span className="text-xs font-black" style={{ fontFamily: MONO, color: block.color }}>{fmtNum(block.partyCount)} partidos</span>
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                        {block.parties}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="border border-border p-6" style={q8PanelStyle}>
+            <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="mb-2 text-[13px] font-black uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: RED }}>DEPUTADOS-PONTE</p>
+                <h3 className="text-2xl font-black leading-tight" style={{ fontFamily: SERIF, color: isDark ? "#f0ece4" : "#315f37" }}>
+                  15 maiores graus ponderados
+                </h3>
+              </div>
+              <p className="max-w-md text-xs font-medium leading-relaxed" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                Grau ponderado alto indica muitas conexoes fortes no padrao de voto. Nao e cargo formal: e centralidade comportamental no grafo.
+              </p>
+            </div>
+
+            {q8BridgeDeputies.length ? (
+              <div className="overflow-x-auto border border-border">
+                <table className="min-w-full text-left text-xs" style={{ fontFamily: MONO }}>
+                  <thead style={{ background: isDark ? "#0a0a0a" : "#eef6ff" }}>
+                    <tr>
+                      {["#", "Deputado", "Comunidade", "Grau", "Conexoes"].map((col) => (
+                        <th key={col} className="whitespace-nowrap px-4 py-3 font-black uppercase tracking-[0.12em]" style={{ color: "var(--foreground)" }}>{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {q8BridgeDeputies.map((dep, index) => (
+                      <tr key={dep.id} className="border-t border-border">
+                        <td className="px-4 py-3 font-black" style={{ color: RED }}>{String(index + 1).padStart(2, "0")}</td>
+                        <td className="px-4 py-3">
+                          <strong className="block text-sm" style={{ color: "var(--foreground)", fontFamily: SERIF }}>{dep.nome}</strong>
+                          <span className="text-[11px] font-bold uppercase" style={{ color: "var(--foreground)", opacity: 0.68 }}>
+                            {dep.partido}{dep.uf ? `-${dep.uf}` : ""}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 font-bold" style={{ color: "var(--foreground)", opacity: 0.82 }}>{dep.community}</td>
+                        <td className="whitespace-nowrap px-4 py-3 font-black" style={{ color: RED }}>{formatDecimal(dep.grau, 1)}</td>
+                        <td className="whitespace-nowrap px-4 py-3 font-bold" style={{ color: "var(--foreground)", opacity: 0.88 }}>{fmtNum(dep.conexoes)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyPanel text="Sem dados de centralidade para listar deputados-ponte." />
+            )}
           </div>
         </div>
       </section>
@@ -1111,12 +1220,10 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
 
       {activeSection === "metodologia" && (
       <section
-        className="border-t border-border px-6 py-10 md:px-14"
+        className="border-b border-border px-6 py-14 md:px-14"
         style={{
           ...q8LightVars,
-          background: isDark
-            ? "#080808"
-            : "radial-gradient(circle at 90% 0%, rgba(0,127,255,0.09), transparent 36%), #ffffff",
+          background: "var(--card)",
         }}
       >
         <p className="sr-only">METODOLOGIA</p>
@@ -1133,38 +1240,40 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           <button
             type="button"
             onClick={() => setMethQ8Open((v) => !v)}
-            className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-            style={{ background: isDark ? "#111" : "#ffffff" }}
+            className="flex w-full items-center justify-between px-5 py-5 text-left transition-colors hover:bg-white/[0.03] md:px-6"
+            style={{ background: "var(--card)" }}
           >
             <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>8</span>
+              <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: RED }}>8</span>
               <div>
-                <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>INFLUENCIA LEGISLATIVA & COMUNIDADES DE COMPORTAMENTO</p>
-                <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Como medimos quem mais influenciou e como agrupamos deputados por padrao de voto</p>
+                <p className="text-base font-black leading-tight md:text-lg" style={{ fontFamily: MONO, color: "var(--foreground)" }}>INFLUENCIA LEGISLATIVA & COMUNIDADES DE COMPORTAMENTO</p>
+                <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] md:text-[13px]" style={{ fontFamily: MONO, color: RED }}>Como medimos quem mais influenciou e como agrupamos deputados por padrao de voto</p>
               </div>
             </div>
-            <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{methQ8Open ? "▲ RECOLHER" : "▼ EXPANDIR"}</span>
+            <span className="ml-4 shrink-0 text-sm font-black md:text-base" style={{ fontFamily: MONO, color: RED }}>{methQ8Open ? "▲ RECOLHER" : "▼ EXPANDIR"}</span>
           </button>
 
           {methQ8Open && (
-            <div className="border-t border-border px-5 py-7" style={{ background: isDark ? "#0d0d0d" : "#f7fbff" }}>
+            <div className="border-t border-border px-5 py-6 md:px-6" style={{ background: "var(--card)" }}>
               <div className="grid gap-10 lg:grid-cols-2">
 
                 <div>
-                  <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>PARTE 1 — INFLUENCIA LEGISLATIVA (RANKING)</p>
-                  <p className="mb-5 text-xs leading-relaxed text-muted-foreground">Objetivo: descobrir quais deputados mais contribuiram para o total de proposicoes aprovadas no periodo.</p>
+                  <p className="mb-4 text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>PARTE 1 — INFLUENCIA LEGISLATIVA (RANKING)</p>
+                  <p className="mb-5 text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>Objetivo: medir a participacao de cada deputado no conjunto de proposicoes aprovadas da legislatura. A ideia nao e dizer que um deputado aprovou tudo sozinho, mas estimar quanto da producao aprovada teve autoria ligada a ele.</p>
                   <ol className="space-y-4">
                     {[
-                      { n: "01", title: "Classificar cada proposicao", body: "Cada proposicao recebe o rotulo aprovada se a descricao da sua situacao contem palavras como aprovada, sancao, norma juridica ou promulgada. Todas as demais ficam como outra." },
-                      { n: "02", title: "Contar autoria por deputado", body: "Para cada deputado, conta-se quantas proposicoes ele assinou como autor e, dessas, quantas foram aprovadas." },
-                      { n: "03", title: "Calcular participacao global", body: "Divide-se o total de proposicoes aprovadas do deputado pelo total de proposicoes aprovadas de toda a legislatura e multiplica por 100. Isso gera o pct_aprovadas — a fatia do deputado no total." },
-                      { n: "04", title: "Ranquear e exibir", body: "Ordena-se do maior pct_aprovadas para o menor. Quem esta no topo entregou mais legislacao aprovada. Empates sao desfeitos pelo nome." },
+                      { n: "01", title: "Base analisada", body: "Partimos das proposicoes da legislatura e das relacoes de autoria. O foco e autoria parlamentar: cada deputado ligado a uma proposicao entra como participante daquela iniciativa, inclusive quando a autoria e compartilhada." },
+                      { n: "02", title: "Identificar proposicoes aprovadas", body: "A situacao de cada proposicao e lida para separar casos aprovados dos demais. Entram como aprovadas as proposicoes cuja situacao indica aprovacao, sancao, promulgacao ou transformacao em norma juridica. Proposicoes em tramitacao, arquivadas ou rejeitadas ficam fora do numerador." },
+                      { n: "03", title: "Contar producao por autor", body: "Para cada deputado, contamos duas coisas: quantas proposicoes ele assinou como autor e quantas dessas proposicoes chegaram a uma situacao de aprovacao. Isso separa volume bruto de autoria e resultado efetivo." },
+                      { n: "04", title: "Calcular a fatia de influencia", body: "O indicador principal divide as proposicoes aprovadas vinculadas ao deputado pelo total de proposicoes aprovadas no recorte. O resultado e uma porcentagem: qual fatia da producao aprovada teve aquele deputado como autor." },
+                      { n: "05", title: "Interpretar o ranking", body: "Um deputado no topo nao necessariamente foi o unico responsavel por todas as aprovacoes; ele aparece porque esteve associado a muitas proposicoes que avancaram. O ranking mede presenca em proposicoes aprovadas, nao causalidade politica individual." },
+                      { n: "06", title: "Ordenacao e empates", body: "Os deputados sao ordenados pela maior participacao percentual. Quando ha valores iguais, o volume de proposicoes e o nome ajudam a manter uma exibicao estavel e comparavel na tabela." },
                     ].map((step) => (
                       <li key={step.n} className="flex gap-4">
-                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: isDark ? RED : "#007fff" }}>{step.n}</span>
+                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
                         <div>
-                          <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>{step.title}</p>
-                          <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
+                          <p className="mb-1 text-sm font-bold leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{step.title}</p>
+                          <p className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>{step.body}</p>
                         </div>
                       </li>
                     ))}
@@ -1172,22 +1281,24 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
                 </div>
 
                 <div>
-                  <p className="mb-4 text-xs tracking-[0.28em] text-primary" style={{ fontFamily: MONO }}>PARTE 2 — COMUNIDADES DE COMPORTAMENTO (GRAFO LEIDEN)</p>
-                  <p className="mb-5 text-xs leading-relaxed text-muted-foreground">Objetivo: agrupar deputados que votam de forma parecida, sem levar partido ou UF em conta.</p>
+                  <p className="mb-4 text-xs font-bold uppercase tracking-widest" style={{ fontFamily: MONO, color: RED }}>PARTE 2 — COMUNIDADES DE COMPORTAMENTO (GRAFO LEIDEN)</p>
+                  <p className="mb-5 text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>Objetivo: descobrir blocos de comportamento a partir do voto real. O agrupamento nao usa partido, UF ou ideologia como entrada; ele olha primeiro para quem vota parecido e so depois permite interpretar a composicao politica dos grupos.</p>
                   <ol className="space-y-4">
                     {[
-                      { n: "01", title: "Filtrar votacoes relevantes", body: "Votacoes unanimes nao revelam diferenca de comportamento. So entram votacoes com pelo menos 50 votos Sim/Nao e proporcao de Sim entre 10% e 90% — votacoes que realmente dividiram o plenario." },
-                      { n: "02", title: "Codificar os votos", body: "Sim vira +1, Nao vira -1, Abstencao vira 0. Obstrucao e Artigo 17 sao ignorados — nao representam posicao real sobre o merito da proposicao." },
-                      { n: "03", title: "Filtrar deputados ativos", body: "So entram no grafo deputados com ao menos 100 votos validos. Deputados com poucos registros nao tem base suficiente para calcular similaridade confiavel." },
-                      { n: "04", title: "Calcular similaridade entre cada par", body: "Para cada par (A, B), conta-se quantas votacoes compartilharam e quantas vezes votaram igual. Similaridade = votos iguais / votacoes em comum. Pares com menos de 100 votacoes em comum ou cobertura abaixo de 50% sao descartados." },
-                      { n: "05", title: "Montar o grafo", body: "Cada deputado vira um no. Uma aresta e criada se a similaridade for >= 0,75. O peso da aresta e a propria similaridade — linhas mais grossas indicam pares que quase sempre votam igual." },
-                      { n: "06", title: "Detectar comunidades com Leiden", body: "O algoritmo Leiden agrupa nos com muitas conexoes fortes entre si e poucas com outros grupos. O resultado sao comunidades de comportamento que podem ultrapassar fronteiras partidarias." },
+                      { n: "01", title: "Selecionar votacoes que diferenciam comportamento", body: "Votacoes unanimes ou quase unanimes dizem pouco sobre alinhamentos internos. Por isso entram apenas votacoes com quantidade minima de votos Sim/Nao e com divisao real no plenario, evitando casos em que todo mundo votou igual." },
+                      { n: "02", title: "Padronizar o voto", body: "Cada voto e convertido para uma escala simples: Sim representa apoio, Nao representa rejeicao e Abstencao representa ausencia de posicao clara no merito. Registros como obstrucao ou Artigo 17 sao tratados com cuidado porque podem refletir estrategia regimental, nao concordancia com a materia." },
+                      { n: "03", title: "Garantir base minima por deputado", body: "Deputados com poucos votos validos podem parecer parecidos por acaso. Por isso o grafo considera apenas parlamentares com quantidade suficiente de votacoes comparaveis, deixando a similaridade mais confiavel." },
+                      { n: "04", title: "Comparar deputado contra deputado", body: "Para cada par de deputados, a metodologia verifica em quantas votacoes os dois participaram e em quantas votaram da mesma forma. A similaridade e a proporcao de coincidencias entre votacoes compartilhadas." },
+                      { n: "05", title: "Descartar comparacoes fracas", body: "Pares com poucas votacoes em comum ou baixa cobertura sao removidos. Isso evita criar conexoes fortes entre deputados que quase nunca estiveram presentes nas mesmas votacoes." },
+                      { n: "06", title: "Transformar similaridade em grafo", body: "Cada deputado vira um no. Quando dois deputados possuem similaridade alta o suficiente, uma aresta liga os dois. O peso da aresta representa a forca dessa semelhanca: quanto maior, mais consistente foi o voto parecido." },
+                      { n: "07", title: "Detectar comunidades com Leiden", body: "O algoritmo Leiden procura grupos com muitas conexoes fortes internamente e poucas conexoes fortes com outros grupos. O resultado sao comunidades de comportamento parlamentar, que podem confirmar fronteiras partidarias ou revelar coalizoes transversais." },
+                      { n: "08", title: "Ler o resultado com cautela", body: "A comunidade mostra padrao de voto, nao identidade ideologica definitiva. Um deputado pode estar em determinado bloco por comportamento em votacoes selecionadas, por acordo de governo, oposicao, pauta regional ou estrategia partidaria." },
                     ].map((step) => (
                       <li key={step.n} className="flex gap-4">
-                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: isDark ? RED : "#007fff" }}>{step.n}</span>
+                        <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
                         <div>
-                          <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>{step.title}</p>
-                          <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
+                          <p className="mb-1 text-sm font-bold leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{step.title}</p>
+                          <p className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>{step.body}</p>
                         </div>
                       </li>
                     ))}
@@ -1204,36 +1315,39 @@ export default function InfluenciaPage({ onNavigateHome, onNavigateRecortes, onN
           <button
             type="button"
             onClick={() => setMethQ10Open((v) => !v)}
-            className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[#161616]"
-            style={{ background: isDark ? "#111" : "#ffffff" }}
+            className="flex w-full items-center justify-between px-5 py-5 text-left transition-colors hover:bg-white/[0.03] md:px-6"
+            style={{ background: "var(--card)" }}
           >
             <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: "rgba(196,18,48,0.28)" }}>10</span>
+              <span className="text-3xl font-black" style={{ fontFamily: SERIF, color: RED }}>10</span>
               <div>
-                <p className="text-sm font-bold tracking-wide" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>DISCIPLINA PARTIDARIA — ALINHAMENTO INTERNO</p>
-                <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Como medimos o quanto cada partido consegue alinhar seus deputados</p>
+                <p className="text-base font-black leading-tight md:text-lg" style={{ fontFamily: MONO, color: "var(--foreground)" }}>DISCIPLINA PARTIDARIA — ALINHAMENTO INTERNO</p>
+                <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] md:text-[13px]" style={{ fontFamily: MONO, color: RED }}>Como medimos o quanto cada partido consegue alinhar seus deputados</p>
               </div>
             </div>
-            <span className="ml-6 shrink-0 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{methQ10Open ? "▲ RECOLHER" : "▼ EXPANDIR"}</span>
+            <span className="ml-4 shrink-0 text-sm font-black md:text-base" style={{ fontFamily: MONO, color: RED }}>{methQ10Open ? "▲ RECOLHER" : "▼ EXPANDIR"}</span>
           </button>
 
           {methQ10Open && (
-            <div className="border-t border-border px-5 py-7" style={{ background: isDark ? "#0d0d0d" : "#f7fbff" }}>
-              <p className="mb-6 max-w-2xl text-xs leading-relaxed text-muted-foreground">Objetivo: descobrir qual partido e mais disciplinado — qual consegue que seus deputados votem conforme a orientacao oficial na maior parte das vezes.</p>
+            <div className="border-t border-border px-5 py-6 md:px-6" style={{ background: "var(--card)" }}>
+              <p className="mb-6 max-w-3xl text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>Objetivo: medir o quanto cada partido consegue transformar sua orientacao oficial em voto efetivo da bancada. A pergunta central e simples: quando o partido orienta Sim ou Nao, seus deputados acompanham essa diretriz?</p>
               <ol className="grid gap-5 lg:grid-cols-2">
                 {[
-                  { n: "01", title: "Identificar votacoes com diretriz", body: "Filtra-se apenas as votacoes em que o partido emitiu orientacao explicita — Sim ou Nao. Orientacoes do tipo Liberado, Abstencao e Obstrucao sao excluidas: sem diretriz clara, nao ha alinhamento a medir." },
-                  { n: "02", title: "Verificar alinhamento voto a voto", body: "Para cada voto de um deputado em uma votacao com diretriz, compara-se o voto do deputado com a orientacao do partido. Se iguais: voto alinhado. Se diferentes: voto contrario." },
-                  { n: "03", title: "Agregar por partido", body: "Soma-se, por partido, todos os votos alinhados e o total de votos em situacao de diretriz. Um mesmo partido pode ter varios deputados em muitas votacoes — tudo e acumulado no periodo." },
-                  { n: "04", title: "Calcular o indice de alinhamento", body: "% alinhamento = (votos alinhados / total de votos com diretriz) x 100. Um partido com 95% esta quase sempre unido; um com 60% tem um terco dos votos indo contra a propria orientacao." },
-                  { n: "05", title: "Ranquear e filtrar por ano", body: "Ordena-se do maior para o menor percentual. O filtro de ano permite ver se um partido ficou mais ou menos disciplinado ao longo da legislatura — util para identificar rachas internos ou momentos de coesao." },
-                  { n: "06", title: "Cruzar com ideologia", body: "Cada partido e cruzado com a tabela partidos_ideologia para categorizar o espectro politico. Isso permite observar se partidos de esquerda, centro ou direita tendem a ser mais disciplinados." },
+                  { n: "01", title: "Selecionar votacoes com orientacao clara", body: "A metodologia considera apenas votacoes em que houve uma orientacao partidaria objetiva, normalmente Sim ou Nao. Casos em que o partido liberou a bancada ou adotou posicoes sem diretriz clara nao entram no calculo, porque nao existe uma linha oficial para comparar." },
+                  { n: "02", title: "Relacionar deputado, partido e voto", body: "Para cada voto nominal, identificamos o deputado, seu partido na votacao, o voto registrado e a orientacao emitida por aquele partido. Essa amarracao e importante porque disciplina partidaria depende da relacao entre bancada e direcao partidaria no momento da votacao." },
+                  { n: "03", title: "Comparar voto com orientacao", body: "Cada voto e classificado como alinhado quando o deputado vota igual a orientacao do partido. Quando o partido orienta Sim e o deputado vota Nao, ou o contrario, o voto conta como desalinhado." },
+                  { n: "04", title: "Tratar votos que nao medem obediencia direta", body: "Registros como abstencao, obstrucao ou ausencia podem ter significados diferentes dependendo do contexto. A metodologia privilegia comparacoes em que voto e orientacao sao diretamente comparaveis, reduzindo ruido na leitura de disciplina." },
+                  { n: "05", title: "Agregar por partido", body: "Depois da classificacao voto a voto, somamos por partido: total de votos com diretriz e total de votos alinhados. Um partido grande pode acumular muitos registros porque possui muitos deputados votando em muitas sessoes." },
+                  { n: "06", title: "Calcular o percentual de alinhamento", body: "O indice e calculado como votos alinhados divididos pelo total de votos com diretriz, multiplicado por 100. Um valor proximo de 100% indica bancada muito obediente; um valor mais baixo sugere dissidencia, racha interno ou orientacao menos efetiva." },
+                  { n: "07", title: "Comparar anos e legislatura completa", body: "O painel permite olhar o periodo inteiro ou filtrar por ano. Isso ajuda a perceber se a disciplina foi constante ou se mudou em momentos politicos especificos, como troca de governo, reformas importantes ou conflitos internos." },
+                  { n: "08", title: "Cruzar com ideologia sem confundir conceitos", body: "A ideologia do partido aparece como camada interpretativa, nao como criterio do calculo. O indicador mede obediencia a orientacao partidaria; depois cruzamos com esquerda, centro ou direita para observar padroes entre campos politicos." },
+                  { n: "09", title: "Como interpretar o ranking", body: "Partidos no topo nao sao necessariamente mais ideologicos ou melhores; eles apenas tiveram maior proporcao de deputados seguindo a orientacao. Partidos abaixo podem ser mais heterogeneos, ter bancadas regionais fortes ou liberar conflitos internos com mais frequencia." },
                 ].map((step) => (
                   <li key={step.n} className="flex gap-4">
-                    <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: isDark ? RED : "#007fff" }}>{step.n}</span>
+                    <span className="mt-0.5 shrink-0 text-xs font-black" style={{ fontFamily: MONO, color: RED }}>{step.n}</span>
                     <div>
-                      <p className="mb-1 text-xs font-bold" style={{ fontFamily: MONO, color: isDark ? "#f0ece4" : "#315f37" }}>{step.title}</p>
-                      <p className="text-xs leading-relaxed text-muted-foreground">{step.body}</p>
+                      <p className="mb-1 text-sm font-bold leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>{step.title}</p>
+                      <p className="text-sm font-medium leading-relaxed md:text-[15px]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.88 }}>{step.body}</p>
                     </div>
                   </li>
                 ))}
