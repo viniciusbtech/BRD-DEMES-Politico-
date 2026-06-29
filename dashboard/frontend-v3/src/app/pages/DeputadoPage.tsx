@@ -370,7 +370,22 @@ function SpendingSection({
   onYearChange: (value: string) => void;
 }) {
   const q1 = payloads.q1?.table_spec.rows[0];
-  const rows = aggregateSpendingByCategory(payloads.q13?.table_spec.rows ?? []).slice(0, 10);
+  const [selectedExpense, setSelectedExpense] = useState("");
+  const spendingRowsForDistribution = selectedYear
+    ? annualPayloads[selectedYear]?.table_spec.rows ?? []
+    : payloads.q13?.table_spec.rows ?? [];
+  const expenseOptions = useMemo(() => {
+    const options = new Set<string>();
+    spendingRowsForDistribution.forEach((row) => {
+      const value = strVal(row, "descricao_despesa").trim();
+      if (value) options.add(value);
+    });
+    return Array.from(options).sort();
+  }, [spendingRowsForDistribution]);
+  const filteredSpendingRows = selectedExpense
+    ? spendingRowsForDistribution.filter((row) => strVal(row, "descricao_despesa") === selectedExpense)
+    : spendingRowsForDistribution;
+  const rows = aggregateSpendingByCategory(filteredSpendingRows).slice(0, 10);
   const colors = ["#d20f3a", "#e39115", "#4a7c59", "#2f66ad", "#8745aa", "#777777", "#b8b2a8", "#7c1022"];
   const annualRows = years.map((year) => {
     const yearRows = annualPayloads[year.value]?.table_spec.rows ?? [];
@@ -383,6 +398,10 @@ function SpendingSection({
   const total = selectedAnnualTotal ?? raw(q1, "gasto_total");
   const maxAnnual = Math.max(...annualRows.map((row) => row.gasto), 1);
   const distributionTotal = rows.reduce((sum, row) => sum + row.gasto, 0);
+
+  useEffect(() => {
+    setSelectedExpense("");
+  }, [selectedYear]);
 
   return (
     <section className="px-6 pb-16 sm:px-10">
@@ -446,13 +465,32 @@ function SpendingSection({
         </article>
 
         <article className="border-b py-12" style={{ borderColor: "var(--border)" }}>
-          <div className="mb-8">
-            <p className="mb-3 text-[13px] font-bold uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.36em" }}>
-              Distribuicao de despesas
-            </p>
-            <h2 className="text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "var(--foreground)", fontFamily: "'Playfair Display', serif" }}>
-              Como ele gasta o dinheiro?
-            </h2>
+          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="mb-3 text-[13px] font-bold uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.36em" }}>
+                Distribuicao de despesas
+              </p>
+              <h2 className="text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "var(--foreground)", fontFamily: "'Playfair Display', serif" }}>
+                Como ele gasta o dinheiro?
+              </h2>
+              <p className="mt-3 text-[13px] font-bold uppercase" style={{ color: "var(--muted-foreground)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.14em" }}>
+                {selectedYear ? `Distribuicao em ${selectedYear}` : "Distribuicao acumulada"}
+              </p>
+            </div>
+            <div className="flex min-w-[280px] flex-col gap-1">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Filtrar despesa</label>
+              <select
+                value={selectedExpense}
+                onChange={(event) => setSelectedExpense(event.target.value)}
+                className="h-10 border bg-card px-3 text-[13px] font-bold outline-none"
+                style={{ borderColor: selectedExpense ? "#e00836" : "var(--border)", color: "var(--foreground)", fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                <option value="">Todas as despesas</option>
+                {expenseOptions.map((expense) => (
+                  <option key={expense} value={expense}>{expense}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="grid items-center gap-10 lg:grid-cols-[minmax(260px,420px)_1fr]">
@@ -564,6 +602,7 @@ function LegacySpendingSection({ payloads }: { payloads: ProfilePayloads }) {
 
 function AxesSection({ payloads }: { payloads: ProfilePayloads }) {
   const [viewMode, setViewMode] = useState<"ranking" | "cloud">("ranking");
+  const [selectedAxis, setSelectedAxis] = useState("");
   const rows = useMemo(() => {
     const totals = new Map<string, { tema: string; proposicoes: number; aprovadas: number }>();
     (payloads.q2?.table_spec.rows ?? []).forEach((row) => {
@@ -573,7 +612,16 @@ function AxesSection({ payloads }: { payloads: ProfilePayloads }) {
       current.aprovadas += raw(row, "proposicoes_aprovadas");
       totals.set(tema, current);
     });
-    return Array.from(totals.values()).sort((a, b) => b.proposicoes - a.proposicoes).slice(0, 10);
+    const sorted = Array.from(totals.values()).sort((a, b) => b.proposicoes - a.proposicoes);
+    return selectedAxis ? sorted.filter((row) => row.tema === selectedAxis) : sorted.slice(0, 10);
+  }, [payloads.q2, selectedAxis]);
+  const axisOptions = useMemo(() => {
+    const values = new Set<string>();
+    (payloads.q2?.table_spec.rows ?? []).forEach((row) => {
+      const tema = String(row.tema || row.eixo_maior || row.eixo_mais_atuante || row.eixo_principal || "").trim();
+      if (tema) values.add(tema);
+    });
+    return Array.from(values).sort();
   }, [payloads.q2]);
   const total = rows.reduce((sum, row) => sum + row.proposicoes, 0);
 
@@ -589,29 +637,45 @@ function AxesSection({ payloads }: { payloads: ProfilePayloads }) {
               Principais eixos de atuacao
             </h2>
           </div>
-          <div className="flex w-full border lg:w-auto" style={{ borderColor: "var(--border)" }}>
-            {[
-              ["ranking", "Ranking"],
-              ["cloud", "Nuvem"],
-            ].map(([mode, label]) => {
-              const active = viewMode === mode;
-              return (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setViewMode(mode as "ranking" | "cloud")}
-                  className="h-11 flex-1 px-4 text-[13px] font-bold uppercase transition-colors lg:min-w-[120px]"
-                  style={{
-                    background: active ? "#e00836" : "transparent",
-                    color: active ? "#fff" : "var(--foreground)",
-                    fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: "0.12em",
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className="flex w-full flex-col gap-3 lg:w-auto lg:min-w-[380px]">
+            <div className="flex w-full border" style={{ borderColor: "var(--border)" }}>
+              {[
+                ["ranking", "Ranking"],
+                ["cloud", "Nuvem"],
+              ].map(([mode, label]) => {
+                const active = viewMode === mode;
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setViewMode(mode as "ranking" | "cloud")}
+                    className="h-11 flex-1 px-4 text-[13px] font-bold uppercase transition-colors lg:min-w-[120px]"
+                    style={{
+                      background: active ? "#e00836" : "transparent",
+                      color: active ? "#fff" : "var(--foreground)",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      letterSpacing: "0.12em",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Filtrar eixo</label>
+              <select
+                value={selectedAxis}
+                onChange={(event) => setSelectedAxis(event.target.value)}
+                className="h-10 border bg-card px-3 text-[13px] font-bold outline-none"
+                style={{ borderColor: selectedAxis ? "#e00836" : "var(--border)", color: "var(--foreground)", fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                <option value="">Todos os eixos</option>
+                {axisOptions.map((axis) => (
+                  <option key={axis} value={axis}>{axis}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -695,7 +759,7 @@ function TopicWordCloud({
   );
 }
 
-function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
+function VotesSection({ payloads, loading, error }: { payloads: ProfilePayloads; loading: boolean; error: string | null }) {
   const [themeQuery, setThemeQuery] = useState("");
   const [selectedTheme, setSelectedTheme] = useState("");
   const [voteTableMode, setVoteTableMode] = useState<"percentual" | "contagem">("percentual");
@@ -824,7 +888,13 @@ function VotesSection({ payloads }: { payloads: ProfilePayloads }) {
           </div>
         </div>
 
-        {filteredRows.length ? (
+        {loading ? (
+          <EmptyPanel message="Carregando votacoes do deputado..." />
+        ) : error ? (
+          <EmptyPanel message={error} />
+        ) : !payloads.q3 ? (
+          <EmptyPanel message="Preparando dados de votacoes..." />
+        ) : filteredRows.length ? (
           <div className="overflow-x-auto border" style={{ borderColor: "var(--border)" }}>
             <table className="w-full min-w-[860px] border-collapse">
               <thead style={{ background: "var(--secondary)" }}>
@@ -905,9 +975,12 @@ function CostBenefitSection({ payloads, cbAllRows, selectedDeputyId }: { payload
         <p className="mb-4 text-[13px] font-bold uppercase" style={{ color: "#e00836", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.36em" }}>
           Eficiencia parlamentar
         </p>
-        <h2 className="mb-8 text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "var(--foreground)", fontFamily: "'Playfair Display', serif" }}>
+        <h2 className="mb-4 text-[34px] font-black leading-none sm:text-[44px]" style={{ color: "var(--foreground)", fontFamily: "'Playfair Display', serif" }}>
           Custo-beneficio do mandato
         </h2>
+        <p className="mb-8 max-w-[760px] text-[16px] leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.82 }}>
+          O Score CB mostra como o deputado se sai na comparacao entre gasto, presenca e producao legislativa. Quanto mais perto de 100, melhor foi o resultado dele em relacao aos outros deputados analisados.
+        </p>
 
         <div className="border" style={{ borderColor: "var(--border)" }}>
           <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4" style={{ background: "rgba(243,239,232,0.08)" }}>
@@ -1217,7 +1290,9 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
   const [annualPayloads, setAnnualPayloads] = useState<Record<string, QuestionPayload>>({});
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
+  const [loadingVotes, setLoadingVotes] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [votesError, setVotesError] = useState<string | null>(null);
   const [cbAllRows, setCbAllRows] = useState<Row[]>([]);
 
   const filters = meta?.question_filters?.q13 ?? meta?.available_filters ?? emptyFilters;
@@ -1252,12 +1327,17 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
     if (!selectedDeputy) {
       setPayloads({});
       setAnnualPayloads({});
+      setLoadingVotes(false);
+      setVotesError(null);
       return;
     }
 
     let mounted = true;
     setLoadingData(true);
     setError(null);
+    setVotesError(null);
+    setPayloads({});
+    setAnnualPayloads({});
 
     const filtersForBackend = {
       deputados: [selectedDeputy.value],
@@ -1269,7 +1349,6 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
       fetchQuestion("q1", filtersForBackend, { page: 1, pageSize: 20, sortBy: "gasto_total", sortDir: "desc" }),
       fetchQuestion("q13", filtersForBackend, { page: 1, pageSize: 100, sortBy: "gasto_total", sortDir: "desc" }),
       fetchQuestion("q2", filtersForBackend, { page: 1, pageSize: 100, sortBy: "qtd_proposicoes", sortDir: "desc" }),
-      fetchQuestion("q3", { deputados: [selectedDeputy.value], anos: [] }, { page: 1, pageSize: 100, sortDir: "desc" }),
       fetchQuestion("q7", filtersForBackend, { page: 1, pageSize: 20, sortBy: "custo_beneficio", sortDir: "desc" }),
       ...years.map((year) =>
         fetchQuestion(
@@ -1279,9 +1358,9 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
         ),
       ),
     ])
-      .then(([q1, q13, q2, q3, q7, ...annual]) => {
+      .then(([q1, q13, q2, q7, ...annual]) => {
         if (!mounted) return;
-        setPayloads({ q1, q13, q2, q3, q7 });
+        setPayloads({ q1, q13, q2, q7 });
         setAnnualPayloads(Object.fromEntries(years.map((year, index) => [year.value, annual[index]])));
       })
       .catch((err) => {
@@ -1295,6 +1374,30 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
       mounted = false;
     };
   }, [selectedDeputy, filters.anos]);
+
+  useEffect(() => {
+    if (!selectedDeputy || activeSection !== "votacoes" || payloads.q3) return;
+
+    let mounted = true;
+    setLoadingVotes(true);
+    setVotesError(null);
+
+    fetchQuestion("q3", { deputados: [selectedDeputy.value], anos: [] }, { page: 1, pageSize: 100, sortDir: "desc" })
+      .then((q3) => {
+        if (!mounted) return;
+        setPayloads((current) => ({ ...current, q3 }));
+      })
+      .catch((err) => {
+        if (mounted) setVotesError(err instanceof Error ? err.message : "Erro ao carregar votacoes do deputado.");
+      })
+      .finally(() => {
+        if (mounted) setLoadingVotes(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [activeSection, payloads.q3, selectedDeputy]);
 
   const handleSelectDeputy = (deputy: DeputySelection) => {
     setSelectedDeputy(deputy);
@@ -1378,7 +1481,7 @@ export default function DeputadoPage({ onNavigateHome, onNavigateRecortes, onNav
             />
           )}
           {activeSection === "eixos" && <AxesSection payloads={payloads} />}
-          {activeSection === "votacoes" && <VotesSection payloads={payloads} />}
+          {activeSection === "votacoes" && <VotesSection payloads={payloads} loading={loadingVotes} error={votesError} />}
           {activeSection === "custo-beneficio" && <CostBenefitSection payloads={payloads} cbAllRows={cbAllRows} selectedDeputyId={selectedDeputy?.value ?? ""} />}
           {activeSection === "metodologia" && <MethodologySection />}
         </>

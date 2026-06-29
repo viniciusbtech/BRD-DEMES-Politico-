@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from "recharts";
 import { fetchMeta, fetchQuestion } from "../api";
 import NavBar from "../components/NavBar";
 import PageHero from "../components/PageHero";
@@ -59,6 +60,12 @@ const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Playfair Display', serif";
 const sectionTitleStyle = { fontFamily: SERIF, color: "var(--foreground)" };
 const PARTY_COLORS = ["#1a3a7c", "#d4841a", "#c41230", "#2e5fa3", "#4a7c59", "#7b3fa0", "#c8970a", "#888880"];
+const IDEOLOGY_COLOR: Record<string, string> = {
+  esquerda: "#c41230",
+  centro: "#d4841a",
+  direita: "#1a3a7c",
+  "nao classificado": "#888880",
+};
 
 const PARTY_NAMES: Record<string, string> = {
   PL: "Partido Liberal",
@@ -106,6 +113,7 @@ const METODOS: MetodoItem[] = [
       "MEDIA DE VOTOS POR VOTACAO: Para comparar partidos com bancadas de tamanhos diferentes, calculamos a media de votos registrados por votacao (total_votos / votacoes_participadas). Um partido com 100 deputados que comparece em media com 90 tem disciplina diferente de um com 20 deputados que aparece com 18 — mas o total absoluto de votos esconderia essa proporcao.",
       "CLASSIFICACAO IDEOLOGICA: Cada partido e cruzado com uma tabela de ideologia (partidos_ideologia), que classifica as legendas em espectros como esquerda, centro-esquerda, centro, centro-direita, direita. Partidos sem classificacao aparecem como 'nao classificado'. Essa dimensao permite agrupar e comparar o comportamento de votacao por espectro ideologico.",
       "VISAO ANUAL E CONSOLIDADA: Os dados sao produzidos em dois recortes. O consolidado soma todos os anos da 57a legislatura (2023-2026). O recorte por ano (usando RANK OVER PARTITION BY ano_dados) permite ver se o nivel de participacao de um partido variou ao longo do mandato — util para identificar mudancas de estrategia ou impacto de crises internas.",
+      "PARTIDOS EXCLUIDOS DO GRAFICO DE FREQUENCIA: Algumas siglas aparecem na base de dados com zero votacoes participadas e zero votos registrados. Sao legendas que foram extintas ou fundidas em outros partidos antes ou durante a 57a legislatura — DEM e PSL (fundidos no UNIAO em 2022), PTB (registro cancelado pelo TSE em 2022), PODEMOS (nome por extenso do PODE, duplicata de sigla) e REP / REPUB / REPUBLICA (variantes de grafia do REPUBLICANOS originadas em mudancas de registro). Como essas siglas nao acumularam nenhuma participacao em plenario, inclui-las no grafico geraria barras zeradas sem valor informativo. Elas existem na base porque alguns deputados que migraram de partido ainda tinham proposicoes assinadas sob a legenda antiga.",
     ],
     interpretacao: "O numero absoluto de votos favorece partidos grandes. Sempre priorize a media de votos por votacao para avaliar engajamento proporcional. Um partido com alta media pode ter bancada pequena mas muito disciplinada. Ausencias sistematicas em votacoes relevantes revelam estrategia politica — nao comparecer evita posicionamento publico em pautas polemicas. Compare a frequencia com o alinhamento ideologico declarado: partidos de oposicao tendem a ter frequencia diferente em votacoes do governo.",
   },
@@ -330,6 +338,10 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
   const [selectedYear, setSelectedYear] = useState("");
   const [partyQuery, setPartyQuery] = useState("");
   const [showPartyDrop, setShowPartyDrop] = useState(false);
+  const [inlinePartyQuery, setInlinePartyQuery] = useState("");
+  const [showInlinePartyDrop, setShowInlinePartyDrop] = useState(false);
+  const [propPartyQuery, setPropPartyQuery] = useState("");
+  const [showPropPartyDrop, setShowPropPartyDrop] = useState(false);
   const [selectedPartyLogo, setSelectedPartyLogo] = useState<string | null>(null);
   const [partyThemes, setPartyThemes] = useState<Array<{ tema: string; frequencia: number }>>([]);
   const [selectedTema, setSelectedTema] = useState<string | null>(null);
@@ -485,21 +497,102 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
     if (!selectedPartyId && parties[0]) {
       setSelectedPartyId(parties[0].id);
       setPartyQuery(parties[0].full);
-    } else if (selectedPartyId && selected && !partyQuery) {
-      setPartyQuery(selected.full);
     }
-  }, [parties, partyQuery, selected, selectedPartyId]);
+  }, [parties, selectedPartyId]);
+
+  const validParties = useMemo(
+    () => parties.filter((p) => p.votes > 0 && p.averageVotesPerSession > 0 && p.totalVotes > 0),
+    [parties],
+  );
 
   const filteredParties = useMemo(() => {
     const query = partyQuery.trim().toLowerCase();
-    if (!query || selected?.full === partyQuery) return parties;
-    return parties.filter((party) => `${party.full} ${party.name}`.toLowerCase().includes(query));
-  }, [parties, partyQuery, selected?.full]);
+    if (!query || selected?.full === partyQuery) return validParties;
+    return validParties.filter((party) => `${party.full} ${party.name}`.toLowerCase().includes(query));
+  }, [validParties, partyQuery, selected?.full]);
+
+  const inlineFilteredParties = useMemo(() => {
+    const query = inlinePartyQuery.trim().toLowerCase();
+    if (!query || selected?.full === inlinePartyQuery) return validParties;
+    return validParties.filter((party) => `${party.full} ${party.name}`.toLowerCase().includes(query));
+  }, [validParties, inlinePartyQuery, selected?.full]);
+
+  const propFilteredParties = useMemo(() => {
+    const query = propPartyQuery.trim().toLowerCase();
+    if (!query || selected?.full === propPartyQuery) return validParties;
+    return validParties.filter((party) => `${party.full} ${party.name}`.toLowerCase().includes(query));
+  }, [validParties, propPartyQuery, selected?.full]);
+
+  useEffect(() => {
+    if (selected) {
+      setInlinePartyQuery(selected.full);
+      setPartyQuery(selected.full);
+      setPropPartyQuery(selected.full);
+    }
+  }, [selected?.id]);
 
   const sortedParties = useMemo(
-    () => [...parties].sort((a, b) => b.averageVotesPerSession - a.averageVotesPerSession || a.name.localeCompare(b.name)),
+    () => [...parties]
+      .filter((party) => party.votes > 0)
+      .sort((a, b) => b.averageVotesPerSession - a.averageVotesPerSession || a.name.localeCompare(b.name)),
     [parties],
   );
+
+  const scatterData = useMemo(() => {
+    const raw = sortedParties
+      .filter((p) => p.seats > 0 && p.averageVotesPerSession > 0)
+      .map((p) => ({
+        x: p.seats,
+        y: p.averageVotesPerSession,
+        sigla: p.name,
+        full: p.full,
+        ideology: p.ideology,
+        isSelected: p.id === selected?.id,
+      }));
+
+    if (raw.length < 2) return raw.map((d) => ({ ...d, labelDx: 8, labelDy: 4, labelAnchor: "start" as const }));
+
+    const xs = raw.map((d) => d.x);
+    const ys = raw.map((d) => d.y);
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const yMin = Math.min(...ys), yMax = Math.max(...ys);
+    const xRange = xMax - xMin || 1;
+    const yRange = yMax - yMin || 1;
+    const THRESH = 0.12;
+
+    return raw.map((pt, i) => {
+      const nx = (pt.x - xMin) / xRange;
+      const ny = (pt.y - yMin) / yRange;
+
+      // Near right edge → label to the left
+      if (nx > 0.82) {
+        return { ...pt, labelDx: -8, labelDy: 4, labelAnchor: "end" as const };
+      }
+
+      const neighbors = raw.filter((_, j) => {
+        if (j === i) return false;
+        const ox = (raw[j].x - xMin) / xRange;
+        const oy = (raw[j].y - yMin) / yRange;
+        return Math.sqrt((nx - ox) ** 2 + (ny - oy) ** 2) < THRESH;
+      });
+
+      if (neighbors.length === 0) {
+        return { ...pt, labelDx: 8, labelDy: 4, labelAnchor: "start" as const };
+      }
+
+      const rightCount = neighbors.filter((n) => (n.x - xMin) / xRange > nx).length;
+      const aboveCount = neighbors.filter((n) => (n.y - yMin) / yRange > ny).length;
+
+      if (rightCount > neighbors.length / 2) {
+        return { ...pt, labelDx: -8, labelDy: 4, labelAnchor: "end" as const };
+      }
+      if (aboveCount > neighbors.length / 2) {
+        return { ...pt, labelDx: 4, labelDy: 16, labelAnchor: "start" as const };
+      }
+      return { ...pt, labelDx: 4, labelDy: -8, labelAnchor: "start" as const };
+    });
+  }, [sortedParties, selected?.id]);
+
   const spendingRankParties = useMemo(
     () => [...parties].filter((party) => party.spending > 0).sort((a, b) => b.spending - a.spending || a.name.localeCompare(b.name)).slice(0, 12),
     [parties],
@@ -507,6 +600,10 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
   const proposalRankParties = useMemo(
     () => [...parties].filter((party) => party.proposals > 0).sort((a, b) => b.proposals - a.proposals || a.name.localeCompare(b.name)).slice(0, 12),
     [parties],
+  );
+  const allProposalParties = useMemo(
+    () => [...validParties].filter((party) => party.proposals > 0).sort((a, b) => b.proposals - a.proposals || a.name.localeCompare(b.name)),
+    [validParties],
   );
   const annualSnapshots: AnnualPartySnapshot[] = useMemo(
     () =>
@@ -568,7 +665,7 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
         n="3"
         tag="AGREMIACOES"
         title="Partidos"
-        desc="Selecione um partido para ver presenca, gastos, proposicoes, nuvem de palavras e ranking de influencia."
+        desc="Selecione um partido para ver presenca, gastos, proposicoes e nuvem de palavras."
         imgId="/fundorecortes/recorte3/fundo-recorte3.jpg"
       />
 
@@ -787,68 +884,198 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
               </p>
             </div>
 
+            {/* ── Seletor inline de partido ── */}
             <div className="mt-10">
-              <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={contrastMutedStyle}>
-                COMPARATIVO DE MEDIA DE VOTOS POR VOTACAO
+              <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>
+                SELECIONE UM PARTIDO
               </p>
-              <div className="flex flex-col gap-2">
-                {(() => {
-                  const maxVal = Math.max(...sortedParties.map((p) => p.averageVotesPerSession), 1);
-                  return sortedParties.map((party, index) => {
-                    const pct = (party.averageVotesPerSession / maxVal) * 100;
-                    const isSelected = party.id === selected.id;
-                    const rankColor =
-                      index === 0
-                        ? "#c41230"
-                        : index === 1
-                          ? "#9a5a00"
-                          : index === 2
-                            ? "#7c2d12"
-                            : index < 6
-                              ? "#9f1239"
-                              : "#003366";
-                    const barColor = isSelected ? selected.color : isDark ? "rgba(240,236,228,0.22)" : rankColor;
-                    return (
-                      <div key={party.id} className="flex items-center gap-3">
-                        <span
-                          className="w-28 shrink-0 text-right text-xs"
-                          style={{
-                            fontFamily: MONO,
-                            fontWeight: isSelected ? 700 : 500,
-                            color: isSelected ? selected.color : "var(--muted-foreground)",
+              <div className="relative max-w-xl">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>?</span>
+                <input
+                  value={inlinePartyQuery}
+                  onChange={(e) => { setInlinePartyQuery(e.target.value); setShowInlinePartyDrop(true); }}
+                  onFocus={() => setShowInlinePartyDrop(true)}
+                  placeholder="Nome ou sigla do partido..."
+                  className="w-full border border-border bg-card py-3.5 pl-10 pr-12 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                />
+                {inlinePartyQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => { setInlinePartyQuery(""); setShowInlinePartyDrop(true); }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                  >x</button>
+                ) : null}
+                {showInlinePartyDrop ? (
+                  <div className="absolute left-0 right-0 top-full z-50 max-h-80 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
+                    {inlineFilteredParties.length ? (
+                      inlineFilteredParties.map((party) => (
+                        <button
+                          key={party.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedPartyId(party.id);
+                            setInlinePartyQuery(party.full);
+                            setShowInlinePartyDrop(false);
                           }}
+                          className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
                         >
-                          {party.name}
-                        </span>
-                        <div
-                          className="relative flex-1"
-                          style={{
-                            background: isDark ? "rgba(240,236,228,0.06)" : "rgba(15,23,42,0.08)",
-                            height: "12px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: `${pct}%`,
-                              height: "100%",
-                              background: barColor,
-                            }}
-                          />
-                        </div>
-                        <span
-                          className="w-10 shrink-0 text-xs"
-                          style={{
-                            fontFamily: MONO,
-                            color: isSelected ? selected.color : "var(--muted-foreground)",
-                          }}
-                        >
-                          {party.averageVotesPerSession.toFixed(1)}
-                        </span>
-                      </div>
-                    );
-                  });
-                })()}
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center text-sm font-black" style={{ background: party.color, fontFamily: SERIF, color: "var(--primary-foreground)" }}>
+                            {party.name === "REPUBLICANOS" ? "RP" : party.name === "SOLIDARIEDADE" ? "SD" : party.name}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{party.full}</span>
+                            <span className="block text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                              {party.seats || "-"} deputados · media {party.averageVotesPerSession.toFixed(1)} votos/votacao
+                            </span>
+                          </span>
+                          {selected?.id === party.id ? (
+                            <span className="shrink-0 text-xs text-primary" style={{ fontFamily: MONO }}>SELECIONADO</span>
+                          ) : null}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Nenhum partido encontrado.</div>
+                    )}
+                  </div>
+                ) : null}
               </div>
+            </div>
+
+            {/* ── Scatter: bancada × média de votos ── */}
+            <div className="mt-6 border border-border p-6" style={{ background: "var(--card)" }}>
+              <p className="mb-1 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                BANCADA × MÉDIA DE VOTOS POR VOTAÇÃO
+              </p>
+              <p className="mb-5 text-[11px]" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>
+                Cada ponto = um partido · cor = campo ideológico · eixo X = nº de deputados · eixo Y = média de votos/votação
+              </p>
+              <div style={{ height: 480 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={{ top: 16, right: 24, bottom: 48, left: 16 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "rgba(240,236,228,0.06)" : "rgba(0,0,0,0.06)"} />
+                    <XAxis
+                      type="number"
+                      dataKey="x"
+                      name="Deputados"
+                      tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 12, fontFamily: MONO }}
+                      axisLine={false}
+                      tickLine={false}
+                      label={{ value: "Nº de deputados na bancada", position: "insideBottom", offset: -32, fill: isDark ? "#aaa" : "#555", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
+                    />
+                    <YAxis
+                      type="number"
+                      dataKey="y"
+                      name="Média votos"
+                      tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 12, fontFamily: MONO }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={52}
+                      label={{ value: "Média votos / votação", angle: -90, position: "insideLeft", offset: 12, fill: isDark ? "#aaa" : "#555", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
+                    />
+                    <Tooltip
+                      cursor={{ strokeDasharray: "3 3", stroke: isDark ? "rgba(240,236,228,0.2)" : "rgba(0,0,0,0.1)" }}
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const d = payload[0]?.payload as { sigla: string; full: string; x: number; y: number; ideology: string } | undefined;
+                        if (!d) return null;
+                        return (
+                          <div style={{ background: isDark ? "#141414" : "#fff", border: `1px solid ${IDEOLOGY_COLOR[d.ideology] ?? "#888"}`, padding: "10px 14px", fontFamily: MONO, fontSize: 12, minWidth: 200 }}>
+                            <p style={{ fontWeight: "bold", color: IDEOLOGY_COLOR[d.ideology] ?? "#888", marginBottom: 6 }}>{d.full} ({d.sigla})</p>
+                            <p style={{ color: "var(--foreground)" }}>Campo: {d.ideology}</p>
+                            <p style={{ color: "var(--foreground)" }}>Deputados: <strong>{d.x}</strong></p>
+                            <p style={{ color: "var(--foreground)" }}>Média votos/votação: <strong>{d.y.toFixed(1)}</strong></p>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Scatter
+                      data={scatterData}
+                      shape={(props: { cx?: number; cy?: number; payload?: { sigla: string; ideology: string; isSelected: boolean; labelDx: number; labelDy: number; labelAnchor: string } }) => {
+                        const { cx = 0, cy = 0, payload } = props;
+                        if (!payload) return <g />;
+                        const color = IDEOLOGY_COLOR[payload.ideology] ?? "#888";
+                        const r = payload.isSelected ? 10 : 6;
+                        const textFill = isDark ? "#e8e4dc" : "#111";
+                        const shadow = isDark ? "#000" : "#fff";
+                        const lx = cx + payload.labelDx;
+                        const ly = cy + payload.labelDy;
+                        const fontSize = payload.isSelected ? 12 : 10;
+                        const fontWeight = payload.isSelected ? "700" : "500";
+                        return (
+                          <g>
+                            {payload.isSelected && <circle cx={cx} cy={cy} r={r + 5} fill="none" stroke={color} strokeWidth={2} opacity={0.45} />}
+                            <circle cx={cx} cy={cy} r={r} fill={color} opacity={payload.isSelected ? 1 : 0.78} />
+                            <text x={lx} y={ly} fontSize={fontSize} fontFamily={MONO} fontWeight={fontWeight} textAnchor={payload.labelAnchor as "start" | "end" | "middle"} fill={shadow} stroke={shadow} strokeWidth={3} strokeLinejoin="round" style={{ pointerEvents: "none" }}>{payload.sigla}</text>
+                            <text x={lx} y={ly} fontSize={fontSize} fontFamily={MONO} fontWeight={fontWeight} textAnchor={payload.labelAnchor as "start" | "end" | "middle"} fill={payload.isSelected ? color : textFill} style={{ pointerEvents: "none" }}>{payload.sigla}</text>
+                          </g>
+                        );
+                      }}
+                    />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-4">
+                {(["esquerda", "centro", "direita", "nao classificado"] as const).map((ideo) => (
+                  <div key={ideo} className="flex items-center gap-1.5">
+                    <span className="inline-block h-3 w-3 rounded-full" style={{ background: IDEOLOGY_COLOR[ideo] }} />
+                    <span className="text-[11px] font-semibold uppercase" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>{ideo}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Linha: evolução anual de votações participadas ── */}
+            <div className="mt-6 border border-border p-6" style={{ background: "var(--card)" }}>
+              <p className="mb-1 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                EVOLUÇÃO ANUAL DE VOTAÇÕES — {selected?.name ?? ""}
+              </p>
+              <p className="mb-5 text-[11px]" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>
+                Votações participadas por ano · partido selecionado · selecione outro partido no topo para comparar
+              </p>
+              {annualSnapshots.some((s) => s.votes > 0) ? (
+                <div style={{ height: 380 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={annualSnapshots.filter((s) => s.votes > 0)}
+                      margin={{ top: 16, right: 24, bottom: 48, left: 16 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "rgba(240,236,228,0.06)" : "rgba(0,0,0,0.06)"} />
+                      <XAxis
+                        dataKey="year"
+                        tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 13, fontFamily: MONO, fontWeight: 600 }}
+                        axisLine={false}
+                        tickLine={false}
+                        label={{ value: "Ano", position: "insideBottom", offset: -32, fill: isDark ? "#aaa" : "#555", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
+                      />
+                      <YAxis
+                        tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 12, fontFamily: MONO }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={52}
+                        tickFormatter={(v: number) => v.toLocaleString("pt-BR")}
+                        label={{ value: "Votações participadas", angle: -90, position: "insideLeft", offset: 12, fill: isDark ? "#aaa" : "#555", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
+                      />
+                      <Tooltip
+                        contentStyle={{ background: isDark ? "#141414" : "#fff", border: `1px solid ${selected?.color ?? "#888"}`, fontFamily: MONO, fontSize: 12 }}
+                        labelStyle={{ color: "var(--foreground)", fontWeight: "bold", marginBottom: 4 }}
+                        formatter={(v: number) => [v.toLocaleString("pt-BR"), "Votações participadas"]}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="votes"
+                        stroke={selected?.color ?? "#c41230"}
+                        strokeWidth={3}
+                        dot={{ r: 6, fill: selected?.color ?? "#c41230", strokeWidth: 0 }}
+                        activeDot={{ r: 9 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="flex h-[380px] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  SELECIONE UM PARTIDO PARA VER A EVOLUÇÃO ANUAL
+                </div>
+              )}
             </div>
           </section>
           )}
@@ -857,63 +1084,191 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
           <section className="border-b border-border px-6 py-14 md:px-14">
             <SectionHeader n="03B" tag="PROPOSICOES" title="Numero de proposicoes desse partido" />
 
-            <div className="grid gap-10 lg:grid-cols-[380px_minmax(0,1fr)]">
-              <div className="border border-border bg-background px-8 py-8">
-                <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>
-                  TOTAL DE PROPOSICOES
-                </p>
-                <p className="text-5xl font-black text-primary" style={{ fontFamily: SERIF }}>
-                  {formatNumber(selected.proposals)}
-                </p>
-                <p className="mt-3 text-[13px] font-semibold" style={contrastMutedStyle}>
-                  Ranking #{selected.proposalRank || "-"} {selectedYear ? `em ${selectedYear}` : "no periodo consolidado"}
-                </p>
-              </div>
+            {/* Stats card */}
+            <div className="mb-10 inline-block border border-border bg-background px-8 py-8">
+              <p className="mb-2 text-[13px] font-bold uppercase tracking-widest" style={contrastMutedStyle}>
+                TOTAL DE PROPOSICOES
+              </p>
+              <p className="text-5xl font-black text-primary" style={{ fontFamily: SERIF }}>
+                {formatNumber(selected.proposals)}
+              </p>
+              <p className="mt-3 text-[13px] font-semibold" style={contrastMutedStyle}>
+                Ranking #{selected.proposalRank || "-"} {selectedYear ? `em ${selectedYear}` : "no periodo consolidado"}
+              </p>
+            </div>
 
-              <div>
-                <p className="mb-4 text-[13px] font-bold uppercase tracking-[0.18em]" style={contrastMutedStyle}>
-                  COMPARATIVO DE PROPOSICOES - PARTIDOS
-                </p>
-                <div className="flex flex-col gap-2">
-                  {(() => {
-                    const maxVal = Math.max(...proposalRankParties.map((p) => p.proposals), 1);
-                    return proposalRankParties.map((party, index) => {
-                      const pct = (party.proposals / maxVal) * 100;
-                      const isSel = party.id === selected.id;
-                      const rankColor =
-                        index === 0
-                          ? "#c41230"
-                        : index === 1
-                            ? "#9a5a00"
-                            : index === 2
-                              ? "#7c2d12"
-                              : index < 6
-                                ? "#9f1239"
-                                : "#003366";
-                      const barColor = isSel ? selected.color : isDark ? "rgba(240,236,228,0.22)" : rankColor;
+            {/* Seletor inline */}
+            <div className="mb-8">
+              <p className="mb-3 text-xs tracking-[0.35em] text-primary" style={{ fontFamily: MONO }}>SELECIONE UM PARTIDO</p>
+              <div className="relative max-w-xl">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>?</span>
+                <input
+                  value={propPartyQuery}
+                  onChange={(e) => { setPropPartyQuery(e.target.value); setShowPropPartyDrop(true); }}
+                  onFocus={() => setShowPropPartyDrop(true)}
+                  placeholder="Nome ou sigla do partido..."
+                  className="w-full border border-border bg-card py-3.5 pl-10 pr-12 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                />
+                {propPartyQuery ? (
+                  <button type="button" onClick={() => { setPropPartyQuery(""); setShowPropPartyDrop(true); }} className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground">x</button>
+                ) : null}
+                {showPropPartyDrop ? (
+                  <div className="absolute left-0 right-0 top-full z-50 max-h-80 overflow-y-auto border border-border" style={{ background: "var(--card)" }}>
+                    {propFilteredParties.length ? (
+                      propFilteredParties.map((party) => (
+                        <button
+                          key={party.id}
+                          type="button"
+                          onClick={() => { setSelectedPartyId(party.id); setPropPartyQuery(party.full); setShowPropPartyDrop(false); }}
+                          className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left transition-colors last:border-0 hover:bg-secondary"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center text-sm font-black" style={{ background: party.color, fontFamily: SERIF, color: "var(--primary-foreground)" }}>
+                            {party.name === "REPUBLICANOS" ? "RP" : party.name === "SOLIDARIEDADE" ? "SD" : party.name}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-bold text-foreground" style={{ fontFamily: SERIF }}>{party.full}</span>
+                            <span className="block text-xs text-muted-foreground" style={{ fontFamily: MONO }}>{party.seats || "-"} deputados · {formatNumber(party.proposals)} proposicoes</span>
+                          </span>
+                          {selected?.id === party.id ? <span className="shrink-0 text-xs text-primary" style={{ fontFamily: MONO }}>SELECIONADO</span> : null}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-4 text-xs text-muted-foreground" style={{ fontFamily: MONO }}>Nenhum partido encontrado.</div>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Opção A — BarChart vertical */}
+            <div className="mb-6 border border-border p-6" style={{ background: "var(--card)" }}>
+              <p className="mb-1 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                COMPARATIVO DE PROPOSIÇÕES — TODOS OS PARTIDOS
+              </p>
+              <p className="mb-1 text-[11px]" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>
+                Total de proposições por partido · partido selecionado destacado · {allProposalParties.length} partidos
+              </p>
+              <p className="mb-4 text-[11px] font-semibold" style={{ fontFamily: MONO, color: RED }}>
+                ← role horizontalmente para ver todos os partidos →
+              </p>
+              {/* scrollable wrapper — scrollbar sempre visível */}
+              <div
+                style={{
+                  overflowX: "scroll",
+                  overflowY: "hidden",
+                  paddingBottom: "12px",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: `${RED} ${isDark ? "rgba(240,236,228,0.10)" : "rgba(0,0,0,0.10)"}`,
+                }}
+              >
+                <BarChart
+                  width={allProposalParties.length * 52 + 68}
+                  height={400}
+                  data={allProposalParties.map((p) => ({ name: p.name, proposals: p.proposals, full: p.full, ideology: p.ideology, isSelected: p.id === selected.id }))}
+                  margin={{ top: 8, right: 16, bottom: 48, left: 16 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "rgba(240,236,228,0.06)" : "rgba(0,0,0,0.06)"} vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 11, fontFamily: MONO }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    angle={-35}
+                    textAnchor="end"
+                    height={56}
+                  />
+                  <YAxis
+                    tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 11, fontFamily: MONO }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={52}
+                    tickFormatter={(v: number) => v.toLocaleString("pt-BR")}
+                  />
+                  <Tooltip
+                    cursor={{ fill: isDark ? "rgba(240,236,228,0.04)" : "rgba(0,0,0,0.04)" }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const d = payload[0]?.payload as { full: string; name: string; proposals: number; ideology: string } | undefined;
+                      if (!d) return null;
                       return (
-                        <div key={party.id} className="flex items-center gap-3">
-                          <span className="w-28 shrink-0 text-right text-xs" style={{ fontFamily: MONO, fontWeight: isSel ? 700 : 500, color: isSel ? selected.color : "var(--muted-foreground)" }}>
-                            {party.name}
-                          </span>
-                          <div
-                            className="relative flex-1"
-                            style={{
-                              background: isDark ? "rgba(240,236,228,0.06)" : "rgba(15,23,42,0.08)",
-                              height: "12px",
-                            }}
-                          >
-                            <div style={{ width: `${pct}%`, height: "100%", background: barColor }} />
-                          </div>
-                          <span className="w-20 shrink-0 text-right text-xs" style={{ fontFamily: MONO, color: isSel ? selected.color : "var(--muted-foreground)" }}>
-                            {formatNumber(party.proposals)}
-                          </span>
+                        <div style={{ background: isDark ? "#141414" : "#fff", border: `1px solid ${IDEOLOGY_COLOR[d.ideology] ?? "#888"}`, padding: "10px 14px", fontFamily: MONO, fontSize: 12 }}>
+                          <p style={{ fontWeight: "bold", color: IDEOLOGY_COLOR[d.ideology] ?? "#888", marginBottom: 4 }}>{d.full} ({d.name})</p>
+                          <p style={{ color: "var(--foreground)" }}>Proposições: <strong>{d.proposals.toLocaleString("pt-BR")}</strong></p>
                         </div>
                       );
-                    });
-                  })()}
-                </div>
+                    }}
+                  />
+                  <Bar dataKey="proposals" radius={[2, 2, 0, 0]}>
+                    {allProposalParties.map((party) => (
+                      <Cell
+                        key={party.id}
+                        fill={party.id === selected.id ? selected.color : IDEOLOGY_COLOR[party.ideology] ?? "#888"}
+                        opacity={party.id === selected.id ? 1 : 0.65}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
               </div>
+              <div className="mt-2 flex flex-wrap gap-4">
+                {(["esquerda", "centro", "direita", "nao classificado"] as const).map((ideo) => (
+                  <div key={ideo} className="flex items-center gap-1.5">
+                    <span className="inline-block h-3 w-3 rounded-full" style={{ background: IDEOLOGY_COLOR[ideo] }} />
+                    <span className="text-[11px] font-semibold uppercase" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>{ideo}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Opção D — Linha: evolução anual de proposições */}
+            <div className="border border-border p-6" style={{ background: "var(--card)" }}>
+              <p className="mb-1 text-[13px] font-bold uppercase tracking-[0.18em]" style={{ fontFamily: MONO, color: "var(--foreground)", opacity: 0.78 }}>
+                EVOLUÇÃO ANUAL DE PROPOSIÇÕES — {selected?.name ?? ""}
+              </p>
+              <p className="mb-5 text-[11px]" style={{ fontFamily: MONO, color: "var(--muted-foreground)" }}>
+                Proposições submetidas por ano · partido selecionado
+              </p>
+              {annualSnapshots.some((s) => s.proposals > 0) ? (
+                <div style={{ height: 340 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={annualSnapshots.filter((s) => s.proposals > 0)} margin={{ top: 16, right: 24, bottom: 48, left: 16 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "rgba(240,236,228,0.06)" : "rgba(0,0,0,0.06)"} />
+                      <XAxis
+                        dataKey="year"
+                        tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 13, fontFamily: MONO, fontWeight: 600 }}
+                        axisLine={false}
+                        tickLine={false}
+                        label={{ value: "Ano", position: "insideBottom", offset: -32, fill: isDark ? "#aaa" : "#555", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
+                      />
+                      <YAxis
+                        tick={{ fill: isDark ? "#c8c4bc" : "#444", fontSize: 12, fontFamily: MONO }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={52}
+                        tickFormatter={(v: number) => v.toLocaleString("pt-BR")}
+                        label={{ value: "Proposições", angle: -90, position: "insideLeft", offset: 12, fill: isDark ? "#aaa" : "#555", fontSize: 12, fontFamily: MONO, fontWeight: 600 }}
+                      />
+                      <Tooltip
+                        contentStyle={{ background: isDark ? "#141414" : "#fff", border: `1px solid ${selected?.color ?? "#888"}`, fontFamily: MONO, fontSize: 12 }}
+                        labelStyle={{ color: "var(--foreground)", fontWeight: "bold", marginBottom: 4 }}
+                        formatter={(v: number) => [v.toLocaleString("pt-BR"), "Proposições"]}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="proposals"
+                        stroke={selected?.color ?? "#c41230"}
+                        strokeWidth={3}
+                        dot={{ r: 6, fill: selected?.color ?? "#c41230", strokeWidth: 0 }}
+                        activeDot={{ r: 9 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="flex h-[340px] items-center justify-center text-xs text-muted-foreground" style={{ fontFamily: MONO }}>
+                  SELECIONE UM PARTIDO PARA VER A EVOLUÇÃO ANUAL
+                </div>
+              )}
             </div>
 
           </section>
@@ -1070,38 +1425,44 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
 
             {partyThemes.length > 0 ? (
               <>
+                {/* Paleta compartilhada — saturada para legibilidade em dark e light */}
+                {(() => {
+                  const PALETTE = ["#c8963a","#3a7cc8","#3aaa6e","#c83a6a","#7c3ac8","#c87c3a","#3aaaa8","#a8a83a","#c85e3a","#5ec83a"];
+                  return null;
+                })()}
+
                 {/* Filtro de tema */}
                 <div className="mb-6">
-                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={contrastMutedStyle}>
+                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                     FILTRAR TEMA
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setSelectedTema(null)}
-                      className="rounded-full border px-3 py-1 text-xs transition-colors"
+                      className="rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors"
                       style={{
                         fontFamily: MONO,
                         borderColor: selectedTema === null ? selected.color : "var(--border)",
                         background: selectedTema === null ? selected.color : "transparent",
-                        color: selectedTema === null ? "#111" : "var(--muted-foreground)",
+                        color: selectedTema === null ? "#fff" : "var(--foreground)",
                       }}
                     >
                       TODOS
                     </button>
                     {partyThemes.map((item, idx) => {
-                      const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
+                      const PALETTE = ["#c8963a","#3a7cc8","#3aaa6e","#c83a6a","#7c3ac8","#c87c3a","#3aaaa8","#a8a83a","#c85e3a","#5ec83a"];
                       const color = PALETTE[idx % PALETTE.length];
                       const isActive = selectedTema === item.tema;
                       return (
                         <button
                           key={item.tema}
                           onClick={() => setSelectedTema(isActive ? null : item.tema)}
-                          className="rounded-full border px-3 py-1 text-xs transition-all"
+                          className="rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all"
                           style={{
                             fontFamily: MONO,
                             borderColor: isActive ? color : "var(--border)",
                             background: isActive ? color : "transparent",
-                            color: isActive ? "#111" : "var(--muted-foreground)",
+                            color: isActive ? "#fff" : "var(--foreground)",
                           }}
                         >
                           {item.tema}
@@ -1113,19 +1474,19 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
 
                 {/* Nuvem de palavras */}
                 <div
-                  className="flex min-h-[280px] flex-wrap items-center justify-center gap-x-8 gap-y-5 border border-border p-10"
+                  className="flex min-h-[300px] flex-wrap items-center justify-center gap-x-8 gap-y-6 border border-border p-10"
                   style={{ background: "var(--card)" }}
                 >
                   {(() => {
-                    const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
+                    const PALETTE = ["#c8963a","#3a7cc8","#3aaa6e","#c83a6a","#7c3ac8","#c87c3a","#3aaaa8","#a8a83a","#c85e3a","#5ec83a"];
                     const maxFreq = partyThemes[0]?.frequencia ?? 1;
                     const minFreq = partyThemes[partyThemes.length - 1]?.frequencia ?? 1;
                     const range = Math.max(maxFreq - minFreq, 1);
                     const visibleThemes = selectedTema ? partyThemes.filter((t) => t.tema === selectedTema) : partyThemes;
-                    return visibleThemes.map((item, idx) => {
+                    return visibleThemes.map((item) => {
                       const norm = (item.frequencia - minFreq) / range;
-                      const size = selectedTema ? 3.2 : 0.85 + norm * 1.8;
-                      const weight = norm > 0.6 ? 800 : norm > 0.3 ? 600 : 500;
+                      const size = selectedTema ? 3.4 : 1.05 + norm * 2.1;
+                      const weight = norm > 0.6 ? 800 : norm > 0.3 ? 700 : 600;
                       const color = PALETTE[partyThemes.indexOf(item) % PALETTE.length];
                       return (
                         <span
@@ -1138,8 +1499,9 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                             fontWeight: weight,
                             fontSize: `${size}rem`,
                             color,
-                            opacity: selectedTema && selectedTema !== item.tema ? 0.15 : 1,
-                            lineHeight: 1.2,
+                            opacity: selectedTema && selectedTema !== item.tema ? 0.2 : 1,
+                            lineHeight: 1.25,
+                            textShadow: isDark ? `0 0 24px ${color}55` : "none",
                           }}
                         >
                           {item.tema}
@@ -1150,15 +1512,15 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                 </div>
 
                 {/* Ranking de barras */}
-                <div className="mt-8 flex flex-col gap-2">
-                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={contrastMutedStyle}>
+                <div className="mt-8 flex flex-col gap-2.5">
+                  <p className="mb-3 text-[13px] font-bold uppercase tracking-[0.22em]" style={{ fontFamily: MONO, color: "var(--foreground)" }}>
                     {selectedTema ? `TEMA SELECIONADO — ${selectedTema.toUpperCase()}` : "TOP TEMAS — PROPOSICOES DISTINTAS"}
                   </p>
                   {(() => {
-                    const PALETTE = ["#e8d5a3","#a3c4e8","#a3e8b5","#e8a3b5","#c4a3e8","#e8c4a3","#a3e8e0","#e8e0a3","#e8b8a3","#b8e8a3"];
+                    const PALETTE = ["#c8963a","#3a7cc8","#3aaa6e","#c83a6a","#7c3ac8","#c87c3a","#3aaaa8","#a8a83a","#c85e3a","#5ec83a"];
                     const list = selectedTema ? partyThemes : partyThemes.slice(0, 12);
                     const maxFreq = list[0]?.frequencia ?? 1;
-                    return list.map((item, idx) => {
+                    return list.map((item) => {
                       const globalIdx = partyThemes.indexOf(item);
                       const color = PALETTE[globalIdx % PALETTE.length];
                       const isActive = !selectedTema || selectedTema === item.tema;
@@ -1169,22 +1531,22 @@ export default function PartidosPage({ onNavigateHome, onNavigateRecortes, onNav
                           onClick={() => setSelectedTema(selectedTema === item.tema ? null : item.tema)}
                         >
                           <span
-                            className="w-64 shrink-0 text-right text-xs"
-                            style={{ fontFamily: MONO, color: isActive ? "var(--foreground)" : "var(--muted-foreground)", fontWeight: isActive ? 600 : 400 }}
+                            className="w-64 shrink-0 text-right text-[13px]"
+                            style={{ fontFamily: MONO, color: isActive ? "var(--foreground)" : "var(--muted-foreground)", fontWeight: isActive ? 700 : 400 }}
                           >
                             {item.tema}
                           </span>
-                          <div className="relative flex-1" style={{ background: "var(--secondary)", height: "10px" }}>
+                          <div className="relative flex-1" style={{ background: isDark ? "rgba(240,236,228,0.08)" : "rgba(0,0,0,0.08)", height: "12px" }}>
                             <div
                               style={{
                                 width: `${(item.frequencia / maxFreq) * 100}%`,
                                 height: "100%",
-                                background: isActive ? color : "var(--secondary)",
+                                background: isActive ? color : "transparent",
                                 transition: "width 0.4s ease",
                               }}
                             />
                           </div>
-                          <span className="w-12 shrink-0 text-xs" style={{ fontFamily: MONO, color: isActive ? color : "#444" }}>
+                          <span className="w-14 shrink-0 text-right text-[13px] font-semibold" style={{ fontFamily: MONO, color: isActive ? color : "var(--muted-foreground)" }}>
                             {formatNumber(item.frequencia)}
                           </span>
                         </div>
