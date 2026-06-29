@@ -92,19 +92,6 @@ http://localhost:8000/api/health
 
 Na raiz do projeto:
 
-```powershell
-cd dashboard\frontend
-
-npm run dev -- --host 0.0.0.0 --port 5173
-```
-
-Para abrir o frontend-v2:
-
-```powershell
-cd dashboard\frontend-v2
-npm run dev -- --host 0.0.0.0 --port 5174
-```
-
 Para abrir o frontend-v3:
 
 ```powershell
