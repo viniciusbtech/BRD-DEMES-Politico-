@@ -2,6 +2,16 @@
 
 Projeto local para padronizar dados da Camara dos Deputados, carregar o PostgreSQL via Docker e servir um dashboard com backend FastAPI e frontend React/Vite.
 
+
+## Fotos
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
+![alt text](image-6.png)
+
 ## Estrutura
 
 - `src/`: ETL em Python para ler os CSVs, padronizar os dados e gerar as respostas.
