@@ -240,7 +240,7 @@ Metodologia principal:
 7. Ordena deputados por percentual, quantidade aprovada e identificadores.
 8. Exporta ranking principal e complemento.
 
-Metodologia complementar de votos:
+Metodologia complementar de votos: GRAFOS 
 
 1. Usa `votacoes_votos.csv` dos dados padronizados.
 2. Mantem apenas votos binarios `Sim` e `Nao`.
