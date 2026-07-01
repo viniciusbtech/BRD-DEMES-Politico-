@@ -42,7 +42,7 @@ questoes/
 
 ## Primeira vez no projeto
 
-Na raiz do projeto, crie o ambiente Python e instale as dependencias:
+Na raiz do projeto, crie o ambiente Python e instale as dependencias do BACKEND:
 
 ```powershell
 python -m venv venv
@@ -52,27 +52,19 @@ python -m venv venv
 
 Instale tambem as dependencias do frontend:
 
-```powershell
-cd dashboard\frontend
-npm install
-cd ..\..
-```
-
 Para trabalhar no `frontend-v3`, instale as dependencias dele separadamente:
-
 ```powershell
 cd dashboard\frontend-v3
 npm install
 cd ..\..
 ```
 
-## Como subir o dashboard
 
-Use 3 terminais separados.
-
-### Terminal 1: banco de dados
+### Como subir banco de dados
 
 Na raiz do projeto:
+Abra o docker desktop
+O banco sobe pela configuracao em `Banco/docker-compose.yml`.
 
 ```powershell
 cd Banco
@@ -80,7 +72,11 @@ docker compose up -d
 cd ..
 ```
 
-O banco sobe pela configuracao em `Banco/docker-compose.yml`.
+
+## Como subir o dashboard/Aplicação 
+
+USe Dois terminais separados pro front e pro backend.
+A etapa de subir o banco no docker é essencial!!
 
 ### Terminal 2: backend
 
@@ -88,8 +84,8 @@ Na raiz do projeto:
 
 ```powershell
 
-
 .\venv\Scripts\python.exe -m uvicorn app.main:app --app-dir dashboard/backend --reload --host 0.0.0.0 --port 8000
+
 ```
 
 Quando estiver rodando, teste no navegador:
@@ -108,12 +104,8 @@ Para abrir o frontend-v3:
 cd dashboard\frontend-v3
 npm run dev
 ```
-
-Acesse os frontends em:
-
+Acessa a aplicão nesse link!!
 ```text
-Frontend original: http://localhost:5173
-Frontend v2:       http://localhost:5174
 Frontend v3:       http://localhost:5175
 ```
 
@@ -142,8 +134,6 @@ make dashboard-dev
 
 ## Enderecos uteis
 
-- Frontend original: `http://localhost:5173`
-- Frontend v2: `http://localhost:5174`
 - Frontend v3: `http://localhost:5175`
 - Saude da API: `http://localhost:8000/api/health`
 - Metadados: `http://localhost:8000/api/meta`
