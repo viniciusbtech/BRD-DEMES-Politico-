@@ -20,17 +20,13 @@
 | Recurso                | Link                                                                                                                                             |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 📦 Repositório         | [github.com/viniciusbtech/Projeto_analise_gastos_publicos_deputados](https://github.com/viniciusbtech/Projeto_analise_gastos_publicos_deputados) |
-| 🌐 Aplicação online    | Não possui deploy público                                                                                                                        |
-| 💻 Aplicação local     | http://localhost:5175                                                                                                                            |
-| ⚙️ API local           | http://localhost:8000                                                                                                                            |
-| 📚 Documentação da API | http://localhost:8000/docs                                                                                                                       |
-| 🎥 Vídeo               | [Adicionar link do vídeo](#-vídeo-do-projeto)                                                                                                    |
+
 
 ---
 
 ## 📖 Introdução
 
-O **BDR — Análise de Gastos Públicos dos Deputados** é um projeto de engenharia, análise e visualização de dados públicos da Câmara dos Deputados.
+O **Quem governa** é um projeto de engenharia, análise e visualização de dados públicos da Câmara dos Deputados.
 
 A aplicação reúne um pipeline ETL desenvolvido em Python, um banco de dados PostgreSQL executado com Docker, consultas analíticas em SQL, uma API construída com FastAPI e um dashboard desenvolvido com React, TypeScript e Vite.
 
@@ -1154,110 +1150,5 @@ Acesse:
 ```text
 http://localhost:4175
 ```
-
-### 18. Encerrar os serviços do banco
-
-Na raiz do projeto:
-
-```bash
-cd Banco
-```
-
-```bash
-docker compose down
-```
-
-```bash
-cd ..
-```
-
-### 19. Apagar o banco e recriar do zero
-
-> Este comando remove os volumes e todos os dados armazenados localmente.
-
-```bash
-cd Banco
-```
-
-```bash
-docker compose down -v
-```
-
-```bash
-docker compose up -d
-```
-
-```bash
-cd ..
-```
-
-Depois, execute novamente:
-
-```bash
-python -m src.main
-```
-
-```bash
-python -m src.export_respostas
-```
-
-### Problemas comuns
-
-#### O frontend abriu, mas não exibe os dados
-
-Confirme se a API está ativa:
-
-```text
-http://localhost:8000/api/health
-```
-
-A resposta esperada é:
-
-```json
-{
-  "status": "ok"
-}
-```
-
-#### O banco não iniciou
-
-Confirme se o Docker está em execução:
-
-```bash
-docker ps
-```
-
-Depois tente novamente:
-
-```bash
-cd Banco
-```
-
-```bash
-docker compose up -d
-```
-
-#### Uma dependência do backend não foi encontrada
-
-```bash
-python -m pip install -r dashboard/backend/requirements.txt
-```
-
-#### A porta do frontend já está ocupada
-
-O frontend-v3 está configurado para utilizar a porta `5175`. Verifique os processos que estão utilizando essa porta ou encerre a execução anterior.
-
-#### A porta do backend já está ocupada
-
-Altere temporariamente a porta:
-
-```bash
-python -m uvicorn app.main:app --app-dir dashboard/backend --reload --port 8001
-```
-
-Nesse caso, também será necessário configurar o frontend para acessar a nova URL da API.
-
-<!-- Comandos e endereços conferidos no README, no Docker Compose, no Makefile e nos scripts do projeto. -->
-
 ---
 
